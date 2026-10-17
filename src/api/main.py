@@ -112,6 +112,38 @@ def crear_app(
         orq: Annotated[Orquestador, Depends(obtener_orquestador)],
     ) -> ConsultaResponse | JSONResponse:
         try:
+            if orq._servicios.configuracion.usar_mock:
+                accion = "informacion"
+                if peticion.parametros is not None:
+                    accion = peticion.parametros.tipo
+                elif peticion.mensaje:
+                    msg = peticion.mensaje.lower()
+                    if "stock" in msg or "disponible" in msg:
+                        accion = "stock"
+                    elif "pag" in msg or "transfer" in msg or "yape" in msg:
+                        accion = "pago"
+                    elif "compatib" in msg or "socket" in msg:
+                        accion = "compatibilidad"
+                    elif "cotiz" in msg or "armar" in msg or "precio" in msg:
+                        accion = "armar"
+
+                ids = {
+                    "armar": "A2",
+                    "cotizar": "A3",
+                    "compatibilidad": "A4",
+                    "stock": "A5",
+                    "pago": "A6",
+                    "pedido": "A7",
+                    "seguimiento": "A8",
+                }
+                if "A1" not in orq._servicios.guiones or not orq._servicios.guiones["A1"]:
+                    orq._servicios.guiones["A1"] = [{"accion": accion, "p": 1.0, "c": 1.0}]
+                dom_id = ids.get(accion)
+                if dom_id and (
+                    dom_id not in orq._servicios.guiones or not orq._servicios.guiones[dom_id]
+                ):
+                    orq._servicios.guiones[dom_id] = [{"accion": accion, "p": 1.0, "c": 1.0}]
+
             solicitud_flujo = peticion.a_solicitud_flujo()
             resultado = orq.consultar(solicitud_flujo)
             return resultado.respuesta
@@ -128,6 +160,7 @@ def crear_app(
                     motivos=["fallo_interno"],
                 ).model_dump(mode="json"),
             )
+
 
     frontend_dir = Path(__file__).resolve().parent.parent.parent / "frontend"
     if (frontend_dir / "index.html").is_file():
