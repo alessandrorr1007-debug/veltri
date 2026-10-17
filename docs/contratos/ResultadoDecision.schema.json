@@ -1,0 +1,105 @@
+{
+  "additionalProperties": false,
+  "description": "Destino verificable: una ruta ejecutar todavía no ejecuta herramientas.",
+  "properties": {
+    "opcion": {
+      "enum": [
+        "informar",
+        "consultar_stock",
+        "cotizar",
+        "validar_compatibilidad",
+        "comparar_pago",
+        "registrar_borrador"
+      ],
+      "title": "Opcion",
+      "type": "string"
+    },
+    "p": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "P",
+      "type": "number"
+    },
+    "c": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "C",
+      "type": "number"
+    },
+    "origen_puntuacion": {
+      "const": "prueba_no_calibrada",
+      "title": "Origen Puntuacion",
+      "type": "string"
+    },
+    "destino": {
+      "enum": [
+        "ejecutar",
+        "revision_humana",
+        "escalar"
+      ],
+      "title": "Destino",
+      "type": "string"
+    },
+    "hitl_requerido": {
+      "title": "Hitl Requerido",
+      "type": "boolean"
+    },
+    "bloqueos": {
+      "items": {
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+        "type": "string"
+      },
+      "title": "Bloqueos",
+      "type": "array"
+    },
+    "motivos": {
+      "items": {
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Motivos",
+      "type": "array"
+    },
+    "fuentes": {
+      "items": {
+        "enum": [
+          "data/catalogo.json",
+          "data/compatibilidad.json",
+          "data/politicas.md"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Fuentes",
+      "type": "array"
+    },
+    "hash_evidencia": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Hash Evidencia",
+      "type": "string"
+    },
+    "accion_ejecutada": {
+      "const": false,
+      "default": false,
+      "title": "Accion Ejecutada",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "opcion",
+    "p",
+    "c",
+    "origen_puntuacion",
+    "destino",
+    "hitl_requerido",
+    "bloqueos",
+    "motivos",
+    "fuentes",
+    "hash_evidencia"
+  ],
+  "title": "ResultadoDecision",
+  "type": "object"
+}

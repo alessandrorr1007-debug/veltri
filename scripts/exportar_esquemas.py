@@ -8,12 +8,18 @@ RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
 from src.schemas.consulta import ConsultaResponse, ErrorValidacion  # noqa: E402
+from src.schemas.decision import ResultadoDecision, SolicitudDecision  # noqa: E402
 from src.schemas.entradas import (  # noqa: E402
     ArmadoRequest,
     ComparacionPagoRequest,
     ConsultaRequest,
     CotizacionRequest,
     PedidoDemoRequest,
+)
+from src.schemas.hitl import (  # noqa: E402
+    ResolucionRevision,
+    ResultadoEncolado,
+    Revision,
 )
 from src.schemas.resultados import (  # noqa: E402
     ResultadoArmado,
@@ -32,7 +38,8 @@ def main() -> None:
     modelos = [ConsultaRequest, ConsultaResponse, CotizacionRequest, ArmadoRequest,
                ComparacionPagoRequest, PedidoDemoRequest, ResultadoCotizacion,
                ResultadoArmado, ResultadoStock, ResultadoTecnico, ResultadoPago,
-               ResultadoPedido, ErrorValidacion]
+               ResultadoPedido, ErrorValidacion, SolicitudDecision, ResultadoDecision,
+               ResolucionRevision, Revision, ResultadoEncolado]
     for modelo in modelos:
         ruta = destino / f"{modelo.__name__}.schema.json"
         ruta.write_text(json.dumps(modelo.model_json_schema(), indent=2, ensure_ascii=False)

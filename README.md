@@ -4,7 +4,7 @@ Sistema previsto para cotizar PCs en soles, validar compatibilidad y stock,
 conciliar pagos y registrar pedidos con revisión humana.
 
 ## Estado y problema
-FASES 1, 2, 3 y 4 completadas: datos sintéticos y herramientas deterministas para evitar referencias
+FASES 1, 2, 3, 4 y 5 completadas: datos sintéticos y herramientas deterministas para evitar referencias
 rotas, montos inválidos y ventas de productos agotados. Las herramientas operan solo en demostración; los flujos integrados siguen pendientes.
 La plantilla conserva su acceso al modelo sin uso.
 
@@ -86,3 +86,11 @@ python -m src.knowledge.ingesta --tenant veltri_tecnologic_pe
 ```
 El índice chroma_db/ es local y está excluido de Git. La recuperación no autoriza
 ventas ni reemplaza el stock de las herramientas. Aún no hay RAG generativo.
+
+## Avance FASE 5
+Compuerta tipada y bandeja de revisión local en src/core/decision.py y
+src/core/hitl.py, con umbrales protegidos. Los bloqueos de negocio tienen
+prioridad sobre puntuaciones sintéticas; ninguna resolución ejecuta una venta.
+Contratos y límites en docs/decision_hitl.md. Sin nuevas dependencias.
+`python -m pytest tests/test_decision_hitl.py -q` verifica esta fase.
+La bandeja no autentica revisores ni persiste entre reinicios; no hay grafo ni API.

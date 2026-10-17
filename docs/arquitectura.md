@@ -81,3 +81,23 @@ flowchart LR
 
 La autorización del tenant y el filtro anti injection conversacional siguen
 pendientes del backend. Guardas y límites: docs/conocimiento.md.
+
+## Estado tras FASE 5
+Compuerta y bandeja local implementadas sobre resultados estructurados. El diseño
+inicial sigue siendo futuro para agentes, grafo, filtro conversacional y API.
+
+```mermaid
+flowchart LR
+    T[Resultados tipados de herramientas] --> E[Evidencia de decisión]
+    P[Puntajes sintéticos p y c] --> E
+    E --> D[Compuerta con umbrales protegidos]
+    D -->|sin bloqueos y p alto| R[Ruta propuesta sin ejecutar negocio]
+    D -->|bloqueos o zona intermedia| H[Revisión por tenant]
+    D -->|p bajo sin bloqueos| X[Escalada local]
+    X --> H
+    H --> C[Solicitar corrección o rechazar]
+    H -->|sin bloqueos| A[Aprobación de demo sin ejecución]
+```
+
+Bandeja en memoria con resoluciones idempotentes; no sustituye autenticación ni
+un registro de auditoría durable. Contratos y supuestos: docs/decision_hitl.md.

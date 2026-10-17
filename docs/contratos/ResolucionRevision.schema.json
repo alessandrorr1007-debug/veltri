@@ -1,0 +1,36 @@
+{
+  "additionalProperties": false,
+  "description": "Operador sintético y motivos enumerados; no admite comentarios con PII.",
+  "properties": {
+    "accion": {
+      "enum": [
+        "aprobar_demo",
+        "rechazar",
+        "solicitar_correccion"
+      ],
+      "title": "Accion",
+      "type": "string"
+    },
+    "revisor": {
+      "pattern": "^demo_[a-z]{1,32}$",
+      "title": "Revisor",
+      "type": "string"
+    },
+    "motivo": {
+      "enum": [
+        "informacion_verificada",
+        "revision_rechazada",
+        "requiere_correccion"
+      ],
+      "title": "Motivo",
+      "type": "string"
+    }
+  },
+  "required": [
+    "accion",
+    "revisor",
+    "motivo"
+  ],
+  "title": "ResolucionRevision",
+  "type": "object"
+}
