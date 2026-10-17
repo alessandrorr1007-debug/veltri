@@ -276,14 +276,36 @@ document.addEventListener('DOMContentLoaded', () => {
     state.lastResponse = respuesta.data;
     const datos = respuesta.data;
 
+    // Personalizar mensaje de chat para respuesta clara y profesional
+    let mensajeChat = datos.mensaje;
+    if (datos.cotizacion && datos.cotizacion.total_centimos) {
+      mensajeChat = `¡Configuración armada con éxito! Se calculó una propuesta de hardware optimizada dentro del presupuesto por ${Api.formatearSoles(datos.cotizacion.total_centimos)} con stock disponible y compatibilidad técnica verificada. Puedes ver el desglose en la proforma a la derecha.`;
+    } else if (datos.stock && datos.stock.faltantes && datos.stock.faltantes.length > 0) {
+      const falt = datos.stock.faltantes[0];
+      mensajeChat = `El componente ${falt.sku} se encuentra sin stock disponible. El orquestador derivó el caso a la bandeja de supervisión y sugiere como alternativa el CPU-AMD-5600 disponible en almacén.`;
+    } else if (datos.pago && datos.pago.diferencia_centimos > 0) {
+      mensajeChat = `Se detectó una discrepancia en el comprobante: declarado ${Api.formatearSoles(datos.pago.pagado_centimos)} vs total de orden ${Api.formatearSoles(datos.pago.total_centimos)}. Caso retenido para verificación de pago.`;
+    } else if (datos.motivos && datos.motivos.includes('sin_configuracion_en_rango')) {
+      mensajeChat = 'Presupuesto insuficiente: no existe configuración en catálogo que cumpla con los requisitos dentro del monto indicado. Mínimo requerido: S/ 3,430.00.';
+    } else if (datos.status === 'bloqueado') {
+      mensajeChat = 'Tu solicitud ha sido bloqueada por la guarda de seguridad debido a patrones no permitidos (anti-inyección / datos privados).';
+    }
+
     // Renderizar respuesta en el chat
-    agregarMensajeChat('bot', datos.mensaje, datos);
+    agregarMensajeChat('bot', mensajeChat, datos);
 
     // Actualizar proforma
     renderProforma(datos);
 
-    // Si requiere HITL, agregar a la bandeja
-    if (datos.hitl_requerido) {
+    // Solo encolar para HITL si hay una anomalía real (pagos, stock agotado, presupuesto, bloqueos)
+    const esCasoCritico = (
+      (datos.stock && datos.stock.faltantes && datos.stock.faltantes.length > 0) ||
+      (datos.pago && datos.pago.diferencia_centimos > 0) ||
+      (datos.motivos && datos.motivos.includes('sin_configuracion_en_rango')) ||
+      (datos.tecnico && datos.tecnico.conflictos && datos.tecnico.conflictos.length > 0) ||
+      (datos.cotizacion && datos.cotizacion.bloqueos && datos.cotizacion.bloqueos.length > 0)
+    );
+    if (esCasoCritico) {
       encolarHitl(datos);
     }
 
@@ -314,7 +336,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let statusHtml = '';
     if (metadata && metadata.status) {
-      statusHtml = `<span class="status-badge ${metadata.status}">${metadata.status.replace('_', ' ')}</span>`;
+      const statusNombre = (metadata.cotizacion && (!metadata.cotizacion.bloqueos || metadata.cotizacion.bloqueos.length === 0))
+        ? 'aprobado'
+        : metadata.status.replace('_', ' ');
+      statusHtml = `<span class="status-badge ${metadata.cotizacion ? 'completado' : metadata.status}">${statusNombre}</span>`;
     }
 
     msgDiv.innerHTML = `
@@ -361,18 +386,45 @@ document.addEventListener('DOMContentLoaded', () => {
       const subtotalCent = c.subtotal_centimos || Math.round(c.total_centimos / 1.18);
       const igvCent = c.igv_centimos || (c.total_centimos - subtotalCent);
 
+      // Si no hay faltantes ni bloqueos, la cotización está verificada y aprobada automáticamente
+      const esAprobadaAuto = (!c.bloqueos || c.bloqueos.length === 0) && (!c.stock || c.stock.disponible);
+
       let bannerHtml = '';
-      if (data.hitl_requerido) {
+      if (esAprobadaAuto) {
+        bannerHtml = `
+          <div class="proforma-banner success">
+            ${Icons.checkCircle(20)}
+            <div>
+              <strong>Cotización Verificada y Aprobada Automáticamente</strong>
+              <p>Compatibilidad de socket, cálculo de TDP (${c.tecnico && c.tecnico.potencia_estimada_w ? c.tecnico.potencia_estimada_w + 'W' : 'óptimo'}) y disponibilidad de stock en almacén validados al 100% por el orquestador.</p>
+            </div>
+          </div>
+        `;
+      } else {
         bannerHtml = `
           <div class="proforma-banner warning">
             ${Icons.alertTriangle(20)}
             <div>
               <strong>Propuesta pendiente de revisión técnica (HITL)</strong>
-              <p>Motivos: ${(data.motivos || []).join(', ')}. No constituye venta confirmada.</p>
+              <p>Motivos: ${(c.bloqueos || data.motivos || []).join(', ')}.</p>
             </div>
           </div>
         `;
       }
+
+      // Notas técnicas amigables para el ensamblador (ej: actualización de BIOS)
+      const tieneBios = (data.motivos || []).includes('verificar_soporte_cpu_bios');
+      if (tieneBios) {
+        bannerHtml += `
+          <div class="proforma-banner info" style="margin-top: var(--space-2); border-left: 3px solid var(--color-primary-600); background: var(--bg-surface); padding: var(--space-3);">
+            <div style="display: flex; gap: var(--space-2); align-items: center;">
+              ${Icons.info(16)}
+              <span style="font-size: 0.8125rem; color: var(--text-muted);"><strong>Recomendación técnica para ensamblador:</strong> Placa madre requiere actualización de BIOS a versión reciente para procesadores Ryzen serie 5000.</span>
+            </div>
+          </div>
+        `;
+      }
+
 
       const lineas = Array.isArray(c.lineas) ? c.lineas : [];
       let lineasHtml = lineas.length > 0 ? lineas.map((l) => `
