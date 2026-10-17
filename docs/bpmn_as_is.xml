@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_Veltri_AS_IS"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  exporter="Camunda Modeler / Veltri BPMN Engine"
+                  exporterVersion="5.0.0">
+
+  <!-- Colaboración: Participantes (Pools) -->
+  <bpmn:collaboration id="Collaboration_Veltri_AS_IS">
+    <bpmn:participant id="Participant_Cliente" name="Cliente Final" processRef="Process_Cliente" />
+    <bpmn:participant id="Participant_Veltri_Manual" name="Tienda Veltri Tecnologic (Operación Tradicional Manual)" processRef="Process_Veltri_Manual" />
+    <bpmn:messageFlow id="Flow_Msg_1" name="Solicitud de PC / Componentes" sourceRef="Participant_Cliente" targetRef="StartEvent_Solicitud" />
+    <bpmn:messageFlow id="Flow_Msg_2" name="Envío de proforma en PDF/texto" sourceRef="Task_Enviar_Proforma" targetRef="Participant_Cliente" />
+    <bpmn:messageFlow id="Flow_Msg_3" name="Comprobante de pago (Yape/Depósito)" sourceRef="Participant_Cliente" targetRef="Task_Verificar_Pago" />
+  </bpmn:collaboration>
+
+  <!-- Proceso Cliente (Caja Negra) -->
+  <bpmn:process id="Process_Cliente" isExecutable="false" />
+
+  <!-- Proceso Veltri Operación Manual -->
+  <bpmn:process id="Process_Veltri_Manual" name="Proceso de Cotización y Venta Manual (AS-IS)" isExecutable="false">
+    
+    <!-- Lanes / Carriles de Roles -->
+    <bpmn:laneSet id="LaneSet_Veltri">
+      <bpmn:lane id="Lane_Ventas" name="Asesor de Ventas (WhatsApp / Mostrador)">
+        <bpmn:flowNodeRef>StartEvent_Solicitud</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Recibir_Solicitud</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Buscar_Precios_Excel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Stock</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Redactar_Proforma</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Enviar_Proforma</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Cancelado_Stock</bpmn:flowNodeRef>
+      </bpmn:lane>
+      
+      <bpmn:lane id="Lane_Almacen" name="Encargado de Almacén">
+        <bpmn:flowNodeRef>Task_Verificar_Stock_Fisico</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Tecnico" name="Técnico Ensamblador">
+        <bpmn:flowNodeRef>Task_Validar_Compatibilidad_Manual</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Compatibilidad</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Ensamblar_Equipo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Pedido_Despachado</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Administracion" name="Cajero / Administración">
+        <bpmn:flowNodeRef>Task_Verificar_Pago</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Pago</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Registrar_Pedido_Cuaderno</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Fraude_Pago</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <!-- Evento de Inicio -->
+    <bpmn:startEvent id="StartEvent_Solicitud" name="Consulta recibida">
+      <bpmn:outgoing>Seq_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- Tareas de Ventas -->
+    <bpmn:userTask id="Task_Recibir_Solicitud" name="Tipificar requerimiento y presupuesto">
+      <bpmn:incoming>Seq_1</bpmn:incoming>
+      <bpmn:incoming>Seq_Incompatible_Loop</bpmn:incoming>
+      <bpmn:outgoing>Seq_2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_Buscar_Precios_Excel" name="Consultar precios en Excel desactualizado">
+      <bpmn:incoming>Seq_2</bpmn:incoming>
+      <bpmn:outgoing>Seq_3</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Tarea de Almacén -->
+    <bpmn:userTask id="Task_Verificar_Stock_Fisico" name="Consultar stock físico en almacén">
+      <bpmn:incoming>Seq_3</bpmn:incoming>
+      <bpmn:outgoing>Seq_4</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Compuerta Stock -->
+    <bpmn:exclusiveGateway id="Gateway_Stock" name="¿Piezas disponibles?">
+      <bpmn:incoming>Seq_4</bpmn:incoming>
+      <bpmn:outgoing>Seq_Stock_Si</bpmn:outgoing>
+      <bpmn:outgoing>Seq_Stock_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_Cancelado_Stock" name="Venta perdida por falta de stock">
+      <bpmn:incoming>Seq_Stock_No</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Tarea Técnico: Compatibilidad -->
+    <bpmn:userTask id="Task_Validar_Compatibilidad_Manual" name="Verificar socket y fuente en Google/manuales">
+      <bpmn:incoming>Seq_Stock_Si</bpmn:incoming>
+      <bpmn:outgoing>Seq_5</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_Compatibilidad" name="¿Componentes compatibles?">
+      <bpmn:incoming>Seq_5</bpmn:incoming>
+      <bpmn:outgoing>Seq_Compat_Si</bpmn:outgoing>
+      <bpmn:outgoing>Seq_Incompatible_Loop</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Tarea Ventas: Proforma -->
+    <bpmn:userTask id="Task_Redactar_Proforma" name="Calcular a mano IGV y redactar proforma">
+      <bpmn:incoming>Seq_Compat_Si</bpmn:incoming>
+      <bpmn:outgoing>Seq_6</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:sendTask id="Task_Enviar_Proforma" name="Enviar cotización al cliente">
+      <bpmn:incoming>Seq_6</bpmn:incoming>
+      <bpmn:outgoing>Seq_7</bpmn:outgoing>
+    </bpmn:sendTask>
+
+    <!-- Tareas de Administración: Pagos -->
+    <bpmn:userTask id="Task_Verificar_Pago" name="Revisar captura de Yape/Banco en app móvil">
+      <bpmn:incoming>Seq_7</bpmn:incoming>
+      <bpmn:outgoing>Seq_8</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_Pago" name="¿Monto exacto y acreditado?">
+      <bpmn:incoming>Seq_8</bpmn:incoming>
+      <bpmn:outgoing>Seq_Pago_Si</bpmn:outgoing>
+      <bpmn:outgoing>Seq_Pago_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="EndEvent_Fraude_Pago" name="Cancelado por discrepancia de pago">
+      <bpmn:incoming>Seq_Pago_No</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="Task_Registrar_Pedido_Cuaderno" name="Registrar pedido en cuaderno contable">
+      <bpmn:incoming>Seq_Pago_Si</bpmn:incoming>
+      <bpmn:outgoing>Seq_9</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Tarea Técnico: Ensamble -->
+    <bpmn:userTask id="Task_Ensamblar_Equipo" name="Separar piezas físicas y ensamblar PC">
+      <bpmn:incoming>Seq_9</bpmn:incoming>
+      <bpmn:outgoing>Seq_10</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:endEvent id="EndEvent_Pedido_Despachado" name="PC despachada al cliente">
+      <bpmn:incoming>Seq_10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Secuencias de Flujo -->
+    <bpmn:sequenceFlow id="Seq_1" sourceRef="StartEvent_Solicitud" targetRef="Task_Recibir_Solicitud" />
+    <bpmn:sequenceFlow id="Seq_2" sourceRef="Task_Recibir_Solicitud" targetRef="Task_Buscar_Precios_Excel" />
+    <bpmn:sequenceFlow id="Seq_3" sourceRef="Task_Buscar_Precios_Excel" targetRef="Task_Verificar_Stock_Fisico" />
+    <bpmn:sequenceFlow id="Seq_4" sourceRef="Task_Verificar_Stock_Fisico" targetRef="Gateway_Stock" />
+    <bpmn:sequenceFlow id="Seq_Stock_Si" name="Sí hay stock" sourceRef="Gateway_Stock" targetRef="Task_Validar_Compatibilidad_Manual" />
+    <bpmn:sequenceFlow id="Seq_Stock_No" name="Agotado" sourceRef="Gateway_Stock" targetRef="EndEvent_Cancelado_Stock" />
+    <bpmn:sequenceFlow id="Seq_5" sourceRef="Task_Validar_Compatibilidad_Manual" targetRef="Gateway_Compatibilidad" />
+    <bpmn:sequenceFlow id="Seq_Compat_Si" name="Compatible" sourceRef="Gateway_Compatibilidad" targetRef="Task_Redactar_Proforma" />
+    <bpmn:sequenceFlow id="Seq_Incompatible_Loop" name="Conflicto de piezas" sourceRef="Gateway_Compatibilidad" targetRef="Task_Recibir_Solicitud" />
+    <bpmn:sequenceFlow id="Seq_6" sourceRef="Task_Redactar_Proforma" targetRef="Task_Enviar_Proforma" />
+    <bpmn:sequenceFlow id="Seq_7" sourceRef="Task_Enviar_Proforma" targetRef="Task_Verificar_Pago" />
+    <bpmn:sequenceFlow id="Seq_8" sourceRef="Task_Verificar_Pago" targetRef="Gateway_Pago" />
+    <bpmn:sequenceFlow id="Seq_Pago_Si" name="Pago conforme" sourceRef="Gateway_Pago" targetRef="Task_Registrar_Pedido_Cuaderno" />
+    <bpmn:sequenceFlow id="Seq_Pago_No" name="Discrepancia" sourceRef="Gateway_Pago" targetRef="EndEvent_Fraude_Pago" />
+    <bpmn:sequenceFlow id="Seq_9" sourceRef="Task_Registrar_Pedido_Cuaderno" targetRef="Task_Ensamblar_Equipo" />
+    <bpmn:sequenceFlow id="Seq_10" sourceRef="Task_Ensamblar_Equipo" targetRef="EndEvent_Pedido_Despachado" />
+
+  </bpmn:process>
+
+  <!-- Diagramación Gráfica BPMN 2.0 (DI) -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_Veltri_AS_IS">
+      
+      <!-- Pool Cliente -->
+      <bpmndi:BPMNShape id="Participant_Cliente_di" bpmnElement="Participant_Cliente" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1380" height="90" />
+      </bpmndi:BPMNShape>
+
+      <!-- Pool Veltri Manual -->
+      <bpmndi:BPMNShape id="Participant_Veltri_Manual_di" bpmnElement="Participant_Veltri_Manual" isHorizontal="true">
+        <dc:Bounds x="160" y="220" width="1380" height="640" />
+      </bpmndi:BPMNShape>
+
+      <!-- Lanes -->
+      <bpmndi:BPMNShape id="Lane_Ventas_di" bpmnElement="Lane_Ventas" isHorizontal="true">
+        <dc:Bounds x="190" y="220" width="1350" height="170" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Lane_Almacen_di" bpmnElement="Lane_Almacen" isHorizontal="true">
+        <dc:Bounds x="190" y="390" width="1350" height="140" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Lane_Tecnico_di" bpmnElement="Lane_Tecnico" isHorizontal="true">
+        <dc:Bounds x="190" y="530" width="1350" height="160" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Lane_Administracion_di" bpmnElement="Lane_Administracion" isHorizontal="true">
+        <dc:Bounds x="190" y="690" width="1350" height="170" />
+      </bpmndi:BPMNShape>
+
+      <!-- Shapes de Elementos -->
+      <bpmndi:BPMNShape id="StartEvent_Solicitud_di" bpmnElement="StartEvent_Solicitud">
+        <dc:Bounds x="232" y="282" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="207" y="325" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Recibir_Solicitud_di" bpmnElement="Task_Recibir_Solicitud">
+        <dc:Bounds x="310" y="260" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Buscar_Precios_Excel_di" bpmnElement="Task_Buscar_Precios_Excel">
+        <dc:Bounds x="470" y="260" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Verificar_Stock_Fisico_di" bpmnElement="Task_Verificar_Stock_Fisico">
+        <dc:Bounds x="470" y="420" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Stock_di" bpmnElement="Gateway_Stock" isMarkerVisible="true">
+        <dc:Bounds x="645" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="638" y="245" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_Cancelado_Stock_di" bpmnElement="EndEvent_Cancelado_Stock">
+        <dc:Bounds x="762" y="282" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="742" y="325" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Validar_Compatibilidad_Manual_di" bpmnElement="Task_Validar_Compatibilidad_Manual">
+        <dc:Bounds x="610" y="570" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Compatibilidad_di" bpmnElement="Gateway_Compatibilidad" isMarkerVisible="true">
+        <dc:Bounds x="775" y="585" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="763" y="642" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Redactar_Proforma_di" bpmnElement="Task_Redactar_Proforma">
+        <dc:Bounds x="870" y="260" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Enviar_Proforma_di" bpmnElement="Task_Enviar_Proforma">
+        <dc:Bounds x="1030" y="260" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Verificar_Pago_di" bpmnElement="Task_Verificar_Pago">
+        <dc:Bounds x="1030" y="730" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Pago_di" bpmnElement="Gateway_Pago" isMarkerVisible="true">
+        <dc:Bounds x="1195" y="745" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1182" y="715" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_Fraude_Pago_di" bpmnElement="EndEvent_Fraude_Pago">
+        <dc:Bounds x="1312" y="802" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1292" y="845" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Registrar_Pedido_Cuaderno_di" bpmnElement="Task_Registrar_Pedido_Cuaderno">
+        <dc:Bounds x="1290" y="730" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Ensamblar_Equipo_di" bpmnElement="Task_Ensamblar_Equipo">
+        <dc:Bounds x="1290" y="570" width="120" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_Pedido_Despachado_di" bpmnElement="EndEvent_Pedido_Despachado">
+        <dc:Bounds x="1462" y="592" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1440" y="635" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Edges / Conexiones -->
+      <bpmndi:BPMNEdge id="Seq_1_di" bpmnElement="Seq_1">
+        <di:waypoint x="268" y="300" />
+        <di:waypoint x="310" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_2_di" bpmnElement="Seq_2">
+        <di:waypoint x="430" y="300" />
+        <di:waypoint x="470" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_3_di" bpmnElement="Seq_3">
+        <di:waypoint x="530" y="340" />
+        <di:waypoint x="530" y="420" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_4_di" bpmnElement="Seq_4">
+        <di:waypoint x="590" y="460" />
+        <di:waypoint x="670" y="460" />
+        <di:waypoint x="670" y="325" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_Stock_Si_di" bpmnElement="Seq_Stock_Si">
+        <di:waypoint x="670" y="325" />
+        <di:waypoint x="670" y="570" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="674" y="343" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_Stock_No_di" bpmnElement="Seq_Stock_No">
+        <di:waypoint x="695" y="300" />
+        <di:waypoint x="762" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="708" y="282" width="42" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_5_di" bpmnElement="Seq_5">
+        <di:waypoint x="730" y="610" />
+        <di:waypoint x="775" y="610" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_Compat_Si_di" bpmnElement="Seq_Compat_Si">
+        <di:waypoint x="825" y="610" />
+        <di:waypoint x="930" y="610" />
+        <di:waypoint x="930" y="340" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="847" y="592" width="57" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_Incompatible_Loop_di" bpmnElement="Seq_Incompatible_Loop">
+        <di:waypoint x="800" y="585" />
+        <di:waypoint x="800" y="240" />
+        <di:waypoint x="370" y="240" />
+        <di:waypoint x="370" y="260" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="550" y="222" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_6_di" bpmnElement="Seq_6">
+        <di:waypoint x="990" y="300" />
+        <di:waypoint x="1030" y="300" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_7_di" bpmnElement="Seq_7">
+        <di:waypoint x="1090" y="340" />
+        <di:waypoint x="1090" y="730" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_8_di" bpmnElement="Seq_8">
+        <di:waypoint x="1150" y="770" />
+        <di:waypoint x="1195" y="770" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_Pago_Si_di" bpmnElement="Seq_Pago_Si">
+        <di:waypoint x="1245" y="770" />
+        <di:waypoint x="1290" y="770" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1232" y="752" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_Pago_No_di" bpmnElement="Seq_Pago_No">
+        <di:waypoint x="1220" y="795" />
+        <di:waypoint x="1220" y="820" />
+        <di:waypoint x="1312" y="820" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1231" y="802" width="65" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_9_di" bpmnElement="Seq_9">
+        <di:waypoint x="1350" y="730" />
+        <di:waypoint x="1350" y="650" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Seq_10_di" bpmnElement="Seq_10">
+        <di:waypoint x="1410" y="610" />
+        <di:waypoint x="1462" y="610" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Message Flows -->
+      <bpmndi:BPMNEdge id="Flow_Msg_1_di" bpmnElement="Flow_Msg_1">
+        <di:waypoint x="250" y="170" />
+        <di:waypoint x="250" y="282" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="261" y="186" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Msg_2_di" bpmnElement="Flow_Msg_2">
+        <di:waypoint x="1090" y="260" />
+        <di:waypoint x="1090" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1100" y="186" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Msg_3_di" bpmnElement="Flow_Msg_3">
+        <di:waypoint x="1110" y="170" />
+        <di:waypoint x="1110" y="730" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1120" y="186" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

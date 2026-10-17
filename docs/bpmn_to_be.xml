@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_Veltri_TO_BE"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  exporter="Camunda Modeler / Veltri BPMN Engine"
+                  exporterVersion="5.0.0">
+
+  <!-- Colaboración: Pools y Flujos de Mensajes -->
+  <bpmn:collaboration id="Collaboration_Veltri_TO_BE">
+    <bpmn:participant id="Participant_Cliente_TO_BE" name="Cliente Web / Consola Comercial" processRef="Process_Cliente_TO_BE" />
+    <bpmn:participant id="Participant_Veltri_Sistema" name="Sistema Multiagente Veltri Tecnologic (LangGraph + HITL)" processRef="Process_Veltri_TO_BE" />
+    <bpmn:messageFlow id="MsgFlow_1" name="Consulta Web (POST /consulta)" sourceRef="Participant_Cliente_TO_BE" targetRef="StartEvent_Consulta_Entrante" />
+    <bpmn:messageFlow id="MsgFlow_2" name="Contrato ConsultaResponse JSON" sourceRef="Task_Proyectar_ConsultaResponse" targetRef="Participant_Cliente_TO_BE" />
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_Cliente_TO_BE" isExecutable="false" />
+
+  <!-- Proceso Principal Veltri Multiagente -->
+  <bpmn:process id="Process_Veltri_TO_BE" name="Proceso Multiagente Inteligente (TO-BE)" isExecutable="true">
+    
+    <bpmn:laneSet id="LaneSet_TO_BE">
+      <bpmn:lane id="Lane_Seguridad" name="Guarda de Seguridad Previa (Anti-Inyección)">
+        <bpmn:flowNodeRef>StartEvent_Consulta_Entrante</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Filtro_Seguridad</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Seguridad</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Registrar_DLQ</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Bloqueo_Seguridad</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Orquestador_Cognitivo" name="Orquestador LangGraph &amp; Agentes (D1 a D4)">
+        <bpmn:flowNodeRef>Task_A1_Interpretacion</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Enrutador_Dominio</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Proyectar_ConsultaResponse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Exitoso</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Herramientas_Deterministas" name="Herramientas Deterministas en Código (src/tools/)">
+        <bpmn:flowNodeRef>Task_A2_Armador_Presupuesto</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_A4_Compatibilidad_TDP</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_A5_Stock_Inventario</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_A3_Cotizacion_Formal</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_A6_Conciliar_Pago</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_A7_Idempotencia_SHA256</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_RAG_Conocimiento" name="Almacén RAG (Aislamiento por Tenant)">
+        <bpmn:flowNodeRef>Task_RAG_Recuperar_Politicas</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Gobernanza_HITL" name="Capa de Decisión &amp; Supervisión HITL (src/core/)">
+        <bpmn:flowNodeRef>Task_Compuerta_Decide</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_HITL</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Supervisar_HITL_Humano</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Retenido_HITL</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <!-- Evento de Inicio -->
+    <bpmn:startEvent id="StartEvent_Consulta_Entrante" name="Petición API recibida">
+      <bpmn:outgoing>Flow_S1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- Seguridad Previa -->
+    <bpmn:serviceTask id="Task_Filtro_Seguridad" name="Filtrar inyección de prompt y sanitizar PII">
+      <bpmn:incoming>Flow_S1</bpmn:incoming>
+      <bpmn:outgoing>Flow_S2</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:exclusiveGateway id="Gateway_Seguridad" name="¿Entrada segura?">
+      <bpmn:incoming>Flow_S2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Segura_Si</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Segura_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:serviceTask id="Task_Registrar_DLQ" name="Archivar en Dead Letter Queue (DLQ local)">
+      <bpmn:incoming>Flow_Segura_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_DLQ_End</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="EndEvent_Bloqueo_Seguridad" name="Solicitud bloqueada (Status: bloqueado)">
+      <bpmn:incoming>Flow_DLQ_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- A1 Interpretación -->
+    <bpmn:businessRuleTask id="Task_A1_Interpretacion" name="A1: Clasificar intención tipada (Pydantic)">
+      <bpmn:incoming>Flow_Segura_Si</bpmn:incoming>
+      <bpmn:outgoing>Flow_A1_Out</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:inclusiveGateway id="Gateway_Enrutador_Dominio" name="Enrutamiento por Intención">
+      <bpmn:incoming>Flow_A1_Out</bpmn:incoming>
+      <bpmn:outgoing>Flow_To_Armar</bpmn:outgoing>
+      <bpmn:outgoing>Flow_To_RAG</bpmn:outgoing>
+      <bpmn:outgoing>Flow_To_Pago</bpmn:outgoing>
+      <bpmn:outgoing>Flow_To_Pedido</bpmn:outgoing>
+    </bpmn:inclusiveGateway>
+
+    <!-- Dominio Ventas y Técnico (En código determinista) -->
+    <bpmn:serviceTask id="Task_A2_Armador_Presupuesto" name="A2 &amp; armador.py: Búsqueda óptima en Soles (S/)">
+      <bpmn:incoming>Flow_To_Armar</bpmn:incoming>
+      <bpmn:outgoing>Flow_Arm_HW</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:businessRuleTask id="Task_A4_Compatibilidad_TDP" name="A4 &amp; hardware.py: Reglas de socket, TDP y holgura">
+      <bpmn:incoming>Flow_Arm_HW</bpmn:incoming>
+      <bpmn:outgoing>Flow_HW_Stock</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:serviceTask id="Task_A5_Stock_Inventario" name="A5 &amp; inventario.py: Verificar stock exacto">
+      <bpmn:incoming>Flow_HW_Stock</bpmn:incoming>
+      <bpmn:outgoing>Flow_Stock_Cot</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="Task_A3_Cotizacion_Formal" name="A3 &amp; cotizacion.py: Aritmética formal con IGV (18%)">
+      <bpmn:incoming>Flow_Stock_Cot</bpmn:incoming>
+      <bpmn:outgoing>Flow_To_Decide_Cot</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- Dominio Pagos y Pedidos -->
+    <bpmn:serviceTask id="Task_A6_Conciliar_Pago" name="A6 &amp; pagos.py: Conciliar monto vs orden al céntimo">
+      <bpmn:incoming>Flow_To_Pago</bpmn:incoming>
+      <bpmn:outgoing>Flow_To_Decide_Pago</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="Task_A7_Idempotencia_SHA256" name="A7 &amp; pedidos.py: Generar hash SHA-256 idempotente">
+      <bpmn:incoming>Flow_To_Pedido</bpmn:incoming>
+      <bpmn:outgoing>Flow_To_Decide_Pedido</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- Dominio RAG -->
+    <bpmn:serviceTask id="Task_RAG_Recuperar_Politicas" name="Recuperar fragmentos citados (Tenant veltri_tecnologic_pe)">
+      <bpmn:incoming>Flow_To_RAG</bpmn:incoming>
+      <bpmn:outgoing>Flow_To_Decide_RAG</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- Capa Decisión & HITL -->
+    <bpmn:businessRuleTask id="Task_Compuerta_Decide" name="decide(): Evaluar invariantes con umbrales protegidos">
+      <bpmn:incoming>Flow_To_Decide_Cot</bpmn:incoming>
+      <bpmn:incoming>Flow_To_Decide_Pago</bpmn:incoming>
+      <bpmn:incoming>Flow_To_Decide_Pedido</bpmn:incoming>
+      <bpmn:incoming>Flow_To_Decide_RAG</bpmn:incoming>
+      <bpmn:outgoing>Flow_Decide_Out</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+
+    <bpmn:exclusiveGateway id="Gateway_HITL" name="¿Cumple invariantes y umbrales?">
+      <bpmn:incoming>Flow_Decide_Out</bpmn:incoming>
+      <bpmn:outgoing>Flow_HITL_Aprobado</bpmn:outgoing>
+      <bpmn:outgoing>Flow_HITL_Retenido</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_Supervisar_HITL_Humano" name="Retener en Bandeja HITL para auditoría humana">
+      <bpmn:incoming>Flow_HITL_Retenido</bpmn:incoming>
+      <bpmn:outgoing>Flow_End_HITL</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:endEvent id="EndEvent_Retenido_HITL" name="Caso retenido (Requiere revisión humana)">
+      <bpmn:incoming>Flow_End_HITL</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Respuesta Final -->
+    <bpmn:serviceTask id="Task_Proyectar_ConsultaResponse" name="Generar contrato ConsultaResponse JSON tipado">
+      <bpmn:incoming>Flow_HITL_Aprobado</bpmn:incoming>
+      <bpmn:outgoing>Flow_Final_Ok</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="EndEvent_Exitoso" name="Cotización / Respuesta entregada (&lt; 1.5s)">
+      <bpmn:incoming>Flow_Final_Ok</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Secuencias de Flujo -->
+    <bpmn:sequenceFlow id="Flow_S1" sourceRef="StartEvent_Consulta_Entrante" targetRef="Task_Filtro_Seguridad" />
+    <bpmn:sequenceFlow id="Flow_S2" sourceRef="Task_Filtro_Seguridad" targetRef="Gateway_Seguridad" />
+    <bpmn:sequenceFlow id="Flow_Segura_Si" name="Seguro" sourceRef="Gateway_Seguridad" targetRef="Task_A1_Interpretacion" />
+    <bpmn:sequenceFlow id="Flow_Segura_No" name="Ataque / PII" sourceRef="Gateway_Seguridad" targetRef="Task_Registrar_DLQ" />
+    <bpmn:sequenceFlow id="Flow_DLQ_End" sourceRef="Task_Registrar_DLQ" targetRef="EndEvent_Bloqueo_Seguridad" />
+    <bpmn:sequenceFlow id="Flow_A1_Out" sourceRef="Task_A1_Interpretacion" targetRef="Gateway_Enrutador_Dominio" />
+    <bpmn:sequenceFlow id="Flow_To_Armar" name="Armar / Cotizar" sourceRef="Gateway_Enrutador_Dominio" targetRef="Task_A2_Armador_Presupuesto" />
+    <bpmn:sequenceFlow id="Flow_Arm_HW" sourceRef="Task_A2_Armador_Presupuesto" targetRef="Task_A4_Compatibilidad_TDP" />
+    <bpmn:sequenceFlow id="Flow_HW_Stock" sourceRef="Task_A4_Compatibilidad_TDP" targetRef="Task_A5_Stock_Inventario" />
+    <bpmn:sequenceFlow id="Flow_Stock_Cot" sourceRef="Task_A5_Stock_Inventario" targetRef="Task_A3_Cotizacion_Formal" />
+    <bpmn:sequenceFlow id="Flow_To_Decide_Cot" sourceRef="Task_A3_Cotizacion_Formal" targetRef="Task_Compuerta_Decide" />
+    <bpmn:sequenceFlow id="Flow_To_Pago" name="Validar Pago" sourceRef="Gateway_Enrutador_Dominio" targetRef="Task_A6_Conciliar_Pago" />
+    <bpmn:sequenceFlow id="Flow_To_Decide_Pago" sourceRef="Task_A6_Conciliar_Pago" targetRef="Task_Compuerta_Decide" />
+    <bpmn:sequenceFlow id="Flow_To_Pedido" name="Confirmar Pedido" sourceRef="Gateway_Enrutador_Dominio" targetRef="Task_A7_Idempotencia_SHA256" />
+    <bpmn:sequenceFlow id="Flow_To_Decide_Pedido" sourceRef="Task_A7_Idempotencia_SHA256" targetRef="Task_Compuerta_Decide" />
+    <bpmn:sequenceFlow id="Flow_To_RAG" name="Políticas / RAG" sourceRef="Gateway_Enrutador_Dominio" targetRef="Task_RAG_Recuperar_Politicas" />
+    <bpmn:sequenceFlow id="Flow_To_Decide_RAG" sourceRef="Task_RAG_Recuperar_Politicas" targetRef="Task_Compuerta_Decide" />
+    <bpmn:sequenceFlow id="Flow_Decide_Out" sourceRef="Task_Compuerta_Decide" targetRef="Gateway_HITL" />
+    <bpmn:sequenceFlow id="Flow_HITL_Aprobado" name="Aprobación automática (Sin bloqueos)" sourceRef="Gateway_HITL" targetRef="Task_Proyectar_ConsultaResponse" />
+    <bpmn:sequenceFlow id="Flow_HITL_Retenido" name="Bloqueo / Revisión" sourceRef="Gateway_HITL" targetRef="Task_Supervisar_HITL_Humano" />
+    <bpmn:sequenceFlow id="Flow_End_HITL" sourceRef="Task_Supervisar_HITL_Humano" targetRef="EndEvent_Retenido_HITL" />
+    <bpmn:sequenceFlow id="Flow_Final_Ok" sourceRef="Task_Proyectar_ConsultaResponse" targetRef="EndEvent_Exitoso" />
+
+  </bpmn:process>
+
+  <!-- Diagramación Gráfica BPMN 2.0 (DI) -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_TO_BE">
+    <bpmndi:BPMNPlane id="BPMNPlane_TO_BE" bpmnElement="Collaboration_Veltri_TO_BE">
+      
+      <!-- Pool Cliente -->
+      <bpmndi:BPMNShape id="Participant_Cliente_TO_BE_di" bpmnElement="Participant_Cliente_TO_BE" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1680" height="90" />
+      </bpmndi:BPMNShape>
+
+      <!-- Pool Veltri Sistema -->
+      <bpmndi:BPMNShape id="Participant_Veltri_Sistema_di" bpmnElement="Participant_Veltri_Sistema" isHorizontal="true">
+        <dc:Bounds x="160" y="210" width="1680" height="820" />
+      </bpmndi:BPMNShape>
+
+      <!-- Lanes -->
+      <bpmndi:BPMNShape id="Lane_Seguridad_di" bpmnElement="Lane_Seguridad" isHorizontal="true">
+        <dc:Bounds x="190" y="210" width="1650" height="150" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Lane_Orquestador_Cognitivo_di" bpmnElement="Lane_Orquestador_Cognitivo" isHorizontal="true">
+        <dc:Bounds x="190" y="360" width="1650" height="160" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Lane_Herramientas_Deterministas_di" bpmnElement="Lane_Herramientas_Deterministas" isHorizontal="true">
+        <dc:Bounds x="190" y="520" width="1650" height="190" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Lane_RAG_Conocimiento_di" bpmnElement="Lane_RAG_Conocimiento" isHorizontal="true">
+        <dc:Bounds x="190" y="710" width="1650" height="130" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Lane_Gobernanza_HITL_di" bpmnElement="Lane_Gobernanza_HITL" isHorizontal="true">
+        <dc:Bounds x="190" y="840" width="1650" height="190" />
+      </bpmndi:BPMNShape>
+
+      <!-- Shapes -->
+      <bpmndi:BPMNShape id="StartEvent_Consulta_Entrante_di" bpmnElement="StartEvent_Consulta_Entrante">
+        <dc:Bounds x="232" y="262" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="219" y="305" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Filtro_Seguridad_di" bpmnElement="Task_Filtro_Seguridad">
+        <dc:Bounds x="310" y="240" width="130" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Seguridad_di" bpmnElement="Gateway_Seguridad" isMarkerVisible="true">
+        <dc:Bounds x="485" y="255" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="466" y="225" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Registrar_DLQ_di" bpmnElement="Task_Registrar_DLQ">
+        <dc:Bounds x="580" y="240" width="130" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_Bloqueo_Seguridad_di" bpmnElement="EndEvent_Bloqueo_Seguridad">
+        <dc:Bounds x="762" y="262" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="739" y="305" width="82" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_A1_Interpretacion_di" bpmnElement="Task_A1_Interpretacion">
+        <dc:Bounds x="445" y="400" width="130" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Enrutador_Dominio_di" bpmnElement="Gateway_Enrutador_Dominio">
+        <dc:Bounds x="625" y="415" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="609" y="385" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_A2_Armador_Presupuesto_di" bpmnElement="Task_A2_Armador_Presupuesto">
+        <dc:Bounds x="730" y="550" width="130" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_A4_Compatibilidad_TDP_di" bpmnElement="Task_A4_Compatibilidad_TDP">
+        <dc:Bounds x="900" y="550" width="130" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_A5_Stock_Inventario_di" bpmnElement="Task_A5_Stock_Inventario">
+        <dc:Bounds x="1070" y="550" width="130" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_A3_Cotizacion_Formal_di" bpmnElement="Task_A3_Cotizacion_Formal">
+        <dc:Bounds x="1240" y="550" width="130" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_A6_Conciliar_Pago_di" bpmnElement="Task_A6_Conciliar_Pago">
+        <dc:Bounds x="820" y="635" width="130" height="70" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_A7_Idempotencia_SHA256_di" bpmnElement="Task_A7_Idempotencia_SHA256">
+        <dc:Bounds x="990" y="635" width="130" height="70" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_RAG_Recuperar_Politicas_di" bpmnElement="Task_RAG_Recuperar_Politicas">
+        <dc:Bounds x="820" y="740" width="140" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Compuerta_Decide_di" bpmnElement="Task_Compuerta_Decide">
+        <dc:Bounds x="1240" y="880" width="130" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_HITL_di" bpmnElement="Gateway_HITL" isMarkerVisible="true">
+        <dc:Bounds x="1425" y="895" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1406" y="855" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Supervisar_HITL_Humano_di" bpmnElement="Task_Supervisar_HITL_Humano">
+        <dc:Bounds x="1530" y="930" width="130" height="70" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_Retenido_HITL_di" bpmnElement="EndEvent_Retenido_HITL">
+        <dc:Bounds x="1712" y="947" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1694" y="990" width="72" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Proyectar_ConsultaResponse_di" bpmnElement="Task_Proyectar_ConsultaResponse">
+        <dc:Bounds x="1480" y="400" width="140" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_Exitoso_di" bpmnElement="EndEvent_Exitoso">
+        <dc:Bounds x="1672" y="422" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1651" y="465" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Edges -->
+      <bpmndi:BPMNEdge id="Flow_S1_di" bpmnElement="Flow_S1">
+        <di:waypoint x="268" y="280" />
+        <di:waypoint x="310" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_S2_di" bpmnElement="Flow_S2">
+        <di:waypoint x="440" y="280" />
+        <di:waypoint x="485" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Segura_Si_di" bpmnElement="Flow_Segura_Si">
+        <di:waypoint x="510" y="305" />
+        <di:waypoint x="510" y="400" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="517" y="343" width="36" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Segura_No_di" bpmnElement="Flow_Segura_No">
+        <di:waypoint x="535" y="280" />
+        <di:waypoint x="580" y="280" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="532" y="262" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_DLQ_End_di" bpmnElement="Flow_DLQ_End">
+        <di:waypoint x="710" y="280" />
+        <di:waypoint x="762" y="280" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_A1_Out_di" bpmnElement="Flow_A1_Out">
+        <di:waypoint x="575" y="440" />
+        <di:waypoint x="625" y="440" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_To_Armar_di" bpmnElement="Flow_To_Armar">
+        <di:waypoint x="650" y="465" />
+        <di:waypoint x="650" y="590" />
+        <di:waypoint x="730" y="590" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="652" y="525" width="75" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Arm_HW_di" bpmnElement="Flow_Arm_HW">
+        <di:waypoint x="860" y="590" />
+        <di:waypoint x="900" y="590" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_HW_Stock_di" bpmnElement="Flow_HW_Stock">
+        <di:waypoint x="1030" y="590" />
+        <di:waypoint x="1070" y="590" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Stock_Cot_di" bpmnElement="Flow_Stock_Cot">
+        <di:waypoint x="1200" y="590" />
+        <di:waypoint x="1240" y="590" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_To_Decide_Cot_di" bpmnElement="Flow_To_Decide_Cot">
+        <di:waypoint x="1305" y="630" />
+        <di:waypoint x="1305" y="880" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_To_Pago_di" bpmnElement="Flow_To_Pago">
+        <di:waypoint x="660" y="455" />
+        <di:waypoint x="700" y="670" />
+        <di:waypoint x="820" y="670" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="724" y="652" width="63" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_To_Decide_Pago_di" bpmnElement="Flow_To_Decide_Pago">
+        <di:waypoint x="950" y="670" />
+        <di:waypoint x="1260" y="670" />
+        <di:waypoint x="1260" y="880" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_To_Pedido_di" bpmnElement="Flow_To_Pedido">
+        <di:waypoint x="665" y="450" />
+        <di:waypoint x="710" y="700" />
+        <di:waypoint x="990" y="700" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="750" y="682" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_To_Decide_Pedido_di" bpmnElement="Flow_To_Decide_Pedido">
+        <di:waypoint x="1120" y="700" />
+        <di:waypoint x="1280" y="700" />
+        <di:waypoint x="1280" y="880" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_To_RAG_di" bpmnElement="Flow_To_RAG">
+        <di:waypoint x="650" y="465" />
+        <di:waypoint x="650" y="780" />
+        <di:waypoint x="820" y="780" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="720" y="762" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_To_Decide_RAG_di" bpmnElement="Flow_To_Decide_RAG">
+        <di:waypoint x="960" y="780" />
+        <di:waypoint x="1250" y="780" />
+        <di:waypoint x="1250" y="880" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Decide_Out_di" bpmnElement="Flow_Decide_Out">
+        <di:waypoint x="1370" y="920" />
+        <di:waypoint x="1425" y="920" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_HITL_Aprobado_di" bpmnElement="Flow_HITL_Aprobado">
+        <di:waypoint x="1450" y="895" />
+        <di:waypoint x="1450" y="440" />
+        <di:waypoint x="1480" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1388" y="682" width="74" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_HITL_Retenido_di" bpmnElement="Flow_HITL_Retenido">
+        <di:waypoint x="1450" y="945" />
+        <di:waypoint x="1450" y="965" />
+        <di:waypoint x="1530" y="965" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1454" y="936" width="53" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_End_HITL_di" bpmnElement="Flow_End_HITL">
+        <di:waypoint x="1660" y="965" />
+        <di:waypoint x="1712" y="965" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_Final_Ok_di" bpmnElement="Flow_Final_Ok">
+        <di:waypoint x="1620" y="440" />
+        <di:waypoint x="1672" y="440" />
+      </bpmndi:BPMNEdge>
+
+      <!-- Message Flows -->
+      <bpmndi:BPMNEdge id="MsgFlow_1_di" bpmnElement="MsgFlow_1">
+        <di:waypoint x="250" y="170" />
+        <di:waypoint x="250" y="262" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="260" y="186" width="83" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="MsgFlow_2_di" bpmnElement="MsgFlow_2">
+        <di:waypoint x="1550" y="400" />
+        <di:waypoint x="1550" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1560" y="186" width="87" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>
