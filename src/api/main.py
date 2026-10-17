@@ -16,6 +16,7 @@ from src.knowledge.almacen import Almacen
 from src.schemas.consulta import ConsultaResponse
 from src.schemas.flujo import SolicitudAPI
 from src.tools.catalogo import Catalogo
+from src.tools.consulta_comercial import atender_consulta_comercial, inferir_parametros_consulta
 from src.tools.registro import RegistroPorTenant
 
 
@@ -112,6 +113,11 @@ def crear_app(
         orq: Annotated[Orquestador, Depends(obtener_orquestador)],
     ) -> ConsultaResponse | JSONResponse:
         try:
+            if peticion.parametros is None and peticion.mensaje:
+                _, params_inf = inferir_parametros_consulta(peticion.mensaje)
+                if params_inf is not None:
+                    peticion = peticion.model_copy(update={"parametros": params_inf})
+
             if orq._servicios.configuracion.usar_mock:
                 accion = "informacion"
                 if peticion.parametros is not None:
@@ -136,16 +142,33 @@ def crear_app(
                     "pedido": "A7",
                     "seguimiento": "A8",
                 }
-                if "A1" not in orq._servicios.guiones or not orq._servicios.guiones["A1"]:
+                guion_a1 = orq._servicios.guiones.get("A1")
+                if not guion_a1 or guion_a1[0].get("accion") != accion:
                     orq._servicios.guiones["A1"] = [{"accion": accion, "p": 1.0, "c": 1.0}]
                 dom_id = ids.get(accion)
-                if dom_id and (
-                    dom_id not in orq._servicios.guiones or not orq._servicios.guiones[dom_id]
-                ):
-                    orq._servicios.guiones[dom_id] = [{"accion": accion, "p": 1.0, "c": 1.0}]
+                if dom_id:
+                    guion_dom = orq._servicios.guiones.get(dom_id)
+                    if not guion_dom or guion_dom[0].get("accion") != accion:
+                        orq._servicios.guiones[dom_id] = [{"accion": accion, "p": 1.0, "c": 1.0}]
 
             solicitud_flujo = peticion.a_solicitud_flujo()
             resultado = orq.consultar(solicitud_flujo)
+
+            # Si faltan parámetros requeridos por ser consulta libre en chat,
+            # resolvemos mediante el catálogo determinista y políticas de tienda.
+            if (
+                peticion.parametros is None
+                and resultado.respuesta.status == "revision_humana"
+                and resultado.respuesta.motivos == ["parametros_requeridos"]
+            ):
+                return atender_consulta_comercial(
+                    catalogo=orq._servicios.catalogo,
+                    mensaje=peticion.mensaje or "",
+                    tenant_id=peticion.tenant_id or "veltri",
+                    canal=peticion.canal or "web",
+                    orquestador=orq,
+                )
+
             return resultado.respuesta
         except Exception:
             return JSONResponse(
