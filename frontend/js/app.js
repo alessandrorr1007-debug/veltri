@@ -45,6 +45,33 @@ document.addEventListener('DOMContentLoaded', () => {
     ],
   };
 
+  // Elementos DOM (inicializados antes de usarse)
+  const elements = {
+    themeToggle: document.getElementById('theme-toggle'),
+    tabBtns: document.querySelectorAll('.tab-btn'),
+    views: document.querySelectorAll('.view-section'),
+    chatMessages: document.getElementById('chat-messages'),
+    chatForm: document.getElementById('chat-form'),
+    chatInput: document.getElementById('chat-input'),
+    btnSend: document.getElementById('btn-send'),
+    typingIndicator: document.getElementById('typing-indicator'),
+    quickBtns: document.querySelectorAll('.quick-btn'),
+    proformaView: document.getElementById('proforma-view'),
+    btnViewJson: document.getElementById('btn-view-json'),
+    jsonModal: document.getElementById('json-modal'),
+    jsonContent: document.getElementById('json-content'),
+    btnCloseModal: document.getElementById('btn-close-modal'),
+    btnCopyJson: document.getElementById('btn-copy-json'),
+    hitlTableBody: document.getElementById('hitl-table-body'),
+    confirmModal: document.getElementById('confirm-modal'),
+    confirmTitle: document.getElementById('confirm-title'),
+    confirmMessage: document.getElementById('confirm-message'),
+    confirmComment: document.getElementById('confirm-comment'),
+    btnConfirmAction: document.getElementById('btn-confirm-action'),
+    btnCancelAction: document.getElementById('btn-cancel-action'),
+    timelineContainer: document.getElementById('timeline-container'),
+  };
+
   // Inicialización de tema
   document.documentElement.setAttribute('data-theme', state.theme);
   actualizarIconoTema();
@@ -147,33 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
     },
   };
 
-  // Elementos DOM
-  const elements = {
-    themeToggle: document.getElementById('theme-toggle'),
-    tabBtns: document.querySelectorAll('.tab-btn'),
-    views: document.querySelectorAll('.view-section'),
-    chatMessages: document.getElementById('chat-messages'),
-    chatForm: document.getElementById('chat-form'),
-    chatInput: document.getElementById('chat-input'),
-    btnSend: document.getElementById('btn-send'),
-    typingIndicator: document.getElementById('typing-indicator'),
-    quickBtns: document.querySelectorAll('.quick-btn'),
-    proformaView: document.getElementById('proforma-view'),
-    btnViewJson: document.getElementById('btn-view-json'),
-    jsonModal: document.getElementById('json-modal'),
-    jsonContent: document.getElementById('json-content'),
-    btnCloseModal: document.getElementById('btn-close-modal'),
-    btnCopyJson: document.getElementById('btn-copy-json'),
-    hitlTableBody: document.getElementById('hitl-table-body'),
-    confirmModal: document.getElementById('confirm-modal'),
-    confirmTitle: document.getElementById('confirm-title'),
-    confirmMessage: document.getElementById('confirm-message'),
-    confirmComment: document.getElementById('confirm-comment'),
-    btnConfirmAction: document.getElementById('btn-confirm-action'),
-    btnCancelAction: document.getElementById('btn-cancel-action'),
-    timelineContainer: document.getElementById('timeline-container'),
-  };
-
   // Setup de eventos
   setupThemeToggle();
   setupNavigation();
@@ -182,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupModals();
   renderHitlTable();
   renderTelemetryInitial();
+
 
   // =========================================================================
   // Control de Tema Claro / Oscuro
@@ -237,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const caso = casosDorados[casoKey];
         if (!caso) return;
 
+        elements.chatInput.value = caso.payload.mensaje;
         agregarMensajeChat('user', caso.payload.mensaje);
         await procesarPeticion(caso.payload);
       });
@@ -298,8 +300,11 @@ document.addEventListener('DOMContentLoaded', () => {
       elements.typingIndicator.classList.remove('active');
       elements.btnSend.disabled = false;
       elements.chatInput.disabled = false;
-      elements.chatInput.focus();
+      if (elements.chatInput && typeof elements.chatInput.focus === 'function') {
+        elements.chatInput.focus();
+      }
     }
+
     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
   }
 
@@ -353,8 +358,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Caso cotización válida o con pendientes (CP-1, CP-7)
     if (data.cotizacion) {
       const c = data.cotizacion;
-      const subtotalCent = Math.round(c.total_centimos / 1.18);
-      const igvCent = c.total_centimos - subtotalCent;
+      const subtotalCent = c.subtotal_centimos || Math.round(c.total_centimos / 1.18);
+      const igvCent = c.igv_centimos || (c.total_centimos - subtotalCent);
 
       let bannerHtml = '';
       if (data.hitl_requerido) {
@@ -363,22 +368,29 @@ document.addEventListener('DOMContentLoaded', () => {
             ${Icons.alertTriangle(20)}
             <div>
               <strong>Propuesta pendiente de revisión técnica (HITL)</strong>
-              <p>Motivos: ${data.motivos.join(', ')}. No constituye venta confirmada.</p>
+              <p>Motivos: ${(data.motivos || []).join(', ')}. No constituye venta confirmada.</p>
             </div>
           </div>
         `;
       }
 
-      let lineasHtml = c.lineas.map((l) => `
+      const lineas = Array.isArray(c.lineas) ? c.lineas : [];
+      let lineasHtml = lineas.length > 0 ? lineas.map((l) => `
         <tr>
           <td><code class="sku-text">${escapeHtml(l.sku)}</code></td>
-          <td>${escapeHtml(l.sku.replace(/-/g, ' '))}</td>
-          <td class="tabular-nums" style="text-align: center;">${l.cantidad}</td>
+          <td>${escapeHtml((l.sku || '').replace(/-/g, ' '))}</td>
+          <td class="tabular-nums" style="text-align: center;">${l.cantidad || 1}</td>
           <td class="tabular-nums" style="text-align: right;">${Api.formatearSoles(l.precio_unitario_centimos)}</td>
           <td class="tabular-nums" style="text-align: right;">${Api.formatearSoles(l.subtotal_centimos)}</td>
           <td><span class="stock-tag ok">${Icons.check(12)} Disponible</span></td>
         </tr>
-      `).join('');
+      `).join('') : `
+        <tr>
+          <td colspan="6" style="text-align: center; color: var(--text-muted); padding: var(--space-4);">
+            Configuración armada dentro del presupuesto (${Api.formatearSoles(c.total_centimos)}).
+          </td>
+        </tr>
+      `;
 
       elements.proformaView.innerHTML = `
         ${bannerHtml}
@@ -416,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       return;
     }
+
 
     // Caso stock insuficiente (CP-3)
     if (data.stock && data.stock.faltantes && data.stock.faltantes.length > 0) {
