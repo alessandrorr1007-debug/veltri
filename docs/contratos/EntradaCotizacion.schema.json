@@ -1,0 +1,61 @@
+{
+  "$defs": {
+    "CotizacionRequest": {
+      "additionalProperties": false,
+      "description": "Selección explícita con máximo opcional en céntimos de PEN.",
+      "properties": {
+        "seleccion": {
+          "maxProperties": 90,
+          "minProperties": 1,
+          "patternProperties": {
+            "^[A-Z0-9]+(?:-[A-Z0-9]+)+$": {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 80
+          },
+          "title": "Seleccion",
+          "type": "object"
+        },
+        "maximo_centimos": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximo Centimos"
+        }
+      },
+      "required": [
+        "seleccion"
+      ],
+      "title": "CotizacionRequest",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Cotización de selección ya validada por el llamador.",
+  "properties": {
+    "tenant_id": {
+      "pattern": "^[a-z][a-z0-9_]{0,63}$",
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "solicitud": {
+      "$ref": "#/$defs/CotizacionRequest"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "solicitud"
+  ],
+  "title": "EntradaCotizacion",
+  "type": "object"
+}

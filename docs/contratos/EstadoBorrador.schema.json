@@ -1,0 +1,72 @@
+{
+  "$defs": {
+    "BorradorPedido": {
+      "additionalProperties": false,
+      "description": "El contrato impide representar un borrador como pedido confirmado.",
+      "properties": {
+        "clave": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Clave",
+          "type": "string"
+        },
+        "estado": {
+          "const": "borrador_demo",
+          "title": "Estado",
+          "type": "string"
+        },
+        "seleccion": {
+          "maxProperties": 90,
+          "minProperties": 1,
+          "patternProperties": {
+            "^[A-Z0-9]+(?:-[A-Z0-9]+)+$": {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 80
+          },
+          "title": "Seleccion",
+          "type": "object"
+        },
+        "hitl_requerido": {
+          "const": true,
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "clave",
+        "estado",
+        "seleccion",
+        "hitl_requerido"
+      ],
+      "title": "BorradorPedido",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Consulta local: no implica pago, despacho ni confirmación.",
+  "properties": {
+    "encontrado": {
+      "title": "Encontrado",
+      "type": "boolean"
+    },
+    "borrador": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BorradorPedido"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "encontrado",
+    "borrador"
+  ],
+  "title": "EstadoBorrador",
+  "type": "object"
+}

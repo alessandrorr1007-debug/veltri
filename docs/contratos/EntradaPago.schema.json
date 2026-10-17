@@ -1,0 +1,50 @@
+{
+  "$defs": {
+    "ComparacionPagoRequest": {
+      "additionalProperties": false,
+      "description": "Importes declarados; no incluye comprobantes ni credenciales bancarias.",
+      "properties": {
+        "total_centimos": {
+          "exclusiveMinimum": 0,
+          "title": "Total Centimos",
+          "type": "integer"
+        },
+        "pagado_centimos": {
+          "minimum": 0,
+          "title": "Pagado Centimos",
+          "type": "integer"
+        },
+        "moneda": {
+          "default": "PEN",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Moneda",
+          "type": "string"
+        }
+      },
+      "required": [
+        "total_centimos",
+        "pagado_centimos"
+      ],
+      "title": "ComparacionPagoRequest",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Importes explícitos, no comprobantes ni texto de un cliente.",
+  "properties": {
+    "tenant_id": {
+      "pattern": "^[a-z][a-z0-9_]{0,63}$",
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "solicitud": {
+      "$ref": "#/$defs/ComparacionPagoRequest"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "solicitud"
+  ],
+  "title": "EntradaPago",
+  "type": "object"
+}

@@ -1,0 +1,139 @@
+{
+  "$defs": {
+    "PlanModelo": {
+      "additionalProperties": false,
+      "description": "Solo intención y puntuaciones no calibradas; nunca montos ni autorizaciones.",
+      "properties": {
+        "accion": {
+          "enum": [
+            "armar",
+            "cotizar",
+            "compatibilidad",
+            "stock",
+            "pago",
+            "pedido",
+            "seguimiento",
+            "informacion",
+            "desconocida"
+          ],
+          "title": "Accion",
+          "type": "string"
+        },
+        "p": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "P",
+          "type": "number"
+        },
+        "c": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "C",
+          "type": "number"
+        }
+      },
+      "required": [
+        "accion",
+        "p",
+        "c"
+      ],
+      "title": "PlanModelo",
+      "type": "object"
+    },
+    "ResultadoPago": {
+      "additionalProperties": false,
+      "description": "Comparación de importes, aún sin conciliación bancaria.",
+      "properties": {
+        "montos_coinciden": {
+          "title": "Montos Coinciden",
+          "type": "boolean"
+        },
+        "diferencia_centimos": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Diferencia Centimos"
+        },
+        "estado": {
+          "const": "no_conciliado",
+          "title": "Estado",
+          "type": "string"
+        },
+        "hitl_requerido": {
+          "const": true,
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        },
+        "motivos": {
+          "items": {
+            "maxLength": 160,
+            "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Motivos",
+          "type": "array"
+        }
+      },
+      "required": [
+        "montos_coinciden",
+        "diferencia_centimos",
+        "estado",
+        "hitl_requerido",
+        "motivos"
+      ],
+      "title": "ResultadoPago",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "agente": {
+      "enum": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8"
+      ],
+      "title": "Agente",
+      "type": "string"
+    },
+    "tenant_id": {
+      "pattern": "^[a-z][a-z0-9_]{0,63}$",
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "plan": {
+      "$ref": "#/$defs/PlanModelo"
+    },
+    "origen_puntuacion": {
+      "enum": [
+        "prueba_no_calibrada",
+        "modelo_no_calibrado"
+      ],
+      "title": "Origen Puntuacion",
+      "type": "string"
+    },
+    "resultado": {
+      "$ref": "#/$defs/ResultadoPago"
+    }
+  },
+  "required": [
+    "agente",
+    "tenant_id",
+    "plan",
+    "origen_puntuacion",
+    "resultado"
+  ],
+  "title": "SalidaAgente[ResultadoPago]",
+  "type": "object"
+}

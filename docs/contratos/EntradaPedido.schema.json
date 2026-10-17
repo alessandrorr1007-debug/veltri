@@ -1,0 +1,69 @@
+{
+  "$defs": {
+    "PedidoDemoRequest": {
+      "additionalProperties": false,
+      "description": "Solo alias sintético, nunca identidad personal real.",
+      "properties": {
+        "cliente": {
+          "pattern": "^demo_[a-z]{1,32}$",
+          "title": "Cliente",
+          "type": "string"
+        },
+        "seleccion": {
+          "maxProperties": 90,
+          "minProperties": 1,
+          "patternProperties": {
+            "^[A-Z0-9]+(?:-[A-Z0-9]+)+$": {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 80
+          },
+          "title": "Seleccion",
+          "type": "object"
+        },
+        "canal": {
+          "enum": [
+            "web",
+            "whatsapp"
+          ],
+          "title": "Canal",
+          "type": "string"
+        }
+      },
+      "required": [
+        "cliente",
+        "seleccion",
+        "canal"
+      ],
+      "title": "PedidoDemoRequest",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Consentimiento explícito solo para crear un borrador sintético.",
+  "properties": {
+    "tenant_id": {
+      "pattern": "^[a-z][a-z0-9_]{0,63}$",
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "solicitud": {
+      "$ref": "#/$defs/PedidoDemoRequest"
+    },
+    "confirmar_borrador": {
+      "const": true,
+      "title": "Confirmar Borrador",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "solicitud",
+    "confirmar_borrador"
+  ],
+  "title": "EntradaPedido",
+  "type": "object"
+}

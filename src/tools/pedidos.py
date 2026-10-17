@@ -40,3 +40,9 @@ class RegistroDemo:
                                       "hitl_requerido": True}
         return {"duplicado": duplicado, "registros_creados": 0 if duplicado else 1,
                 "pedido": deepcopy(self._registros[clave])}
+
+    def consultar(self, clave: str) -> dict[str, Any] | None:
+        """Devuelve copia del borrador o ausencia, sin alterar su estado."""
+        if not isinstance(clave, str) or not re.fullmatch(r"[a-f0-9]{64}", clave):
+            raise ValueError("Clave de borrador inválida")
+        return deepcopy(self._registros.get(clave))

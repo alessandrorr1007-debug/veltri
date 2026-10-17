@@ -1,0 +1,155 @@
+{
+  "$defs": {
+    "PlanModelo": {
+      "additionalProperties": false,
+      "description": "Solo intención y puntuaciones no calibradas; nunca montos ni autorizaciones.",
+      "properties": {
+        "accion": {
+          "enum": [
+            "armar",
+            "cotizar",
+            "compatibilidad",
+            "stock",
+            "pago",
+            "pedido",
+            "seguimiento",
+            "informacion",
+            "desconocida"
+          ],
+          "title": "Accion",
+          "type": "string"
+        },
+        "p": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "P",
+          "type": "number"
+        },
+        "c": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "C",
+          "type": "number"
+        }
+      },
+      "required": [
+        "accion",
+        "p",
+        "c"
+      ],
+      "title": "PlanModelo",
+      "type": "object"
+    },
+    "ResultadoTecnico": {
+      "additionalProperties": false,
+      "description": "Compatibilidad de datos separada de aprobación técnica real.",
+      "properties": {
+        "sin_conflictos_datos": {
+          "title": "Sin Conflictos Datos",
+          "type": "boolean"
+        },
+        "aprobado_tecnicamente": {
+          "const": false,
+          "title": "Aprobado Tecnicamente",
+          "type": "boolean"
+        },
+        "hitl_requerido": {
+          "const": true,
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        },
+        "conflictos": {
+          "items": {
+            "maxLength": 160,
+            "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+            "type": "string"
+          },
+          "title": "Conflictos",
+          "type": "array"
+        },
+        "pendientes": {
+          "items": {
+            "maxLength": 160,
+            "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+            "type": "string"
+          },
+          "title": "Pendientes",
+          "type": "array"
+        },
+        "potencia_estimada_w": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Potencia Estimada W"
+        },
+        "fuente": {
+          "const": "data/compatibilidad.json",
+          "title": "Fuente",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sin_conflictos_datos",
+        "aprobado_tecnicamente",
+        "hitl_requerido",
+        "conflictos",
+        "pendientes",
+        "potencia_estimada_w",
+        "fuente"
+      ],
+      "title": "ResultadoTecnico",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "agente": {
+      "enum": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8"
+      ],
+      "title": "Agente",
+      "type": "string"
+    },
+    "tenant_id": {
+      "pattern": "^[a-z][a-z0-9_]{0,63}$",
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "plan": {
+      "$ref": "#/$defs/PlanModelo"
+    },
+    "origen_puntuacion": {
+      "enum": [
+        "prueba_no_calibrada",
+        "modelo_no_calibrado"
+      ],
+      "title": "Origen Puntuacion",
+      "type": "string"
+    },
+    "resultado": {
+      "$ref": "#/$defs/ResultadoTecnico"
+    }
+  },
+  "required": [
+    "agente",
+    "tenant_id",
+    "plan",
+    "origen_puntuacion",
+    "resultado"
+  ],
+  "title": "SalidaAgente[ResultadoTecnico]",
+  "type": "object"
+}

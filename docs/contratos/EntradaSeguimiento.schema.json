@@ -1,0 +1,22 @@
+{
+  "additionalProperties": false,
+  "description": "Una clave de borrador no permite cambiar tenant.",
+  "properties": {
+    "tenant_id": {
+      "pattern": "^[a-z][a-z0-9_]{0,63}$",
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "clave": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Clave",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "clave"
+  ],
+  "title": "EntradaSeguimiento",
+  "type": "object"
+}

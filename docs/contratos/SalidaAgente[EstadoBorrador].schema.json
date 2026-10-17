@@ -1,0 +1,159 @@
+{
+  "$defs": {
+    "BorradorPedido": {
+      "additionalProperties": false,
+      "description": "El contrato impide representar un borrador como pedido confirmado.",
+      "properties": {
+        "clave": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Clave",
+          "type": "string"
+        },
+        "estado": {
+          "const": "borrador_demo",
+          "title": "Estado",
+          "type": "string"
+        },
+        "seleccion": {
+          "maxProperties": 90,
+          "minProperties": 1,
+          "patternProperties": {
+            "^[A-Z0-9]+(?:-[A-Z0-9]+)+$": {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 80
+          },
+          "title": "Seleccion",
+          "type": "object"
+        },
+        "hitl_requerido": {
+          "const": true,
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "clave",
+        "estado",
+        "seleccion",
+        "hitl_requerido"
+      ],
+      "title": "BorradorPedido",
+      "type": "object"
+    },
+    "EstadoBorrador": {
+      "additionalProperties": false,
+      "description": "Consulta local: no implica pago, despacho ni confirmación.",
+      "properties": {
+        "encontrado": {
+          "title": "Encontrado",
+          "type": "boolean"
+        },
+        "borrador": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BorradorPedido"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "encontrado",
+        "borrador"
+      ],
+      "title": "EstadoBorrador",
+      "type": "object"
+    },
+    "PlanModelo": {
+      "additionalProperties": false,
+      "description": "Solo intención y puntuaciones no calibradas; nunca montos ni autorizaciones.",
+      "properties": {
+        "accion": {
+          "enum": [
+            "armar",
+            "cotizar",
+            "compatibilidad",
+            "stock",
+            "pago",
+            "pedido",
+            "seguimiento",
+            "informacion",
+            "desconocida"
+          ],
+          "title": "Accion",
+          "type": "string"
+        },
+        "p": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "P",
+          "type": "number"
+        },
+        "c": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "C",
+          "type": "number"
+        }
+      },
+      "required": [
+        "accion",
+        "p",
+        "c"
+      ],
+      "title": "PlanModelo",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "agente": {
+      "enum": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8"
+      ],
+      "title": "Agente",
+      "type": "string"
+    },
+    "tenant_id": {
+      "pattern": "^[a-z][a-z0-9_]{0,63}$",
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "plan": {
+      "$ref": "#/$defs/PlanModelo"
+    },
+    "origen_puntuacion": {
+      "enum": [
+        "prueba_no_calibrada",
+        "modelo_no_calibrado"
+      ],
+      "title": "Origen Puntuacion",
+      "type": "string"
+    },
+    "resultado": {
+      "$ref": "#/$defs/EstadoBorrador"
+    }
+  },
+  "required": [
+    "agente",
+    "tenant_id",
+    "plan",
+    "origen_puntuacion",
+    "resultado"
+  ],
+  "title": "SalidaAgente[EstadoBorrador]",
+  "type": "object"
+}

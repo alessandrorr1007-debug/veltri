@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "PlanModelo": {
+      "additionalProperties": false,
+      "description": "Solo intención y puntuaciones no calibradas; nunca montos ni autorizaciones.",
+      "properties": {
+        "accion": {
+          "enum": [
+            "armar",
+            "cotizar",
+            "compatibilidad",
+            "stock",
+            "pago",
+            "pedido",
+            "seguimiento",
+            "informacion",
+            "desconocida"
+          ],
+          "title": "Accion",
+          "type": "string"
+        },
+        "p": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "P",
+          "type": "number"
+        },
+        "c": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "C",
+          "type": "number"
+        }
+      },
+      "required": [
+        "accion",
+        "p",
+        "c"
+      ],
+      "title": "PlanModelo",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "agente": {
+      "enum": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8"
+      ],
+      "title": "Agente",
+      "type": "string"
+    },
+    "tenant_id": {
+      "pattern": "^[a-z][a-z0-9_]{0,63}$",
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "plan": {
+      "$ref": "#/$defs/PlanModelo"
+    },
+    "origen_puntuacion": {
+      "enum": [
+        "prueba_no_calibrada",
+        "modelo_no_calibrado"
+      ],
+      "title": "Origen Puntuacion",
+      "type": "string"
+    },
+    "resultado": {
+      "title": "Resultado",
+      "type": "null"
+    }
+  },
+  "required": [
+    "agente",
+    "tenant_id",
+    "plan",
+    "origen_puntuacion",
+    "resultado"
+  ],
+  "title": "SalidaAgente[NoneType]",
+  "type": "object"
+}

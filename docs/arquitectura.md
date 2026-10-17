@@ -101,3 +101,23 @@ flowchart LR
 
 Bandeja en memoria con resoluciones idempotentes; no sustituye autenticación ni
 un registro de auditoría durable. Contratos y supuestos: docs/decision_hitl.md.
+
+## Estado tras FASE 6
+Ocho agentes independientes y fábrica cognitiva implementados. Los nodos de los
+diagramas por agente son diseño para la próxima fase; no hay grafo ni API.
+
+```mermaid
+flowchart LR
+    E[Entradas tipadas y tenant] --> G[Guarda de entrada]
+    G --> A[BaseAgent y agentes A1 a A8]
+    F[get_llm con configuración local] --> M[MockLLM o Gemini estructurado]
+    A --> M
+    M --> P[Plan de intención validado]
+    P --> T[Herramientas deterministas]
+    T --> S[Salida de agente tipada]
+    S -. integración futura .-> D[Compuerta y grafo]
+```
+
+A7/A8 comparten un registro de borradores por tenant; nunca confirman ventas.
+No se usan puntuaciones reales para autorizar negocio ni se calcula con LLM.
+Contratos, pruebas y límites: docs/agentes.md y docs/agentes/.

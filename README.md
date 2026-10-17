@@ -4,20 +4,21 @@ Sistema previsto para cotizar PCs en soles, validar compatibilidad y stock,
 conciliar pagos y registrar pedidos con revisión humana.
 
 ## Estado y problema
-FASES 1, 2, 3, 4 y 5 completadas: datos sintéticos y herramientas deterministas para evitar referencias
+FASES 1, 2, 3, 4, 5 y 6 completadas: datos sintéticos y herramientas deterministas para evitar referencias
 rotas, montos inválidos y ventas de productos agotados. Las herramientas operan solo en demostración; los flujos integrados siguen pendientes.
-La plantilla conserva su acceso al modelo sin uso.
+La fábrica permite MockLLM y un conector real configurado; la verificación no llama a la red.
 
 ## Arquitectura y agentes A1 a A8
 Diseño futuro en docs/arquitectura.md: ventas D1 (A1–A3), técnico D2 (A4),
-inventario D3 (A5), pedidos y pagos D4 (A6–A8). No hay agentes ejecutables,
-generación RAG con LLM, grafo, API ni interfaz funcional. Las carpetas correspondientes son esqueletos.
+inventario D3 (A5), pedidos y pagos D4 (A6–A8). Los agentes individuales ya se
+implementaron en fase 6. La generación RAG, el grafo, la API y la interfaz
+siguen pendientes de integración.
 
 ```mermaid
 flowchart LR
     DAT[Datos de ejemplo] --> T[Herramientas deterministas]
     T --> REV[Resultados pendientes de revisión]
-    FUT[Diseño futuro] -.-> ORQ[Orquestador y agentes A1 a A8]
+    FUT[Diseño futuro] -.-> ORQ[Orquestador futuro]
     ORQ -.-> API[API e interfaz]
 ```
 
@@ -31,7 +32,7 @@ los escenarios integrados siguen pendientes.
 Python 3.12 o superior (verificado con 3.14.4) y Git:
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python -m pip install -r requirements-fase4.txt
+.\.venv\Scripts\python -m pip install -r requirements-fase6.txt
 .\.venv\Scripts\Activate.ps1
 python scripts/verificar.py
 git init
@@ -39,7 +40,8 @@ python scripts/instalar_hooks.py
 ```
 Si PowerShell impide activar, usar directamente `.\.venv\Scripts\python`.
 requirements-dev.txt conserva la lista completa de la plantilla; la verificación actual usa
-pytest, ruff, Pydantic, ChromaDB y filelock, sin instalar agentes ni llamar al modelo.
+pytest, ruff, Pydantic, ChromaDB, filelock, dotenv y google-genai.
+Las pruebas usan MockLLM o transporte simulado, sin consultas reales.
 El hook instalado protege commits, no impide editar archivos.
 No se instaló settings.json ni configuración MCP. La detección automática de
 Rules/Workflows/Skills por el IDE no está comprobada: se leyeron como guías.
@@ -65,7 +67,7 @@ este catálogo para vender o prometer compatibilidad de modelos comerciales.
 Herramientas deterministas en src/tools/ y pruebas en tests/test_herramientas.py:
 catálogo, stock, compatibilidad, cotización, armado por presupuesto, comparación
 de importes y borradores idempotentes de demostración. Contratos y límites en
-docs/herramientas.md. No hay API ni agentes ejecutables. Las cotizaciones no se
+docs/herramientas.md. En ese estado aún no había API ni agentes ejecutables. Las cotizaciones no se
 aprueban con fichas sintéticas; los pagos siguen no conciliados sin evidencia.
 No se añadieron dependencias: el entorno de verificación de fase 1 sigue vigente.
 
@@ -73,7 +75,7 @@ No se añadieron dependencias: el entorno de verificación de fase 1 sigue vigen
 Contratos estrictos Pydantic, incluido ConsultaResponse 1.0-demo, en src/schemas/.
 Documentación en docs/esquemas.md y JSON Schema en docs/contratos/. La validación
 rechaza tipos incorrectos, campos extra, totales incoherentes y revisión ocultada.
-No hay endpoints, generación con LLM ni agentes. Regenerar contratos con
+Al cerrar fase 3 no había endpoints, generación con LLM ni agentes. Regenerar contratos con
 `python scripts/exportar_esquemas.py`. Dependencias mínimas actuales en
 requirements-fase3.txt; las listas de fases anteriores se conservan.
 
@@ -94,3 +96,11 @@ prioridad sobre puntuaciones sintéticas; ninguna resolución ejecuta una venta.
 Contratos y límites en docs/decision_hitl.md. Sin nuevas dependencias.
 `python -m pytest tests/test_decision_hitl.py -q` verifica esta fase.
 La bandeja no autentica revisores ni persiste entre reinicios; no hay grafo ni API.
+
+## Avance FASE 6
+Ocho agentes independientes con BaseAgent, prompts y planes tipados. Configuración
+y fábrica única get_llm, MockLLM programado y conector Gemini con JSON Schema.
+A1 clasifica intención; A2 arma; A3 cotiza; A4 valida; A5 consulta stock; A6 compara
+pagos; A7 crea borradores; A8 consulta borradores del mismo tenant. No hay
+confirmaciones comerciales, grafo ni API. Documentación en docs/agentes.md y
+diagramas por agente en docs/agentes/. Los precios y stock siguen siendo ejemplos.

@@ -1,0 +1,40 @@
+{
+  "additionalProperties": false,
+  "description": "Solo intención y puntuaciones no calibradas; nunca montos ni autorizaciones.",
+  "properties": {
+    "accion": {
+      "enum": [
+        "armar",
+        "cotizar",
+        "compatibilidad",
+        "stock",
+        "pago",
+        "pedido",
+        "seguimiento",
+        "informacion",
+        "desconocida"
+      ],
+      "title": "Accion",
+      "type": "string"
+    },
+    "p": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "P",
+      "type": "number"
+    },
+    "c": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "C",
+      "type": "number"
+    }
+  },
+  "required": [
+    "accion",
+    "p",
+    "c"
+  ],
+  "title": "PlanModelo",
+  "type": "object"
+}
