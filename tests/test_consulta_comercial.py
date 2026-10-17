@@ -107,3 +107,41 @@ def test_api_consulta_libre_cotizacion_3500_arma_pc():
     datos = ConsultaResponse.model_validate(resp.json())
     assert datos.cotizacion is not None
     assert datos.cotizacion.total_centimos <= 350000
+
+
+def test_consulta_rtx_mas_cara():
+    catalogo = Catalogo()
+    resp = atender_consulta_comercial(catalogo, "cual es la rtx mas cara?")
+    assert resp.status == "completado"
+    assert "GPU-RTX4080SUPER" in resp.mensaje
+    assert "2,990.00" in resp.mensaje
+
+
+def test_consulta_eliptica_con_contexto_previo():
+    catalogo = Catalogo()
+    # Primera consulta sobre la más barata
+    resp1 = atender_consulta_comercial(catalogo, "cual es su rtx mas barata")
+    assert "GPU-RTX3050" in resp1.mensaje
+
+    # Segunda consulta elíptica recordando el contexto 'rtx'
+    resp2 = atender_consulta_comercial(catalogo, "y la mas cara", contexto="rtx")
+    assert "GPU-RTX4080SUPER" in resp2.mensaje
+    assert "2,990.00" in resp2.mensaje
+
+    # Tercera consulta elíptica inversa
+    resp3 = atender_consulta_comercial(catalogo, "y la mas barata?", contexto="rtx")
+    assert "GPU-RTX3050" in resp3.mensaje
+
+
+def test_api_catalogo_endpoint():
+    orq = Orquestador(guiones={}, configuracion=Configuracion())
+    client = TestClient(crear_app(orquestador=orq))
+
+    resp = client.get("/catalogo")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["moneda"] == "PEN"
+    assert "gpu" in data["categorias"]
+    assert "cpu" in data["categorias"]
+    assert data["total_productos"] > 0
+

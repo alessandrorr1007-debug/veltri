@@ -119,4 +119,11 @@ const Icons = {
       size, cls
     );
   },
+
+  message(size = 16, cls = '') {
+    return this.svg(
+      '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+      size, cls
+    );
+  },
 };

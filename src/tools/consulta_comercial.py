@@ -1,4 +1,4 @@
-"""Atención determinista de consultas comerciales libres sobre catálogo, stock y políticas."""
+"""Atención determinista de consultas comerciales sobre catálogo, stock y políticas."""
 
 import re
 import unicodedata
@@ -27,13 +27,92 @@ def formatear_soles(centimos: int) -> str:
     return f"S/ {centimos / 100:,.2f}"
 
 
+def detectar_extremo(msg_norm: str) -> str | None:
+    """Identifica si se solicita el extremo máximo (más cara) o mínimo (más barata)."""
+    patrones_max = (
+        "mas cara",
+        "mas costosa",
+        "mas potente",
+        "tope de gama",
+        "tope",
+        "gama alta",
+        "mayor precio",
+        "mas alto",
+        "premium",
+        "flagship",
+        "la mejor",
+    )
+    if any(k in msg_norm for k in patrones_max):
+        return "maximo"
+
+    patrones_min = (
+        "mas barata",
+        "mas economica",
+        "menor precio",
+        "mas bajo",
+        "gama de entrada",
+        "accesible",
+        "economica",
+        "barata",
+        "low cost",
+    )
+    if any(k in msg_norm for k in patrones_min):
+        return "minimo"
+
+    return None
+
+
+def detectar_categoria_o_serie(msg_norm: str, contexto: str | None = None) -> str | None:
+    """Determina la categoría o familia de hardware, usando contexto si es elíptico."""
+    if "rtx" in msg_norm:
+        return "rtx"
+    if "radeon" in msg_norm or "rx" in msg_norm:
+        return "radeon"
+    if any(k in msg_norm for k in ("gpu", "tarjeta", "video", "grafica")):
+        return "gpu"
+    if any(k in msg_norm for k in ("cpu", "procesador", "ryzen", "intel")):
+        return "cpu"
+    if any(k in msg_norm for k in ("ram", "memoria")):
+        return "ram"
+    if any(k in msg_norm for k in ("ssd", "disco", "almacenamiento", "nvme")):
+        return "ssd"
+    if any(k in msg_norm for k in ("fuente", "psu", "power")):
+        return "fuente"
+    if any(k in msg_norm for k in ("placa", "motherboard", "tarjeta madre")):
+        return "placa"
+    if any(k in msg_norm for k in ("gabinete", "case", "caja")):
+        return "gabinete"
+    if any(k in msg_norm for k in ("refrigeracion", "cooler", "ventilador", "liquida")):
+        return "refrigeracion"
+
+    # Si es pregunta de seguimiento elíptica (ej: "y la mas cara", "y la otra?", "y en precio?")
+    if contexto:
+        ctx_norm = normalizar_texto(contexto)
+        for cat in (
+            "rtx",
+            "radeon",
+            "gpu",
+            "cpu",
+            "ram",
+            "ssd",
+            "fuente",
+            "placa",
+            "gabinete",
+            "refrigeracion",
+        ):
+            if cat in ctx_norm:
+                return cat
+
+    return None
+
+
 def inferir_parametros_consulta(
     mensaje: str,
 ) -> tuple[str, ParametrosArmado | ParametrosSeleccion | None]:
     """Extrae parámetros de armado o stock cuando el usuario escribe en lenguaje natural."""
     msg_norm = normalizar_texto(mensaje)
 
-    # 1. Detección de intención de cotización / armado por presupuesto
+    # 1. Detección de cotización / armado con presupuesto explícito
     es_cotizacion = any(
         k in msg_norm for k in ("cotiz", "armar", "presupuesto", "pc gamer", "configuracion")
     )
@@ -77,11 +156,187 @@ def inferir_parametros_consulta(
     return "informacion", None
 
 
+def responder_consulta_gpu(
+    catalogo: Catalogo, cat_o_serie: str, extremo: str | None
+) -> ConsultaResponse:
+    """Genera respuesta comercial exacta para tarjetas de video (RTX, Radeon o generales)."""
+    if cat_o_serie == "rtx":
+        prods = [p for p in catalogo.listar("gpu") if p["sku"].startswith("GPU-RTX")]
+        prods.sort(key=lambda x: x["precio_centimos"])
+        con_stock = [p for p in prods if p["stock"] > 0]
+        if extremo == "maximo":
+            target = con_stock[-1] if con_stock else prods[-1]
+            p_str = formatear_soles(target["precio_centimos"])
+            msg = (
+                f"La tarjeta gráfica NVIDIA RTX más potente y de mayor gama en nuestro catálogo es "
+                f"la GeForce RTX 4080 Super (SKU: {target['sku']}) por {p_str}, con "
+                f"{target['stock']} unidades disponibles en stock."
+            )
+        else:
+            primera = con_stock[0] if con_stock else prods[0]
+            segunda = con_stock[1] if len(con_stock) > 1 else None
+            p1_str = formatear_soles(primera["precio_centimos"])
+            msg = (
+                f"La tarjeta gráfica NVIDIA RTX más económica disponible en nuestro catálogo es "
+                f"la GeForce RTX 3050 (SKU: {primera['sku']}) por {p1_str}, con "
+                f"{primera['stock']} unidades en stock."
+            )
+            if segunda:
+                p2_str = formatear_soles(segunda["precio_centimos"])
+                msg += (
+                    f" Como opción superior disponemos de la RTX 3060 (SKU: {segunda['sku']}) "
+                    f"por {p2_str} ({segunda['stock']} unidades disponibles)."
+                )
+        return ConsultaResponse(
+            status="completado",
+            intencion="informacion",
+            hitl_requerido=False,
+            motivos=[],
+            fuentes=["data/catalogo.json"],
+            mensaje=msg,
+        )
+
+    if cat_o_serie == "radeon":
+        prods = [p for p in catalogo.listar("gpu") if p["sku"].startswith("GPU-RX")]
+        prods.sort(key=lambda x: x["precio_centimos"])
+        con_stock = [p for p in prods if p["stock"] > 0]
+        if extremo == "maximo":
+            target = con_stock[-1] if con_stock else prods[-1]
+            p_str = formatear_soles(target["precio_centimos"])
+            msg = (
+                f"La tarjeta AMD Radeon de mayor rendimiento en catálogo es la {target['sku']} "
+                f"por {p_str} ({target['stock']} unidades en stock)."
+            )
+        else:
+            target = con_stock[0] if con_stock else prods[0]
+            p_str = formatear_soles(target["precio_centimos"])
+            msg = (
+                f"La tarjeta AMD Radeon más económica es la {target['sku']} por {p_str} "
+                f"({target['stock']} unidades disponibles en stock)."
+            )
+        return ConsultaResponse(
+            status="completado",
+            intencion="informacion",
+            hitl_requerido=False,
+            motivos=[],
+            fuentes=["data/catalogo.json"],
+            mensaje=msg,
+        )
+
+    # GPU general
+    gpus = catalogo.listar("gpu")
+    gpus.sort(key=lambda x: x["precio_centimos"])
+    con_stock = [p for p in gpus if p["stock"] > 0]
+    if extremo == "maximo":
+        target = con_stock[-1] if con_stock else gpus[-1]
+        p_str = formatear_soles(target["precio_centimos"])
+        msg = (
+            f"La tarjeta de video de mayor gama en catálogo es la NVIDIA GeForce RTX 4080 Super "
+            f"(SKU: {target['sku']}) por {p_str} ({target['stock']} unidades en stock)."
+        )
+    else:
+        target = con_stock[0] if con_stock else gpus[0]
+        p_str = formatear_soles(target["precio_centimos"])
+        msg = (
+            f"La tarjeta de video más económica disponible en catálogo es la "
+            f"AMD Radeon RX 6600 (SKU: {target['sku']}) por {p_str}, con "
+            f"{target['stock']} unidades en stock. Si buscas arquitectura NVIDIA RTX, "
+            f"la más accesible es la RTX 3050 por S/ 1,790.00."
+        )
+    return ConsultaResponse(
+        status="completado",
+        intencion="informacion",
+        hitl_requerido=False,
+        motivos=[],
+        fuentes=["data/catalogo.json"],
+        mensaje=msg,
+    )
+
+
+def responder_consulta_cpu(catalogo: Catalogo, extremo: str | None) -> ConsultaResponse:
+    """Genera respuesta comercial exacta para procesadores (CPUs)."""
+    cpus = catalogo.listar("cpu")
+    cpus.sort(key=lambda x: x["precio_centimos"])
+    con_stock = [p for p in cpus if p["stock"] > 0]
+
+    if extremo == "maximo":
+        target = con_stock[-1] if con_stock else cpus[-1]
+        p_str = formatear_soles(target["precio_centimos"])
+        msg = (
+            f"El procesador de mayor rendimiento disponible es el {target['sku']} por {p_str} "
+            f"({target['stock']} unidades en stock)."
+        )
+    else:
+        am4_stock = [p for p in con_stock if p["especificaciones"].get("socket") == "AM4"]
+        am5_stock = [p for p in con_stock if p["especificaciones"].get("socket") == "AM5"]
+        intel_stock = [p for p in con_stock if "INTEL" in p["sku"]]
+        detalles = []
+        if am4_stock:
+            p_am4 = formatear_soles(am4_stock[0]["precio_centimos"])
+            detalles.append(f"AM4: {am4_stock[0]['sku']} a {p_am4}")
+        if am5_stock:
+            p_am5 = formatear_soles(am5_stock[0]["precio_centimos"])
+            detalles.append(f"AM5: {am5_stock[0]['sku']} a {p_am5}")
+        if intel_stock:
+            p_intel = formatear_soles(intel_stock[0]["precio_centimos"])
+            detalles.append(f"Intel: {intel_stock[0]['sku']} a {p_intel}")
+        resumen = "; ".join(detalles)
+        msg = (
+            f"Contamos con procesadores económicos disponibles: {resumen}. "
+            f"El procesador AMD Ryzen 5 5500 se encuentra actualmente agotado."
+        )
+
+    return ConsultaResponse(
+        status="completado",
+        intencion="informacion",
+        hitl_requerido=False,
+        motivos=[],
+        fuentes=["data/catalogo.json"],
+        mensaje=msg,
+    )
+
+
+def responder_consulta_categoria_general(
+    catalogo: Catalogo, categoria: str, extremo: str | None
+) -> ConsultaResponse:
+    """Atiende consultas para fuentes, ram, ssd, placas, gabinetes o refrigeracion."""
+    items = catalogo.listar(categoria)
+    items.sort(key=lambda x: x["precio_centimos"])
+    con_stock = [p for p in items if p["stock"] > 0]
+    target = con_stock[-1] if extremo == "maximo" else con_stock[0]
+    p_str = formatear_soles(target["precio_centimos"])
+    tipo_desc = "de mayor capacidad/gama" if extremo == "maximo" else "más económico/accesible"
+
+    nombres_legibles = {
+        "fuente": "fuente de poder",
+        "ram": "memoria RAM",
+        "ssd": "unidad SSD NVMe",
+        "placa": "placa madre",
+        "gabinete": "gabinete para PC",
+        "refrigeracion": "sistema de refrigeración",
+    }
+    nombre = nombres_legibles.get(categoria, categoria)
+    msg = (
+        f"El componente {nombre} {tipo_desc} en catálogo es el {target['sku']} "
+        f"por {p_str} ({target['stock']} unidades disponibles en stock)."
+    )
+
+    return ConsultaResponse(
+        status="completado",
+        intencion="informacion",
+        hitl_requerido=False,
+        motivos=[],
+        fuentes=["data/catalogo.json"],
+        mensaje=msg,
+    )
+
+
 def atender_consulta_comercial(
     catalogo: Catalogo,
     mensaje: str,
     tenant_id: Tenant = "veltri",
     canal: Canal = "web",
+    contexto: str | None = None,
     orquestador: Any = None,
 ) -> ConsultaResponse:
     """Procesa consultas en lenguaje natural usando exclusivamente el catálogo y políticas."""
@@ -101,7 +356,7 @@ def atender_consulta_comercial(
         )
 
     # Inferir parámetros estructurados si aplica
-    accion, params = inferir_parametros_consulta(mensaje)
+    _, params = inferir_parametros_consulta(mensaje)
     if params is not None and orquestador is not None:
         sol_flujo = SolicitudFlujo(
             consulta=ConsultaRequest(mensaje=mensaje, canal=canal, tenant_id=tenant_id),
@@ -111,129 +366,20 @@ def atender_consulta_comercial(
         return res.respuesta
 
     msg_norm = normalizar_texto(mensaje)
+    extremo = detectar_extremo(msg_norm)
+    cat_o_serie = detectar_categoria_o_serie(msg_norm, contexto)
 
-    # Consultas sobre tarjetas NVIDIA RTX
-    if "rtx" in msg_norm and (
-        any(k in msg_norm for k in ("barat", "econom", "precio", "cuanto", "cual", "que", "opcion"))
-    ):
-        gpus_rtx = [p for p in catalogo.listar("gpu") if p["sku"].startswith("GPU-RTX")]
-        gpus_rtx.sort(key=lambda x: x["precio_centimos"])
-        con_stock = [p for p in gpus_rtx if p["stock"] > 0]
-        if con_stock:
-            primera = con_stock[0]
-            segunda = con_stock[1] if len(con_stock) > 1 else None
-            p1_str = formatear_soles(primera["precio_centimos"])
-            msg = (
-                f"La tarjeta gráfica NVIDIA RTX más económica disponible en nuestro catálogo es "
-                f"la GeForce RTX 3050 (SKU: {primera['sku']}) por {p1_str}, con "
-                f"{primera['stock']} unidades en stock."
-            )
-            if segunda:
-                p2_str = formatear_soles(segunda["precio_centimos"])
-                msg += (
-                    f" Como opción superior disponemos de la RTX 3060 (SKU: {segunda['sku']}) "
-                    f"por {p2_str} ({segunda['stock']} unidades disponibles)."
-                )
-            return ConsultaResponse(
-                status="completado",
-                intencion="informacion",
-                hitl_requerido=False,
-                motivos=[],
-                fuentes=["data/catalogo.json"],
-                mensaje=msg,
-            )
+    # 1. Consultas sobre GPUs y tarjetas de video
+    if cat_o_serie in ("rtx", "radeon", "gpu"):
+        return responder_consulta_gpu(catalogo, cat_o_serie, extremo)
 
-    # Consulta por GPU / tarjeta de video más barata en general
-    if any(k in msg_norm for k in ("gpu", "tarjeta", "video", "grafica")):
-        gpus = catalogo.listar("gpu")
-        gpus.sort(key=lambda x: x["precio_centimos"])
-        con_stock = [p for p in gpus if p["stock"] > 0]
-        if con_stock:
-            primera = con_stock[0]
-            p_str = formatear_soles(primera["precio_centimos"])
-            return ConsultaResponse(
-                status="completado",
-                intencion="informacion",
-                hitl_requerido=False,
-                motivos=[],
-                fuentes=["data/catalogo.json"],
-                mensaje=(
-                    f"La tarjeta de video más económica disponible en catálogo es la "
-                    f"AMD Radeon RX 6600 (SKU: {primera['sku']}) por {p_str}, "
-                    f"con {primera['stock']} unidades en stock. Si buscas arquitectura "
-                    f"NVIDIA RTX, la más accesible es la RTX 3050 por S/ 1,790.00."
-                ),
-            )
+    # 2. Consultas sobre procesadores
+    if cat_o_serie == "cpu":
+        return responder_consulta_cpu(catalogo, extremo)
 
-    # Consulta por procesadores / CPUs
-    if any(k in msg_norm for k in ("cpu", "procesador", "ryzen", "intel")):
-        cpus = catalogo.listar("cpu")
-        cpus.sort(key=lambda x: x["precio_centimos"])
-        con_stock = [p for p in cpus if p["stock"] > 0]
-        am4_stock = [p for p in con_stock if p["especificaciones"].get("socket") == "AM4"]
-        am5_stock = [p for p in con_stock if p["especificaciones"].get("socket") == "AM5"]
-        intel_stock = [p for p in con_stock if "INTEL" in p["sku"]]
-
-        detalles = []
-        if am4_stock:
-            p_am4 = formatear_soles(am4_stock[0]["precio_centimos"])
-            detalles.append(f"AM4: {am4_stock[0]['sku']} a {p_am4}")
-        if am5_stock:
-            p_am5 = formatear_soles(am5_stock[0]["precio_centimos"])
-            detalles.append(f"AM5: {am5_stock[0]['sku']} a {p_am5}")
-        if intel_stock:
-            p_intel = formatear_soles(intel_stock[0]["precio_centimos"])
-            detalles.append(f"Intel: {intel_stock[0]['sku']} a {p_intel}")
-
-        resumen_detalles = "; ".join(detalles)
-        return ConsultaResponse(
-            status="completado",
-            intencion="informacion",
-            hitl_requerido=False,
-            motivos=[],
-            fuentes=["data/catalogo.json"],
-            mensaje=(
-                f"Contamos con procesadores disponibles en diversas plataformas: "
-                f"{resumen_detalles}. El procesador AMD Ryzen 5 5500 está agotado."
-            ),
-        )
-
-    # Consulta por fuentes de poder
-    if any(k in msg_norm for k in ("fuente", "psu", "power")):
-        fuentes = catalogo.listar("fuente")
-        fuentes.sort(key=lambda x: x["precio_centimos"])
-        primera = fuentes[0]
-        p_fuente = formatear_soles(primera["precio_centimos"])
-        return ConsultaResponse(
-            status="completado",
-            intencion="informacion",
-            hitl_requerido=False,
-            motivos=[],
-            fuentes=["data/catalogo.json"],
-            mensaje=(
-                f"La fuente de poder más económica es la {primera['sku']} de 450W por "
-                f"{p_fuente} ({primera['stock']} unidades disponibles). "
-                f"También disponemos de modelos de 550W a 850W con certificación."
-            ),
-        )
-
-    # Consulta por memorias RAM
-    if any(k in msg_norm for k in ("ram", "memoria")):
-        rams = catalogo.listar("ram")
-        rams.sort(key=lambda x: x["precio_centimos"])
-        primera = rams[0]
-        p_ram = formatear_soles(primera["precio_centimos"])
-        return ConsultaResponse(
-            status="completado",
-            intencion="informacion",
-            hitl_requerido=False,
-            motivos=[],
-            fuentes=["data/catalogo.json"],
-            mensaje=(
-                f"Disponemos de módulos RAM DDR4 desde {p_ram} ({primera['sku']}) "
-                f"con stock disponible, además de opciones DDR5 para plataformas AM5."
-            ),
-        )
+    # 3. Consultas sobre otras categorías de hardware
+    if cat_o_serie in ("fuente", "ram", "ssd", "placa", "gabinete", "refrigeracion"):
+        return responder_consulta_categoria_general(catalogo, cat_o_serie, extremo)
 
     # 4. Consultas sobre políticas, garantía, métodos de pago o envíos
     es_politica = any(

@@ -15,19 +15,19 @@ Actualizar esta regla cuando aparezcan módulos o comandos nuevos.
   criterios.py, decision.py, hitl.py, seguridad.py (guarda previa al modelo) y dlq.py (cola local de bloqueos).
 - src/config.py: configuración .env/entorno, mock por defecto.
 - src/tools/: catalogo.py, inventario.py, hardware.py, cotizacion.py, armador.py,
-  pagos.py, pedidos.py, montos.py y registro.py. Pedidos son borradores de demo en memoria.
+  pagos.py, pedidos.py, montos.py, registro.py y consulta_comercial.py (atención determinista con memoria y catálogo).
 - src/schemas/: base.py, entradas.py, resultados.py, consulta.py, decision.py, hitl.py, agentes.py,
-  flujo.py (incluye SolicitudAPI) y __init__.py.
+  flujo.py (incluye SolicitudAPI con contexto) y __init__.py.
 - src/knowledge/: documentos.py, vectorizacion.py, almacen.py e ingesta.py.
 - src/graph/: state.py (EstadoFlujo tipado sin texto libre), nodes.py (nodos de dominio y compuerta)
   y workflow.py (StateGraph acotado y fachada Orquestador).
-- src/api/: main.py (FastAPI con POST /consulta, contrato ConsultaResponse y montaje estático de frontend/).
+- src/api/: main.py (FastAPI con POST /consulta, GET /catalogo, contrato ConsultaResponse y montaje estático de frontend/).
 - src/agents/: base.py y ocho módulos de agente repartidos en
   d1_ventas (A1–A3), d2_tecnico (A4), d3_inventario (A5), d4_pedidos (A6–A8).
 - Cada paquete Python trae __init__.py.
 - tests/: test_invariantes.py, test_datos.py, test_herramientas.py, test_esquemas.py,
-  test_conocimiento.py, test_decision_hitl.py, test_llm.py, test_agentes.py, test_flujo.py y test_api.py.
-- frontend/: index.html, css/tokens.css, css/styles.css, js/icons.js, js/api.js, js/app.js (SPA sin CDN ni emojis).
+  test_conocimiento.py, test_decision_hitl.py, test_llm.py, test_agentes.py, test_flujo.py, test_api.py y test_consulta_comercial.py.
+- frontend/: index.html, css/tokens.css, css/styles.css, js/icons.js, js/api.js, js/app.js (SPA de cliente sin CDN ni emojis con Consola Comercial y Catálogo de Hardware).
 - requirements-fase1.txt: pytest y ruff; requirements-dev.txt y requirements.txt:
   listas completas previstas por la plantilla. requirements-fase3.txt añade Pydantic
   y reúne las dependencias mínimas de contratos; requirements-fase4.txt añade

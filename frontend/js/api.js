@@ -50,4 +50,14 @@ const Api = {
       maximumFractionDigits: 2,
     })}`;
   },
+
+  async obtenerCatalogo() {
+    try {
+      const response = await fetch('/catalogo');
+      if (!response.ok) return null;
+      return await response.json();
+    } catch {
+      return null;
+    }
+  },
 };

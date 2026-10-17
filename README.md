@@ -4,11 +4,12 @@ Sistema previsto para cotizar PCs en soles, validar compatibilidad y stock,
 conciliar pagos y registrar pedidos con revisión humana.
 
 ## Estado y problema
-FASES 1 a 9 completadas: datos sintéticos, herramientas deterministas, contratos estrictos,
-conocimiento RAG, compuerta HITL, ocho agentes tipados, orquestador LangGraph, API FastAPI
-e interfaz web local en frontend/.
-El endpoint POST /consulta expone el orquestador bajo el contrato único ConsultaResponse y
-sirve la interfaz web estáticamente en la raíz sin dependencias CDN ni emojis.
+FASES 1 a 10 completadas: datos sintéticos, herramientas deterministas, contratos estrictos,
+conocimiento RAG, compuerta HITL, ocho agentes tipados, orquestador LangGraph, API FastAPI,
+interfaz web local en frontend/ con consola comercial, motor de memoria conversacional y
+catálogo visual interactivo de hardware con 84 componentes sintéticos verificados.
+El endpoint POST /consulta expone el orquestador bajo el contrato único ConsultaResponse,
+GET /catalogo provee el inventario clasificado y sirve la interfaz web estáticamente en la raíz sin dependencias CDN ni emojis.
 Solo queda pendiente la demo final y verificación de preflight para entrega.
 La fábrica permite MockLLM y un conector real configurado; la verificación no llama a la red.
 

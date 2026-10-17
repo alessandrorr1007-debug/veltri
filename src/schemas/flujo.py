@@ -109,6 +109,7 @@ class SolicitudAPI(Contrato):
     tenant_id: Tenant | None = None
     consulta: ConsultaRequest | None = Field(default=None, repr=False)
     parametros: Parametros | None = None
+    contexto: Texto | None = Field(default=None, repr=False)
 
     @model_validator(mode="after")
     def validar_campos(self) -> Self:

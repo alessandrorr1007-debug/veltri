@@ -166,6 +166,7 @@ def crear_app(
                     mensaje=peticion.mensaje or "",
                     tenant_id=peticion.tenant_id or "veltri",
                     canal=peticion.canal or "web",
+                    contexto=peticion.contexto,
                     orquestador=orq,
                 )
 
@@ -184,6 +185,35 @@ def crear_app(
                 ).model_dump(mode="json"),
             )
 
+    @aplicacion.get(
+        "/catalogo",
+        summary="Listar catálogo de componentes",
+        description="Retorna productos de demostración clasificados por categoría y stock.",
+    )
+    async def listar_catalogo(
+        orq: Annotated[Orquestador, Depends(obtener_orquestador)],
+    ) -> dict[str, Any]:
+        catalogo = orq._servicios.catalogo
+        categorias = [
+            "gpu",
+            "cpu",
+            "placa",
+            "ram",
+            "ssd",
+            "fuente",
+            "gabinete",
+            "refrigeracion",
+        ]
+        resultado = {}
+        for cat in categorias:
+            prods = catalogo.listar(cat)
+            prods.sort(key=lambda x: x["precio_centimos"])
+            resultado[cat] = prods
+        return {
+            "moneda": "PEN",
+            "categorias": resultado,
+            "total_productos": sum(len(v) for v in resultado.values()),
+        }
 
     frontend_dir = Path(__file__).resolve().parent.parent.parent / "frontend"
     if (frontend_dir / "index.html").is_file():

@@ -34,13 +34,9 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg>
           Consola Comercial
         </button>
-        <button class="tab-btn" role="tab" aria-selected="false" data-tab="hitl" id="tab-hitl">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          Supervisión HITL
-        </button>
-        <button class="tab-btn" role="tab" aria-selected="false" data-tab="telemetry" id="tab-telemetry">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.48 12H2"></path></svg>
-          Trazas y Telemetría
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="catalogo" id="tab-catalogo">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          Catálogo de Hardware
         </button>
       </nav>
 
@@ -61,21 +57,6 @@
     <!-- VISTA 1: Consola Comercial -->
     <section class="view-section active" id="view-console" role="tabpanel" aria-labelledby="tab-console">
       <!-- Barra de Casos Rápidos -->
-      <div class="panel-card" style="margin-bottom: var(--space-6);">
-        <div class="quick-cases-section">
-          <div class="quick-cases-label">Casos Dorados de Demostración Rápida (CP-1 a CP-7)</div>
-          <div class="quick-cases-grid">
-            <button class="quick-btn" data-case="cp-1">CP-1: Gaming S/ 3,500</button>
-            <button class="quick-btn" data-case="cp-2">CP-2: Inyección Prompt</button>
-            <button class="quick-btn" data-case="cp-3">CP-3: Stock Agotado (5500)</button>
-            <button class="quick-btn" data-case="cp-4">CP-4: Presupuesto RTX S/ 1,200</button>
-            <button class="quick-btn" data-case="cp-5">CP-5: Pago Yape S/ 99.99</button>
-            <button class="quick-btn" data-case="cp-6">CP-6: Pedido Idempotente</button>
-            <button class="quick-btn" data-case="cp-7">CP-7: Armador S/ 5,000</button>
-          </div>
-        </div>
-      </div>
-
       <div class="commercial-layout">
         <!-- Panel Izquierdo: Chat Interactivo -->
         <div class="panel-card">
@@ -141,106 +122,41 @@
       </div>
     </section>
 
-    <!-- VISTA 2: Supervisión HITL -->
-    <section class="view-section" id="view-hitl" role="tabpanel" aria-labelledby="tab-hitl">
-      <div class="hitl-section">
-        <div class="panel-card">
-          <div class="panel-header">
+    <!-- VISTA 2: Catálogo de Hardware de Demostración -->
+    <section class="view-section" id="view-catalogo" role="tabpanel" aria-labelledby="tab-catalogo">
+      <div class="panel-card" style="margin-bottom: var(--space-4);">
+        <div class="panel-header" style="flex-wrap: wrap; gap: var(--space-3);">
+          <div>
             <h2 class="panel-title">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-              Bandeja de Supervisión Humana (HITL)
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              Inventario de Hardware — Catálogo Oficial
             </h2>
-            <span class="badge" style="font-size: 0.75rem; color: var(--text-muted);">Compuerta con umbrales protegidos</span>
+            <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 2px;">
+              Componentes sintéticos verificados con precios en Soles (S/) y stock en tiempo real.
+            </p>
           </div>
+          <div style="display: flex; gap: var(--space-2); align-items: center; flex: 1; max-width: 380px;">
+            <input type="text" id="catalogo-search" class="chat-input" placeholder="Buscar por SKU o nombre (ej: RTX, 5600, DDR4)..." style="width: 100%;">
+          </div>
+        </div>
 
-          <div class="hitl-table-wrap">
-            <table class="hitl-table">
-              <thead>
-                <tr>
-                  <th>ID Revisión</th>
-                  <th>Hora</th>
-                  <th>Opción</th>
-                  <th>Motivo de Retención & Detalle</th>
-                  <th>Probabilidad (p)</th>
-                  <th>Acción</th>
-                </tr>
-              </thead>
-              <tbody id="hitl-table-body">
-                <!-- Inyectado por JS -->
-              </tbody>
-            </table>
-          </div>
+        <!-- Filtros por Categoría -->
+        <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; padding: 0 var(--space-4) var(--space-4) var(--space-4);">
+          <button class="cat-filter-btn active" data-cat="todas">Todas</button>
+          <button class="cat-filter-btn" data-cat="gpu">Tarjetas de Video</button>
+          <button class="cat-filter-btn" data-cat="cpu">Procesadores</button>
+          <button class="cat-filter-btn" data-cat="placa">Placas Madre</button>
+          <button class="cat-filter-btn" data-cat="ram">Memorias RAM</button>
+          <button class="cat-filter-btn" data-cat="ssd">Almacenamiento SSD</button>
+          <button class="cat-filter-btn" data-cat="fuente">Fuentes de Poder</button>
+          <button class="cat-filter-btn" data-cat="gabinete">Gabinetes</button>
+          <button class="cat-filter-btn" data-cat="refrigeracion">Refrigeración</button>
         </div>
       </div>
-    </section>
 
-    <!-- VISTA 3: Trazas y Telemetría -->
-    <section class="view-section" id="view-telemetry" role="tabpanel" aria-labelledby="tab-telemetry">
-      <div class="telemetry-layout">
-        <!-- Panel Izquierdo: Métricas Técnicas -->
-        <div>
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <span class="kpi-label">Socket Técnico</span>
-              <span class="kpi-value" style="color: var(--color-success-base);">AM4 (100% OK)</span>
-              <span class="kpi-subtext">CPU y Placa Madre compatibles</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">Potencia / TDP</span>
-              <span class="kpi-value">285W / 450W</span>
-              <span class="kpi-subtext">Holgura de fuente: 37% (Adecuada)</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">Cuello de Botella</span>
-              <span class="kpi-value" style="color: var(--color-success-base);">Equilibrado</span>
-              <span class="kpi-subtext">Ryzen 5 5600 + RX 6600 (1080p)</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">Soporte BIOS</span>
-              <span class="kpi-value" style="color: var(--color-warning-base);">Revisar</span>
-              <span class="kpi-subtext">Placa A520 requiere vF14+</span>
-            </div>
-          </div>
-
-          <div class="panel-card">
-            <div class="panel-header">
-              <h2 class="panel-title">Invariantes de Gobernanza & Seguridad</h2>
-            </div>
-            <div style="padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); font-size: 0.8125rem;">
-              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
-                <span>Guarda anti prompt-injection previa</span>
-                <span class="status-badge completado">Activo</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
-                <span>Filtro de privacidad PII (DNI, correo, teléfono)</span>
-                <span class="status-badge completado">Activo (0 fugas)</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
-                <span>Aislamiento por Tenant RAG</span>
-                <span class="status-badge completado">veltri_tecnologic_pe</span>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span>Aritmética en código determinista</span>
-                <span class="status-badge completado">src/tools/</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Panel Derecho: Línea de Tiempo del Flujo -->
-        <div class="panel-card">
-          <div class="panel-header">
-            <h2 class="panel-title">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-              Línea de Tiempo del Grafo Multiagente
-            </h2>
-          </div>
-          <div style="padding: var(--space-4);">
-            <div class="timeline" id="timeline-container">
-              <!-- Inyectado por JS -->
-            </div>
-          </div>
-        </div>
+      <!-- Grilla de Tarjetas de Componentes -->
+      <div id="catalogo-grid" class="catalogo-grid">
+        <!-- Renderizado dinámicamente por JS -->
       </div>
     </section>
 
@@ -264,25 +180,7 @@
     </div>
   </div>
 
-  <!-- Modal de Confirmación HITL -->
-  <div class="modal-overlay" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
-    <div class="modal-card" style="max-width: 480px;">
-      <div class="modal-header">
-        <h3 class="panel-title" id="confirm-title">Acción de Supervisión</h3>
-      </div>
-      <div class="modal-body" style="display: flex; flex-direction: column; gap: var(--space-3);">
-        <p id="confirm-message">¿Confirmas la acción sobre esta solicitud?</p>
-        <div>
-          <label for="confirm-comment" style="display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Comentario de auditoría (opcional):</label>
-          <input type="text" id="confirm-comment" class="chat-input" placeholder="Ej: Aprobado tras verificar compatibilidad en web de Gigabyte" style="width: 100%;">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" id="btn-cancel-action">Cancelar</button>
-        <button class="btn-primary" id="btn-confirm-action">Confirmar</button>
-      </div>
-    </div>
-  </div>
+
 
   <!-- Footer con aviso legal obligatorio -->
   <footer class="app-footer">
