@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "id": "bpmn-veltri-as-is-v1.0",
+  "nombre": "Proceso de Cotización, Validación Técnica, Conciliación de Pagos y Venta de Hardware (AS-IS)",
+  "tipo": "AS_IS",
+  "empresa": "Veltri Tecnologic",
+  "ubicacion": "Lima, Perú",
+  "moneda": "PEN (S/)",
+  "version": "1.0",
+  "descripcion": "Modelado del proceso comercial tradicional y manual previo a la implementación del sistema multiagente. Caracterizado por alta fricción operativa, cálculo en hojas de cálculo no sincronizadas, validación manual de stock y compatibilidad, y verificación visual de comprobantes de pago bancarios.",
+  "pools": [
+    {
+      "id": "pool_cliente",
+      "nombre": "Cliente Final",
+      "tipo": "externo",
+      "lanes": [
+        {
+          "id": "lane_cliente",
+          "nombre": "Comprador (Gamer / Oficina)"
+        }
+      ]
+    },
+    {
+      "id": "pool_veltri_manual",
+      "nombre": "Tienda Veltri Tecnologic (Operación Tradicional Manual)",
+      "tipo": "interno",
+      "lanes": [
+        {
+          "id": "lane_ventas",
+          "nombre": "Asesor de Ventas (WhatsApp / Mostrador)"
+        },
+        {
+          "id": "lane_almacen",
+          "nombre": "Encargado de Almacén e Inventario"
+        },
+        {
+          "id": "lane_tecnico",
+          "nombre": "Técnico Ensamblador"
+        },
+        {
+          "id": "lane_administracion",
+          "nombre": "Cajero / Administración Financiera"
+        }
+      ]
+    }
+  ],
+  "elementos": {
+    "eventos_inicio": [
+      {
+        "id": "start_solicitud_cliente",
+        "nombre": "Cliente solicita cotización de PC o consulta de piezas",
+        "lane": "lane_cliente",
+        "tipo": "mensaje",
+        "canal": ["WhatsApp", "Presencial"]
+      }
+    ],
+    "actividades": [
+      {
+        "id": "act_recibir_solicitud",
+        "nombre": "Recepcionar mensaje y tipificar requerimiento de hardware",
+        "lane": "lane_ventas",
+        "tipo": "manual_task",
+        "duracion_estimada_minutos": 15,
+        "descripcion": "El vendedor lee el chat de WhatsApp o atiende en mostrador, intentando deducir qué componentes busca el cliente o su presupuesto aproximado."
+      },
+      {
+        "id": "act_consultar_excel_precios",
+        "nombre": "Buscar piezas en lista de precios local (Excel)",
+        "lane": "lane_ventas",
+        "tipo": "manual_task",
+        "duracion_estimada_minutos": 20,
+        "descripcion": "El asesor abre un archivo Excel descargado previamente con precios en Soles y dólares. Riesgo de usar listas de precios desactualizadas."
+      },
+      {
+        "id": "act_consultar_stock_almacen",
+        "nombre": "Consultar disponibilidad de piezas por llamada o mensaje interno",
+        "lane": "lane_almacen",
+        "tipo": "manual_task",
+        "duracion_estimada_minutos": 30,
+        "descripcion": "El encargado de almacén revisa manualmente las estanterías o un software contable desconectado para verificar si quedan CPUs o GPUs."
+      },
+      {
+        "id": "act_validar_compatibilidad_manual",
+        "nombre": "Verificar compatibilidad de socket, TDP y fuente en manuales web",
+        "lane": "lane_tecnico",
+        "tipo": "manual_task",
+        "duracion_estimada_minutos": 25,
+        "descripcion": "El técnico busca en Google o páginas de fabricantes si el procesador calza en la placa y estima al ojo si la fuente de poder alcanzará para la gráfica."
+      },
+      {
+        "id": "act_armar_proforma_manual",
+        "nombre": "Redactar proforma en plantilla de texto o PDF manual",
+        "lane": "lane_ventas",
+        "tipo": "manual_task",
+        "duracion_estimada_minutos": 20,
+        "descripcion": "El vendedor suma a mano o con calculadora los importes, agrega el IGV (18%) y genera un PDF o mensaje de texto formateado."
+      },
+      {
+        "id": "act_enviar_proforma_cliente",
+        "nombre": "Enviar cotización al cliente y esperar aprobación",
+        "lane": "lane_ventas",
+        "tipo": "send_task",
+        "duracion_estimada_minutos": 5,
+        "descripcion": "Se remite el presupuesto al cliente por chat esperando su visto bueno."
+      },
+      {
+        "id": "act_realizar_pago_cliente",
+        "nombre": "Efectuar transferencia bancaria o Yape y enviar captura de pantalla",
+        "lane": "lane_cliente",
+        "tipo": "user_task",
+        "duracion_estimada_minutos": 60,
+        "descripcion": "El cliente realiza el depósito en BCP, BBVA o Yape y adjunta la captura del comprobante por WhatsApp."
+      },
+      {
+        "id": "act_verificar_comprobante_bancario",
+        "nombre": "Revisar captura de pago en la app bancaria del celular",
+        "lane": "lane_administracion",
+        "tipo": "manual_task",
+        "duracion_estimada_minutos": 45,
+        "descripcion": "El administrador revisa su aplicativo bancario para comprobar si el dinero ingresó realmente y si el monto coincide con la cotización."
+      },
+      {
+        "id": "act_registrar_pedido_cuaderno",
+        "nombre": "Registrar orden de despacho en cuaderno contable o Excel de pedidos",
+        "lane": "lane_administracion",
+        "tipo": "manual_task",
+        "duracion_estimada_minutos": 20,
+        "descripcion": "Se anota la venta sin validación de idempotencia, con riesgo de duplicar despachos si dos vendedores atienden al mismo cliente."
+      },
+      {
+        "id": "act_ensamblar_y_despachar",
+        "nombre": "Separar piezas físicas, ensamblar equipo y preparar despacho",
+        "lane": "lane_tecnico",
+        "tipo": "manual_task",
+        "duracion_estimada_minutos": 120,
+        "descripcion": "El técnico retira las piezas físicas del almacén y procede al ensamble."
+      }
+    ],
+    "compuertas": [
+      {
+        "id": "gw_hay_stock",
+        "nombre": "¿Hay stock de todos los componentes?",
+        "lane": "lane_ventas",
+        "tipo": "exclusive_gateway",
+        "condiciones": {
+          "si": "act_validar_compatibilidad_manual",
+          "no": "act_recomendar_alternativa_manual"
+        }
+      },
+      {
+        "id": "gw_es_compatible",
+        "nombre": "¿Componentes técnicamente compatibles?",
+        "lane": "lane_tecnico",
+        "tipo": "exclusive_gateway",
+        "condiciones": {
+          "si": "act_armar_proforma_manual",
+          "no": "act_corregir_configuracion_manual"
+        }
+      },
+      {
+        "id": "gw_cliente_acepta",
+        "nombre": "¿Cliente acepta presupuesto?",
+        "lane": "lane_cliente",
+        "tipo": "exclusive_gateway",
+        "condiciones": {
+          "si": "act_realizar_pago_cliente",
+          "no": "end_cancelado_cliente"
+        }
+      },
+      {
+        "id": "gw_pago_valido",
+        "nombre": "¿Pago acreditado y monto exacto?",
+        "lane": "lane_administracion",
+        "tipo": "exclusive_gateway",
+        "condiciones": {
+          "si": "act_registrar_pedido_cuaderno",
+          "no": "act_reclamar_discrepancia_pago"
+        }
+      }
+    ],
+    "eventos_fin": [
+      {
+        "id": "end_pedido_despachado",
+        "nombre": "Pedido ensamblado y despachado con éxito",
+        "tipo": "fin_exitoso"
+      },
+      {
+        "id": "end_cancelado_cliente",
+        "nombre": "Venta perdida por demora o falta de stock",
+        "tipo": "fin_fallido"
+      },
+      {
+        "id": "end_fraude_pago",
+        "nombre": "Operación cancelada por comprobante falso o pago discordante",
+        "tipo": "fin_fallido"
+      }
+    ]
+  },
+  "flujos_secuencia": [
+    { "id": "f1", "source": "start_solicitud_cliente", "target": "act_recibir_solicitud" },
+    { "id": "f2", "source": "act_recibir_solicitud", "target": "act_consultar_excel_precios" },
+    { "id": "f3", "source": "act_consultar_excel_precios", "target": "act_consultar_stock_almacen" },
+    { "id": "f4", "source": "act_consultar_stock_almacen", "target": "gw_hay_stock" },
+    { "id": "f5_si", "source": "gw_hay_stock", "target": "act_validar_compatibilidad_manual", "condicion": "Hay stock" },
+    { "id": "f5_no", "source": "gw_hay_stock", "target": "act_recibir_solicitud", "condicion": "Sin stock (renegociar)" },
+    { "id": "f6", "source": "act_validar_compatibilidad_manual", "target": "gw_es_compatible" },
+    { "id": "f7_si", "source": "gw_es_compatible", "target": "act_armar_proforma_manual", "condicion": "Es compatible" },
+    { "id": "f7_no", "source": "gw_es_compatible", "target": "act_consultar_excel_precios", "condicion": "Incompatible (cambiar placa/fuente)" },
+    { "id": "f8", "source": "act_armar_proforma_manual", "target": "act_enviar_proforma_cliente" },
+    { "id": "f9", "source": "act_enviar_proforma_cliente", "target": "gw_cliente_acepta" },
+    { "id": "f10_si", "source": "gw_cliente_acepta", "target": "act_realizar_pago_cliente", "condicion": "Cliente aprueba" },
+    { "id": "f10_no", "source": "gw_cliente_acepta", "target": "end_cancelado_cliente", "condicion": "Cliente desiste" },
+    { "id": "f11", "source": "act_realizar_pago_cliente", "target": "act_verificar_comprobante_bancario" },
+    { "id": "f12", "source": "act_verificar_comprobante_bancario", "target": "gw_pago_valido" },
+    { "id": "f13_si", "source": "gw_pago_valido", "target": "act_registrar_pedido_cuaderno", "condicion": "Pago conforme" },
+    { "id": "f13_no", "source": "gw_pago_valido", "target": "end_fraude_pago", "condicion": "Discrepancia no resuelta" },
+    { "id": "f14", "source": "act_registrar_pedido_cuaderno", "target": "act_ensamblar_y_despachar" },
+    { "id": "f15", "source": "act_ensamblar_y_despachar", "target": "end_pedido_despachado" }
+  ],
+  "puntos_de_dolor_analisis": [
+    {
+      "id": "pd_1",
+      "etapa": "Cotización y Precios",
+      "sintoma": "Listas de precios en Excel desactualizadas respecto al tipo de cambio o costos de mayoristas.",
+      "impacto": "Márgenes negativos o precios erróneos cotizados al cliente."
+    },
+    {
+      "id": "pd_2",
+      "etapa": "Inventario",
+      "sintoma": "Consulta manual al almacenero por teléfono o presencial.",
+      "impacto": "Demoras de 30 a 60 minutos por cliente y ventas confirmadas de piezas que ya estaban agotadas."
+    },
+    {
+      "id": "pd_3",
+      "etapa": "Compatibilidad Técnica",
+      "sintoma": "Estimación empírica 'al ojo' de conectores y fuentes de poder; búsqueda no tipada de sockets.",
+      "impacto": "Equipos armados que no arrancan por incompatibilidad de BIOS en placas base o fuentes que colapsan por picos de TDP."
+    },
+    {
+      "id": "pd_4",
+      "etapa": "Conciliación Financiera",
+      "sintoma": "Verificación visual de capturas de pantalla de Yape/Transferencia propensas a edición digital (comprobantes falsos).",
+      "impacto": "Riesgo de estafas y pedidos despachados con montos parciales no conciliados."
+    },
+    {
+      "id": "pd_5",
+      "etapa": "Registro de Pedidos",
+      "sintoma": "Anotaciones en cuadernos físicos o archivos planos sin hash de idempotencia.",
+      "impacto": "Duplicación de pedidos, falta de trazabilidad y desorden en almacén."
+    }
+  ],
+  "metricas_clave_as_is": {
+    "tiempo_promedio_cotizacion_minutos": 90,
+    "tiempo_promedio_cierre_pedido_horas": 4.5,
+    "tasa_error_compatibilidad_hardware_porcentaje": 12.5,
+    "tasa_incidencias_stock_porcentaje": 18.0,
+    "tiempo_conciliacion_pago_minutos": 45,
+    "costo_operativo_por_cotizacion_soles": 24.50
+  }
+}
