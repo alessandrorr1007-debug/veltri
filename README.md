@@ -4,14 +4,14 @@ Sistema previsto para cotizar PCs en soles, validar compatibilidad y stock,
 conciliar pagos y registrar pedidos con revisión humana.
 
 ## Estado y problema
-FASES 1, 2 y 3 completadas: datos sintéticos y herramientas deterministas para evitar referencias
+FASES 1, 2, 3 y 4 completadas: datos sintéticos y herramientas deterministas para evitar referencias
 rotas, montos inválidos y ventas de productos agotados. Las herramientas operan solo en demostración; los flujos integrados siguen pendientes.
 La plantilla conserva su acceso al modelo sin uso.
 
 ## Arquitectura y agentes A1 a A8
 Diseño futuro en docs/arquitectura.md: ventas D1 (A1–A3), técnico D2 (A4),
 inventario D3 (A5), pedidos y pagos D4 (A6–A8). No hay agentes ejecutables,
-RAG, grafo, API ni interfaz funcional. Las carpetas correspondientes son esqueletos.
+generación RAG con LLM, grafo, API ni interfaz funcional. Las carpetas correspondientes son esqueletos.
 
 ```mermaid
 flowchart LR
@@ -31,7 +31,7 @@ los escenarios integrados siguen pendientes.
 Python 3.12 o superior (verificado con 3.14.4) y Git:
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python -m pip install -r requirements-fase3.txt
+.\.venv\Scripts\python -m pip install -r requirements-fase4.txt
 .\.venv\Scripts\Activate.ps1
 python scripts/verificar.py
 git init
@@ -39,7 +39,7 @@ python scripts/instalar_hooks.py
 ```
 Si PowerShell impide activar, usar directamente `.\.venv\Scripts\python`.
 requirements-dev.txt conserva la lista completa de la plantilla; la verificación actual usa
-pytest, ruff y Pydantic para contratos, sin instalar agentes ni llamar al modelo.
+pytest, ruff, Pydantic, ChromaDB y filelock, sin instalar agentes ni llamar al modelo.
 El hook instalado protege commits, no impide editar archivos.
 No se instaló settings.json ni configuración MCP. La detección automática de
 Rules/Workflows/Skills por el IDE no está comprobada: se leyeron como guías.
@@ -73,6 +73,16 @@ No se añadieron dependencias: el entorno de verificación de fase 1 sigue vigen
 Contratos estrictos Pydantic, incluido ConsultaResponse 1.0-demo, en src/schemas/.
 Documentación en docs/esquemas.md y JSON Schema en docs/contratos/. La validación
 rechaza tipos incorrectos, campos extra, totales incoherentes y revisión ocultada.
-No hay endpoints, RAG ni agentes. Regenerar contratos con
+No hay endpoints, generación con LLM ni agentes. Regenerar contratos con
 `python scripts/exportar_esquemas.py`. Dependencias mínimas actuales en
 requirements-fase3.txt; las listas de fases anteriores se conservan.
+
+## Avance FASE 4
+Ingesta y recuperación local en ChromaDB con tenant obligatorio y vectores léxicos
+sin modelos. Se indexan únicamente las tres fuentes sintéticas de data/, con citas
+y hashes de versión. Detalles y límites en docs/conocimiento.md.
+```powershell
+python -m src.knowledge.ingesta --tenant veltri_tecnologic_pe
+```
+El índice chroma_db/ es local y está excluido de Git. La recuperación no autoriza
+ventas ni reemplaza el stock de las herramientas. Aún no hay RAG generativo.

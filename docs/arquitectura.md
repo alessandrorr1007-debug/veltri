@@ -61,3 +61,23 @@ flowchart LR
 
 Los modelos no ejecutan agentes ni conceden autorizaciones. Contratos y límites
 en docs/esquemas.md; el motor de decisión y la revisión humana quedan pendientes.
+
+## Estado tras FASE 4
+Capa local de recuperación para el futuro RAG. Sin LLM generativo ni cambios en
+agentes, grafo o API. Las herramientas deterministas siguen siendo la autoridad
+para validar cálculos y stock de demostración.
+
+```mermaid
+flowchart LR
+    DAT[Tres fuentes sintéticas permitidas] --> DOC[Fragmentos con citas y hashes]
+    DOC --> PRIV[Guardas de privacidad]
+    PRIV --> VEC[Vectores léxicos locales]
+    VEC --> CH[Chroma por tenant y snapshot]
+    Q[Consulta y tenant explícito] --> FIL[Filtro tenant y snapshot activo]
+    FIL --> CH
+    CH --> CIT[Contexto citado sin autorización de negocio]
+    CIT -. integración futura .-> RAG[RAG generativo]
+```
+
+La autorización del tenant y el filtro anti injection conversacional siguen
+pendientes del backend. Guardas y límites: docs/conocimiento.md.
