@@ -1,0 +1,324 @@
+{
+  "$defs": {
+    "FaltanteStock": {
+      "additionalProperties": false,
+      "description": "Faltante comprobado para una cantidad explícita.",
+      "properties": {
+        "sku": {
+          "maxLength": 80,
+          "pattern": "^[A-Z0-9]+(?:-[A-Z0-9]+)+$",
+          "title": "Sku",
+          "type": "string"
+        },
+        "solicitado": {
+          "exclusiveMinimum": 0,
+          "title": "Solicitado",
+          "type": "integer"
+        },
+        "disponible": {
+          "minimum": 0,
+          "title": "Disponible",
+          "type": "integer"
+        },
+        "motivo": {
+          "const": "stock_insuficiente",
+          "title": "Motivo",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sku",
+        "solicitado",
+        "disponible",
+        "motivo"
+      ],
+      "title": "FaltanteStock",
+      "type": "object"
+    },
+    "LineaCotizacion": {
+      "additionalProperties": false,
+      "description": "Una línea con importes calculados y referencia al SKU de origen.",
+      "properties": {
+        "sku": {
+          "maxLength": 80,
+          "pattern": "^[A-Z0-9]+(?:-[A-Z0-9]+)+$",
+          "title": "Sku",
+          "type": "string"
+        },
+        "cantidad": {
+          "exclusiveMinimum": 0,
+          "title": "Cantidad",
+          "type": "integer"
+        },
+        "precio_unitario_centimos": {
+          "exclusiveMinimum": 0,
+          "title": "Precio Unitario Centimos",
+          "type": "integer"
+        },
+        "subtotal_centimos": {
+          "exclusiveMinimum": 0,
+          "title": "Subtotal Centimos",
+          "type": "integer"
+        },
+        "fuente": {
+          "pattern": "^data/catalogo\\.json#[A-Z0-9-]+$",
+          "title": "Fuente",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sku",
+        "cantidad",
+        "precio_unitario_centimos",
+        "subtotal_centimos",
+        "fuente"
+      ],
+      "title": "LineaCotizacion",
+      "type": "object"
+    },
+    "ResultadoCotizacion": {
+      "additionalProperties": false,
+      "description": "Simulación de cotización; nunca concede autorización comercial.",
+      "properties": {
+        "moneda": {
+          "const": "PEN",
+          "title": "Moneda",
+          "type": "string"
+        },
+        "naturaleza": {
+          "const": "demostracion_sintetica",
+          "title": "Naturaleza",
+          "type": "string"
+        },
+        "lineas": {
+          "items": {
+            "$ref": "#/$defs/LineaCotizacion"
+          },
+          "maxItems": 90,
+          "minItems": 1,
+          "title": "Lineas",
+          "type": "array"
+        },
+        "total_centimos": {
+          "exclusiveMinimum": 0,
+          "title": "Total Centimos",
+          "type": "integer"
+        },
+        "sobre_presupuesto": {
+          "title": "Sobre Presupuesto",
+          "type": "boolean"
+        },
+        "stock": {
+          "$ref": "#/$defs/ResultadoStock"
+        },
+        "tecnico": {
+          "$ref": "#/$defs/ResultadoTecnico"
+        },
+        "hitl_requerido": {
+          "const": true,
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        },
+        "genera_proforma": {
+          "const": false,
+          "title": "Genera Proforma",
+          "type": "boolean"
+        },
+        "bloqueos": {
+          "items": {
+            "maxLength": 160,
+            "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+            "type": "string"
+          },
+          "title": "Bloqueos",
+          "type": "array"
+        },
+        "aviso": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Aviso",
+          "type": "string"
+        }
+      },
+      "required": [
+        "moneda",
+        "naturaleza",
+        "lineas",
+        "total_centimos",
+        "sobre_presupuesto",
+        "stock",
+        "tecnico",
+        "hitl_requerido",
+        "genera_proforma",
+        "bloqueos",
+        "aviso"
+      ],
+      "title": "ResultadoCotizacion",
+      "type": "object"
+    },
+    "ResultadoStock": {
+      "additionalProperties": false,
+      "description": "Stock disponible y revisión obligatoria cuando hay faltantes.",
+      "properties": {
+        "disponible": {
+          "title": "Disponible",
+          "type": "boolean"
+        },
+        "hitl_requerido": {
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        },
+        "faltantes": {
+          "items": {
+            "$ref": "#/$defs/FaltanteStock"
+          },
+          "title": "Faltantes",
+          "type": "array"
+        },
+        "fuente": {
+          "const": "data/catalogo.json",
+          "title": "Fuente",
+          "type": "string"
+        }
+      },
+      "required": [
+        "disponible",
+        "hitl_requerido",
+        "faltantes",
+        "fuente"
+      ],
+      "title": "ResultadoStock",
+      "type": "object"
+    },
+    "ResultadoTecnico": {
+      "additionalProperties": false,
+      "description": "Compatibilidad de datos separada de aprobación técnica real.",
+      "properties": {
+        "sin_conflictos_datos": {
+          "title": "Sin Conflictos Datos",
+          "type": "boolean"
+        },
+        "aprobado_tecnicamente": {
+          "const": false,
+          "title": "Aprobado Tecnicamente",
+          "type": "boolean"
+        },
+        "hitl_requerido": {
+          "const": true,
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        },
+        "conflictos": {
+          "items": {
+            "maxLength": 160,
+            "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+            "type": "string"
+          },
+          "title": "Conflictos",
+          "type": "array"
+        },
+        "pendientes": {
+          "items": {
+            "maxLength": 160,
+            "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+            "type": "string"
+          },
+          "title": "Pendientes",
+          "type": "array"
+        },
+        "potencia_estimada_w": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Potencia Estimada W"
+        },
+        "fuente": {
+          "const": "data/compatibilidad.json",
+          "title": "Fuente",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sin_conflictos_datos",
+        "aprobado_tecnicamente",
+        "hitl_requerido",
+        "conflictos",
+        "pendientes",
+        "potencia_estimada_w",
+        "fuente"
+      ],
+      "title": "ResultadoTecnico",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Propuesta dentro de rango o ausencia explícita de solución.",
+  "properties": {
+    "estado": {
+      "enum": [
+        "propuesta_demo",
+        "sin_configuracion_en_rango"
+      ],
+      "title": "Estado",
+      "type": "string"
+    },
+    "cotizacion": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResultadoCotizacion"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "minimo_catalogo_centimos": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Minimo Catalogo Centimos"
+    },
+    "hitl_requerido": {
+      "const": true,
+      "title": "Hitl Requerido",
+      "type": "boolean"
+    },
+    "criterio": {
+      "anyOf": [
+        {
+          "enum": [
+            "menor_total",
+            "mayor_total_en_rango"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Criterio"
+    }
+  },
+  "required": [
+    "estado",
+    "cotizacion",
+    "minimo_catalogo_centimos",
+    "hitl_requerido"
+  ],
+  "title": "ResultadoArmado",
+  "type": "object"
+}

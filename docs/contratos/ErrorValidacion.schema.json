@@ -1,0 +1,41 @@
+{
+  "additionalProperties": false,
+  "description": "Error publicable sin texto de entrada, valores rechazados ni trazas.",
+  "properties": {
+    "codigo": {
+      "const": "entrada_invalida",
+      "default": "entrada_invalida",
+      "title": "Codigo",
+      "type": "string"
+    },
+    "mensaje": {
+      "const": "Revisa los campos de la solicitud.",
+      "default": "Revisa los campos de la solicitud.",
+      "title": "Mensaje",
+      "type": "string"
+    },
+    "campos": {
+      "items": {
+        "enum": [
+          "mensaje",
+          "canal",
+          "tenant_id",
+          "seleccion",
+          "maximo_centimos",
+          "minimo_centimos",
+          "solo_rtx",
+          "total_centimos",
+          "pagado_centimos",
+          "moneda",
+          "cliente"
+        ],
+        "type": "string"
+      },
+      "maxItems": 11,
+      "title": "Campos",
+      "type": "array"
+    }
+  },
+  "title": "ErrorValidacion",
+  "type": "object"
+}

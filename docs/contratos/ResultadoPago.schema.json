@@ -1,0 +1,50 @@
+{
+  "additionalProperties": false,
+  "description": "Comparación de importes, aún sin conciliación bancaria.",
+  "properties": {
+    "montos_coinciden": {
+      "title": "Montos Coinciden",
+      "type": "boolean"
+    },
+    "diferencia_centimos": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Diferencia Centimos"
+    },
+    "estado": {
+      "const": "no_conciliado",
+      "title": "Estado",
+      "type": "string"
+    },
+    "hitl_requerido": {
+      "const": true,
+      "title": "Hitl Requerido",
+      "type": "boolean"
+    },
+    "motivos": {
+      "items": {
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Motivos",
+      "type": "array"
+    }
+  },
+  "required": [
+    "montos_coinciden",
+    "diferencia_centimos",
+    "estado",
+    "hitl_requerido",
+    "motivos"
+  ],
+  "title": "ResultadoPago",
+  "type": "object"
+}

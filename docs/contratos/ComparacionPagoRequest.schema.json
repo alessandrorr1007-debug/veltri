@@ -1,0 +1,28 @@
+{
+  "additionalProperties": false,
+  "description": "Importes declarados; no incluye comprobantes ni credenciales bancarias.",
+  "properties": {
+    "total_centimos": {
+      "exclusiveMinimum": 0,
+      "title": "Total Centimos",
+      "type": "integer"
+    },
+    "pagado_centimos": {
+      "minimum": 0,
+      "title": "Pagado Centimos",
+      "type": "integer"
+    },
+    "moneda": {
+      "default": "PEN",
+      "pattern": "^[A-Z]{3}$",
+      "title": "Moneda",
+      "type": "string"
+    }
+  },
+  "required": [
+    "total_centimos",
+    "pagado_centimos"
+  ],
+  "title": "ComparacionPagoRequest",
+  "type": "object"
+}

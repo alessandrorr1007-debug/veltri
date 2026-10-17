@@ -1,0 +1,71 @@
+{
+  "$defs": {
+    "FaltanteStock": {
+      "additionalProperties": false,
+      "description": "Faltante comprobado para una cantidad explícita.",
+      "properties": {
+        "sku": {
+          "maxLength": 80,
+          "pattern": "^[A-Z0-9]+(?:-[A-Z0-9]+)+$",
+          "title": "Sku",
+          "type": "string"
+        },
+        "solicitado": {
+          "exclusiveMinimum": 0,
+          "title": "Solicitado",
+          "type": "integer"
+        },
+        "disponible": {
+          "minimum": 0,
+          "title": "Disponible",
+          "type": "integer"
+        },
+        "motivo": {
+          "const": "stock_insuficiente",
+          "title": "Motivo",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sku",
+        "solicitado",
+        "disponible",
+        "motivo"
+      ],
+      "title": "FaltanteStock",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Stock disponible y revisión obligatoria cuando hay faltantes.",
+  "properties": {
+    "disponible": {
+      "title": "Disponible",
+      "type": "boolean"
+    },
+    "hitl_requerido": {
+      "title": "Hitl Requerido",
+      "type": "boolean"
+    },
+    "faltantes": {
+      "items": {
+        "$ref": "#/$defs/FaltanteStock"
+      },
+      "title": "Faltantes",
+      "type": "array"
+    },
+    "fuente": {
+      "const": "data/catalogo.json",
+      "title": "Fuente",
+      "type": "string"
+    }
+  },
+  "required": [
+    "disponible",
+    "hitl_requerido",
+    "faltantes",
+    "fuente"
+  ],
+  "title": "ResultadoStock",
+  "type": "object"
+}

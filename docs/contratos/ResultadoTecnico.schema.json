@@ -1,0 +1,66 @@
+{
+  "additionalProperties": false,
+  "description": "Compatibilidad de datos separada de aprobación técnica real.",
+  "properties": {
+    "sin_conflictos_datos": {
+      "title": "Sin Conflictos Datos",
+      "type": "boolean"
+    },
+    "aprobado_tecnicamente": {
+      "const": false,
+      "title": "Aprobado Tecnicamente",
+      "type": "boolean"
+    },
+    "hitl_requerido": {
+      "const": true,
+      "title": "Hitl Requerido",
+      "type": "boolean"
+    },
+    "conflictos": {
+      "items": {
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+        "type": "string"
+      },
+      "title": "Conflictos",
+      "type": "array"
+    },
+    "pendientes": {
+      "items": {
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+        "type": "string"
+      },
+      "title": "Pendientes",
+      "type": "array"
+    },
+    "potencia_estimada_w": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Potencia Estimada W"
+    },
+    "fuente": {
+      "const": "data/compatibilidad.json",
+      "title": "Fuente",
+      "type": "string"
+    }
+  },
+  "required": [
+    "sin_conflictos_datos",
+    "aprobado_tecnicamente",
+    "hitl_requerido",
+    "conflictos",
+    "pendientes",
+    "potencia_estimada_w",
+    "fuente"
+  ],
+  "title": "ResultadoTecnico",
+  "type": "object"
+}

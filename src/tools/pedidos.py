@@ -40,4 +40,3 @@ class RegistroDemo:
                                       "hitl_requerido": True}
         return {"duplicado": duplicado, "registros_creados": 0 if duplicado else 1,
                 "pedido": deepcopy(self._registros[clave])}
-

@@ -1,0 +1,33 @@
+{
+  "additionalProperties": false,
+  "description": "Consulta con tenant explícito; mensaje excluido de repr.",
+  "properties": {
+    "mensaje": {
+      "maxLength": 4000,
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Mensaje",
+      "type": "string"
+    },
+    "canal": {
+      "enum": [
+        "web",
+        "whatsapp"
+      ],
+      "title": "Canal",
+      "type": "string"
+    },
+    "tenant_id": {
+      "pattern": "^[a-z][a-z0-9_]{0,63}$",
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "mensaje",
+    "canal",
+    "tenant_id"
+  ],
+  "title": "ConsultaRequest",
+  "type": "object"
+}

@@ -1,0 +1,532 @@
+{
+  "$defs": {
+    "BorradorPedido": {
+      "additionalProperties": false,
+      "description": "El contrato impide representar un borrador como pedido confirmado.",
+      "properties": {
+        "clave": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Clave",
+          "type": "string"
+        },
+        "estado": {
+          "const": "borrador_demo",
+          "title": "Estado",
+          "type": "string"
+        },
+        "seleccion": {
+          "maxProperties": 90,
+          "minProperties": 1,
+          "patternProperties": {
+            "^[A-Z0-9]+(?:-[A-Z0-9]+)+$": {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 80
+          },
+          "title": "Seleccion",
+          "type": "object"
+        },
+        "hitl_requerido": {
+          "const": true,
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "clave",
+        "estado",
+        "seleccion",
+        "hitl_requerido"
+      ],
+      "title": "BorradorPedido",
+      "type": "object"
+    },
+    "FaltanteStock": {
+      "additionalProperties": false,
+      "description": "Faltante comprobado para una cantidad explícita.",
+      "properties": {
+        "sku": {
+          "maxLength": 80,
+          "pattern": "^[A-Z0-9]+(?:-[A-Z0-9]+)+$",
+          "title": "Sku",
+          "type": "string"
+        },
+        "solicitado": {
+          "exclusiveMinimum": 0,
+          "title": "Solicitado",
+          "type": "integer"
+        },
+        "disponible": {
+          "minimum": 0,
+          "title": "Disponible",
+          "type": "integer"
+        },
+        "motivo": {
+          "const": "stock_insuficiente",
+          "title": "Motivo",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sku",
+        "solicitado",
+        "disponible",
+        "motivo"
+      ],
+      "title": "FaltanteStock",
+      "type": "object"
+    },
+    "LineaCotizacion": {
+      "additionalProperties": false,
+      "description": "Una línea con importes calculados y referencia al SKU de origen.",
+      "properties": {
+        "sku": {
+          "maxLength": 80,
+          "pattern": "^[A-Z0-9]+(?:-[A-Z0-9]+)+$",
+          "title": "Sku",
+          "type": "string"
+        },
+        "cantidad": {
+          "exclusiveMinimum": 0,
+          "title": "Cantidad",
+          "type": "integer"
+        },
+        "precio_unitario_centimos": {
+          "exclusiveMinimum": 0,
+          "title": "Precio Unitario Centimos",
+          "type": "integer"
+        },
+        "subtotal_centimos": {
+          "exclusiveMinimum": 0,
+          "title": "Subtotal Centimos",
+          "type": "integer"
+        },
+        "fuente": {
+          "pattern": "^data/catalogo\\.json#[A-Z0-9-]+$",
+          "title": "Fuente",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sku",
+        "cantidad",
+        "precio_unitario_centimos",
+        "subtotal_centimos",
+        "fuente"
+      ],
+      "title": "LineaCotizacion",
+      "type": "object"
+    },
+    "ResultadoCotizacion": {
+      "additionalProperties": false,
+      "description": "Simulación de cotización; nunca concede autorización comercial.",
+      "properties": {
+        "moneda": {
+          "const": "PEN",
+          "title": "Moneda",
+          "type": "string"
+        },
+        "naturaleza": {
+          "const": "demostracion_sintetica",
+          "title": "Naturaleza",
+          "type": "string"
+        },
+        "lineas": {
+          "items": {
+            "$ref": "#/$defs/LineaCotizacion"
+          },
+          "maxItems": 90,
+          "minItems": 1,
+          "title": "Lineas",
+          "type": "array"
+        },
+        "total_centimos": {
+          "exclusiveMinimum": 0,
+          "title": "Total Centimos",
+          "type": "integer"
+        },
+        "sobre_presupuesto": {
+          "title": "Sobre Presupuesto",
+          "type": "boolean"
+        },
+        "stock": {
+          "$ref": "#/$defs/ResultadoStock"
+        },
+        "tecnico": {
+          "$ref": "#/$defs/ResultadoTecnico"
+        },
+        "hitl_requerido": {
+          "const": true,
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        },
+        "genera_proforma": {
+          "const": false,
+          "title": "Genera Proforma",
+          "type": "boolean"
+        },
+        "bloqueos": {
+          "items": {
+            "maxLength": 160,
+            "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+            "type": "string"
+          },
+          "title": "Bloqueos",
+          "type": "array"
+        },
+        "aviso": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Aviso",
+          "type": "string"
+        }
+      },
+      "required": [
+        "moneda",
+        "naturaleza",
+        "lineas",
+        "total_centimos",
+        "sobre_presupuesto",
+        "stock",
+        "tecnico",
+        "hitl_requerido",
+        "genera_proforma",
+        "bloqueos",
+        "aviso"
+      ],
+      "title": "ResultadoCotizacion",
+      "type": "object"
+    },
+    "ResultadoPago": {
+      "additionalProperties": false,
+      "description": "Comparación de importes, aún sin conciliación bancaria.",
+      "properties": {
+        "montos_coinciden": {
+          "title": "Montos Coinciden",
+          "type": "boolean"
+        },
+        "diferencia_centimos": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Diferencia Centimos"
+        },
+        "estado": {
+          "const": "no_conciliado",
+          "title": "Estado",
+          "type": "string"
+        },
+        "hitl_requerido": {
+          "const": true,
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        },
+        "motivos": {
+          "items": {
+            "maxLength": 160,
+            "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Motivos",
+          "type": "array"
+        }
+      },
+      "required": [
+        "montos_coinciden",
+        "diferencia_centimos",
+        "estado",
+        "hitl_requerido",
+        "motivos"
+      ],
+      "title": "ResultadoPago",
+      "type": "object"
+    },
+    "ResultadoPedido": {
+      "additionalProperties": false,
+      "description": "Resultado idempotente del registro en memoria.",
+      "properties": {
+        "duplicado": {
+          "title": "Duplicado",
+          "type": "boolean"
+        },
+        "registros_creados": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Registros Creados",
+          "type": "integer"
+        },
+        "pedido": {
+          "$ref": "#/$defs/BorradorPedido"
+        }
+      },
+      "required": [
+        "duplicado",
+        "registros_creados",
+        "pedido"
+      ],
+      "title": "ResultadoPedido",
+      "type": "object"
+    },
+    "ResultadoStock": {
+      "additionalProperties": false,
+      "description": "Stock disponible y revisión obligatoria cuando hay faltantes.",
+      "properties": {
+        "disponible": {
+          "title": "Disponible",
+          "type": "boolean"
+        },
+        "hitl_requerido": {
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        },
+        "faltantes": {
+          "items": {
+            "$ref": "#/$defs/FaltanteStock"
+          },
+          "title": "Faltantes",
+          "type": "array"
+        },
+        "fuente": {
+          "const": "data/catalogo.json",
+          "title": "Fuente",
+          "type": "string"
+        }
+      },
+      "required": [
+        "disponible",
+        "hitl_requerido",
+        "faltantes",
+        "fuente"
+      ],
+      "title": "ResultadoStock",
+      "type": "object"
+    },
+    "ResultadoTecnico": {
+      "additionalProperties": false,
+      "description": "Compatibilidad de datos separada de aprobación técnica real.",
+      "properties": {
+        "sin_conflictos_datos": {
+          "title": "Sin Conflictos Datos",
+          "type": "boolean"
+        },
+        "aprobado_tecnicamente": {
+          "const": false,
+          "title": "Aprobado Tecnicamente",
+          "type": "boolean"
+        },
+        "hitl_requerido": {
+          "const": true,
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        },
+        "conflictos": {
+          "items": {
+            "maxLength": 160,
+            "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+            "type": "string"
+          },
+          "title": "Conflictos",
+          "type": "array"
+        },
+        "pendientes": {
+          "items": {
+            "maxLength": 160,
+            "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+            "type": "string"
+          },
+          "title": "Pendientes",
+          "type": "array"
+        },
+        "potencia_estimada_w": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Potencia Estimada W"
+        },
+        "fuente": {
+          "const": "data/compatibilidad.json",
+          "title": "Fuente",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sin_conflictos_datos",
+        "aprobado_tecnicamente",
+        "hitl_requerido",
+        "conflictos",
+        "pendientes",
+        "potencia_estimada_w",
+        "fuente"
+      ],
+      "title": "ResultadoTecnico",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Sobre JSON de demostración con estados explícitos y bloqueos coherentes.",
+  "properties": {
+    "version_contrato": {
+      "const": "1.0-demo",
+      "default": "1.0-demo",
+      "title": "Version Contrato",
+      "type": "string"
+    },
+    "naturaleza": {
+      "const": "demostracion_sintetica",
+      "default": "demostracion_sintetica",
+      "title": "Naturaleza",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completado",
+        "revision_humana",
+        "bloqueado",
+        "error"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "intencion": {
+      "enum": [
+        "cotizacion",
+        "compatibilidad",
+        "stock",
+        "pago",
+        "pedido",
+        "informacion",
+        "desconocida"
+      ],
+      "title": "Intencion",
+      "type": "string"
+    },
+    "mensaje": {
+      "maxLength": 4000,
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Mensaje",
+      "type": "string"
+    },
+    "hitl_requerido": {
+      "title": "Hitl Requerido",
+      "type": "boolean"
+    },
+    "motivos": {
+      "items": {
+        "maxLength": 160,
+        "pattern": "^[a-z][a-z0-9_]*(?::[A-Za-z0-9_-]+)?$",
+        "type": "string"
+      },
+      "title": "Motivos",
+      "type": "array"
+    },
+    "fuentes": {
+      "items": {
+        "enum": [
+          "data/catalogo.json",
+          "data/compatibilidad.json",
+          "data/politicas.md"
+        ],
+        "type": "string"
+      },
+      "title": "Fuentes",
+      "type": "array"
+    },
+    "genera_proforma": {
+      "const": false,
+      "default": false,
+      "title": "Genera Proforma",
+      "type": "boolean"
+    },
+    "aprobado_tecnicamente": {
+      "const": false,
+      "default": false,
+      "title": "Aprobado Tecnicamente",
+      "type": "boolean"
+    },
+    "archivado_en_dlq": {
+      "default": false,
+      "title": "Archivado En Dlq",
+      "type": "boolean"
+    },
+    "cotizacion": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResultadoCotizacion"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "tecnico": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResultadoTecnico"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "stock": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResultadoStock"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "pago": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResultadoPago"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "pedido": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResultadoPedido"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "status",
+    "intencion",
+    "mensaje",
+    "hitl_requerido"
+  ],
+  "title": "ConsultaResponse",
+  "type": "object"
+}

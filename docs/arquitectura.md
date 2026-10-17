@@ -45,3 +45,19 @@ flowchart LR
 
 Contratos y límites en docs/herramientas.md. No existe conexión automática entre
 pagos y pedidos; ningún borrador se confirma por coincidencia de montos.
+
+## Estado tras FASE 3
+Contratos estrictos entre llamadores futuros y herramientas. Sin cambios de capas
+ni API implementada. El diagrama inicial sigue describiendo el sistema previsto.
+
+```mermaid
+flowchart LR
+    E[Entradas estructuradas] --> V[Contratos Pydantic]
+    V --> T[Herramientas deterministas existentes]
+    T --> R[Validación de resultados y coherencia]
+    R --> S[ConsultaResponse 1.0-demo]
+    S -. pendiente .-> API[API futura]
+```
+
+Los modelos no ejecutan agentes ni conceden autorizaciones. Contratos y límites
+en docs/esquemas.md; el motor de decisión y la revisión humana quedan pendientes.

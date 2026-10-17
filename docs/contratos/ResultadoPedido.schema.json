@@ -1,0 +1,72 @@
+{
+  "$defs": {
+    "BorradorPedido": {
+      "additionalProperties": false,
+      "description": "El contrato impide representar un borrador como pedido confirmado.",
+      "properties": {
+        "clave": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Clave",
+          "type": "string"
+        },
+        "estado": {
+          "const": "borrador_demo",
+          "title": "Estado",
+          "type": "string"
+        },
+        "seleccion": {
+          "maxProperties": 90,
+          "minProperties": 1,
+          "patternProperties": {
+            "^[A-Z0-9]+(?:-[A-Z0-9]+)+$": {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 80
+          },
+          "title": "Seleccion",
+          "type": "object"
+        },
+        "hitl_requerido": {
+          "const": true,
+          "title": "Hitl Requerido",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "clave",
+        "estado",
+        "seleccion",
+        "hitl_requerido"
+      ],
+      "title": "BorradorPedido",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Resultado idempotente del registro en memoria.",
+  "properties": {
+    "duplicado": {
+      "title": "Duplicado",
+      "type": "boolean"
+    },
+    "registros_creados": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Registros Creados",
+      "type": "integer"
+    },
+    "pedido": {
+      "$ref": "#/$defs/BorradorPedido"
+    }
+  },
+  "required": [
+    "duplicado",
+    "registros_creados",
+    "pedido"
+  ],
+  "title": "ResultadoPedido",
+  "type": "object"
+}

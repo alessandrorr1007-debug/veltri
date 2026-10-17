@@ -1,0 +1,32 @@
+{
+  "additionalProperties": false,
+  "description": "Rango numérico, sin interpretar frases ni asumir un máximo abierto.",
+  "properties": {
+    "minimo_centimos": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Minimo Centimos",
+      "type": "integer"
+    },
+    "maximo_centimos": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Maximo Centimos"
+    },
+    "solo_rtx": {
+      "default": false,
+      "title": "Solo Rtx",
+      "type": "boolean"
+    }
+  },
+  "title": "ArmadoRequest",
+  "type": "object"
+}

@@ -1,0 +1,41 @@
+{
+  "additionalProperties": false,
+  "description": "Solo alias sintético, nunca identidad personal real.",
+  "properties": {
+    "cliente": {
+      "pattern": "^demo_[a-z]{1,32}$",
+      "title": "Cliente",
+      "type": "string"
+    },
+    "seleccion": {
+      "maxProperties": 90,
+      "minProperties": 1,
+      "patternProperties": {
+        "^[A-Z0-9]+(?:-[A-Z0-9]+)+$": {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        }
+      },
+      "propertyNames": {
+        "maxLength": 80
+      },
+      "title": "Seleccion",
+      "type": "object"
+    },
+    "canal": {
+      "enum": [
+        "web",
+        "whatsapp"
+      ],
+      "title": "Canal",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cliente",
+    "seleccion",
+    "canal"
+  ],
+  "title": "PedidoDemoRequest",
+  "type": "object"
+}
