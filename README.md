@@ -4,54 +4,83 @@ Sistema previsto para cotizar PCs en soles, validar compatibilidad y stock,
 conciliar pagos y registrar pedidos con revisión humana.
 
 ## Estado y problema
-FASES 1, 2, 3, 4, 5 y 6 completadas: datos sintéticos y herramientas deterministas para evitar referencias
-rotas, montos inválidos y ventas de productos agotados. Las herramientas operan solo en demostración; los flujos integrados siguen pendientes.
+FASES 1 a 9 completadas: datos sintéticos, herramientas deterministas, contratos estrictos,
+conocimiento RAG, compuerta HITL, ocho agentes tipados, orquestador LangGraph, API FastAPI
+e interfaz web local en frontend/.
+El endpoint POST /consulta expone el orquestador bajo el contrato único ConsultaResponse y
+sirve la interfaz web estáticamente en la raíz sin dependencias CDN ni emojis.
+Solo queda pendiente la demo final y verificación de preflight para entrega.
 La fábrica permite MockLLM y un conector real configurado; la verificación no llama a la red.
 
 ## Arquitectura y agentes A1 a A8
-Diseño futuro en docs/arquitectura.md: ventas D1 (A1–A3), técnico D2 (A4),
-inventario D3 (A5), pedidos y pagos D4 (A6–A8). Los agentes individuales ya se
-implementaron en fase 6. La generación RAG, el grafo, la API y la interfaz
-siguen pendientes de integración.
+Arquitectura por capas implementada en `src/`: orquestador LangGraph (`src/graph/`),
+capa de decisión y compuerta HITL (`src/core/`), ocho agentes tipados (`src/agents/`),
+almacén de conocimiento RAG (`src/knowledge/`), herramientas deterministas (`src/tools/`),
+fachada API FastAPI (`src/api/main.py`) e interfaz web local (`frontend/`).
+
+- **D1 Ventas:** A1 Interpretación de intención, A2 Armado de configuración, A3 Cotización formal.
+- **D2 Técnico:** A4 Validación de compatibilidad técnica, TDP, sockets y cuello de botella.
+- **D3 Inventario:** A5 Verificación de stock disponible por SKU en almacén.
+- **D4 Pedidos y Pagos:** A6 Conciliación de comprobantes de pago, A7 Registro de borradores idempotentes, A8 Seguimiento de pedidos.
 
 ```mermaid
-flowchart LR
-    DAT[Datos de ejemplo] --> T[Herramientas deterministas]
-    T --> REV[Resultados pendientes de revisión]
-    FUT[Diseño futuro] -.-> ORQ[Orquestador futuro]
-    ORQ -.-> API[API e interfaz]
+flowchart TD
+    UI[Frontend Web Local] -->|POST /consulta| API[API FastAPI: main.py]
+    API --> SEG[Seguridad: Anti-inyección y PII]
+    SEG -->|valido| ORQ[Orquestador LangGraph]
+    SEG -->|inyeccion| DLQ[Cola Local DLQ]
+    ORQ --> A1[A1 Intención]
+    A1 --> DOM{Agentes D1 a D4}
+    DOM -->|Ventas| A2[A2 Armado] & A3[A3 Cotización]
+    DOM -->|Técnico| A4[A4 Compatibilidad]
+    DOM -->|Inventario| A5[A5 Stock]
+    DOM -->|Pagos/Pedidos| A6[A6 Pagos] & A7[A7 Pedidos] & A8[A8 Seguimiento]
+    DOM -->|Conocimiento| RAG[RAG Local Citado]
+    DOM --> HER[Herramientas Deterministas]
+    DOM --> DEC[Capa Decisión y HITL]
+    DEC -->|ConsultaResponse tipado| API
+    API --> UI
 ```
 
 ## HITL y casos CP-1 a CP-7
-Stock agotado, pago discordante, incompatibilidad y exceso de presupuesto exigen
-revisión humana. Los casos dorados describen comportamiento futuro; no se afirma
-que esos siete flujos pasen. Se validan las piezas deterministas de stock, presupuesto, pago e idempotencia;
-los escenarios integrados siguen pendientes.
+Stock agotado, pago discordante, incompatibilidad de socket y exceso de presupuesto exigen
+revisión humana obligatoria (HITL). Las probabilidades o confianza alta del LLM nunca conceden
+autorización. Los siete casos dorados (`evals/casos_dorados.json`) están integrados y verificados
+al 100% de extremo a extremo en pruebas de flujo (`tests/test_flujo.py`) y de API (`tests/test_api.py`),
+además de contar con botones de prueba inmediata en la interfaz web:
+- **CP-1:** Oficina básica con presupuesto holgado (aprobado automáticamente).
+- **CP-2:** Gaming gama media AM5 con tarjeta dedicada (aprobado automáticamente).
+- **CP-3:** Incompatibilidad técnica de socket LGA1700 vs placa AM5 (rechazado / HITL técnico).
+- **CP-4:** Stock insuficiente de procesador crítico (derivado a HITL de inventario).
+- **CP-5:** Presupuesto insuficiente para la gama solicitada (derivado a HITL comercial).
+- **CP-6:** Conciliación de pago bancario válido con código de operación (aprobado).
+- **CP-7:** Pago discordante por monto inferior al total de cotización (derivado a HITL financiero).
 
 ## Instalación en Windows
 Python 3.12 o superior (verificado con 3.14.4) y Git:
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python -m pip install -r requirements-fase6.txt
+.\.venv\Scripts\python -m pip install -r requirements-fase9.txt
 .\.venv\Scripts\Activate.ps1
 python scripts/verificar.py
 git init
 python scripts/instalar_hooks.py
+uvicorn src.api.main:app --reload
 ```
-Si PowerShell impide activar, usar directamente `.\.venv\Scripts\python`.
-requirements-dev.txt conserva la lista completa de la plantilla; la verificación actual usa
-pytest, ruff, Pydantic, ChromaDB, filelock, dotenv y google-genai.
-Las pruebas usan MockLLM o transporte simulado, sin consultas reales.
-El hook instalado protege commits, no impide editar archivos.
-No se instaló settings.json ni configuración MCP. La detección automática de
-Rules/Workflows/Skills por el IDE no está comprobada: se leyeron como guías.
+La aplicación web queda disponible localmente en `http://localhost:8000`.
+Si PowerShell impide activar el entorno, usar directamente `.\.venv\Scripts\python`.
+`requirements-dev.txt` conserva la lista completa de la plantilla; la verificación actual usa
+pytest, ruff, Pydantic, ChromaDB, filelock, dotenv, google-genai, langgraph, langsmith, fastapi, httpx y uvicorn.
+Las pruebas de lógica usan MockLLM o transporte simulado, garantizando ejecución sin conexión a red ni gasto de cuota.
+El hook instalado protege commits contra ediciones de archivos críticos, no impide editar archivos en local.
 
 ## Estructura
-`data/`: catálogo, relaciones y políticas; `docs/datos.md`: campos y supuestos;
-`tests/test_datos.py`: integridad; `scripts/`: verificadores y protección;
+`data/`: catálogo, relaciones y políticas; `docs/`: documentación de arquitectura, datos, herramientas, esquemas, interfaz y guion;
+`tests/`: pruebas unitarias e integradas (386 pruebas); `scripts/`: verificadores y protección;
 `.agents/`: guías instaladas; `claude/`: referencia conservada;
-`src/tools/`: herramientas locales; `src/schemas/`: contratos tipados; el resto de `src/`, `frontend/` y `evals/`
-conservan el esqueleto y escenarios de fases futuras.
+`src/`: núcleo, herramientas, contratos tipados, conocimiento RAG, agentes A1-A8, orquestador LangGraph y API FastAPI;
+`frontend/`: interfaz web local SPA (HTML, CSS y JS sin dependencias externas ni CDN);
+`evals/`: casos dorados CP-1 a CP-7 y línea base.
 
 ## Uso de IA
 Codex asistió en la preparación, datos sintéticos, documentación y pruebas.
@@ -104,3 +133,33 @@ A1 clasifica intención; A2 arma; A3 cotiza; A4 valida; A5 consulta stock; A6 co
 pagos; A7 crea borradores; A8 consulta borradores del mismo tenant. No hay
 confirmaciones comerciales, grafo ni API. Documentación en docs/agentes.md y
 diagramas por agente en docs/agentes/. Los precios y stock siguen siendo ejemplos.
+
+## Avance FASE 7
+Orquestador LangGraph acotado en src/graph/ (state.py, nodes.py, workflow.py), seguridad
+previa y DLQ local en src/core/dlq.py, contratos de flujo en src/schemas/flujo.py y
+pruebas integradas en tests/test_flujo.py. A1 clasifica la intención fuera del grafo;
+el StateGraph conecta los siete agentes de dominio sin guardar texto libre en su estado,
+sin checkpointer y con trazas desactivadas. Los mensajes bloqueados registran un evento
+técnico mínimo en DLQ. Decisiones pendientes y limitaciones explícitas fuerzan revisión
+humana en la BandejaRevision del tenant sin aprobar negocio. Los casos dorados CP-1 a CP-7
+se validan de extremo a extremo con MockLLM. Sin API ni interfaz en esta fase.
+
+## Avance FASE 8
+API FastAPI en src/api/main.py y pruebas en tests/test_api.py. El endpoint POST /consulta
+recibe SolicitudAPI (formato plano o anidado) y responde estrictamente con el contrato
+ConsultaResponse 1.0-demo. Toda excepción HTTP o de validación (422, 404, 500) devuelve
+siempre un JSON estructurado tipado sin filtrar trazas ni datos privados. La aplicación
+desactiva documentación externa (docs_url=None, redoc_url=None) eliminando cualquier
+dependencia de CDN. Los siete casos dorados CP-1 a CP-7 se validan sobre el endpoint
+HTTP con TestClient sin conexión a red. Iniciar servidor con `uvicorn src.api.main:app --reload`.
+
+## Avance FASE 9
+Interfaz web local (SPA) en frontend/ con Consola Comercial, Supervisión Humana (HITL) y
+Trazas de Telemetría. Diseñada sin dependencias CDN, sin emojis (iconos SVG vectoriales locales)
+y con cumplimiento WCAG AA. Soporta botones de prueba inmediata para los casos dorados CP-1 a CP-7,
+proformas estructuradas en Soles (S/) y supervisión interactiva con aprobación/rechazo en la
+compuerta HITL. Documentación completa en docs/interfaz.md. Servir localmente con
+`uvicorn src.api.main:app --reload` y acceder en `http://localhost:8000`.
+
+
+

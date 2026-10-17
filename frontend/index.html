@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veltri Tecnologic — Orquestador Multiagente de Hardware</title>
+  <meta name="description" content="Consola técnica y supervisión humana para cotización de computadoras, compatibilidad y pedidos de hardware en Lima, Perú.">
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <!-- Header y Navegación Principal -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect width="16" height="16" x="4" y="4" rx="2"></rect>
+            <rect width="6" height="6" x="9" y="9" rx="1"></rect>
+            <path d="M15 2v2"></path><path d="M15 20v2"></path>
+            <path d="M2 15h2"></path><path d="M2 9h2"></path>
+            <path d="M20 15h2"></path><path d="M20 9h2"></path>
+            <path d="M9 2v2"></path><path d="M9 20v2"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">Veltri Tecnologic</h1>
+          <div class="brand-subtitle">Orquestador de Hardware & Cotizaciones en Soles (S/)</div>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" role="tablist" aria-label="Vistas principales">
+        <button class="tab-btn" role="tab" aria-selected="true" data-tab="console" id="tab-console">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" x2="20" y1="19" y2="19"></line></svg>
+          Consola Comercial
+        </button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="hitl" id="tab-hitl">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Supervisión HITL
+        </button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="telemetry" id="tab-telemetry">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.48 12H2"></path></svg>
+          Trazas y Telemetría
+        </button>
+      </nav>
+
+      <div class="header-controls">
+        <span class="tenant-badge" title="Tenant de demostración">
+          tenant: <strong>veltri</strong>
+        </span>
+        <button class="btn-icon" id="theme-toggle" aria-label="Cambiar a modo oscuro" title="Alternar tema claro/oscuro">
+          <!-- Ícono inyectado por JS -->
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal de Vistas -->
+  <main class="main-content">
+    
+    <!-- VISTA 1: Consola Comercial -->
+    <section class="view-section active" id="view-console" role="tabpanel" aria-labelledby="tab-console">
+      <!-- Barra de Casos Rápidos -->
+      <div class="panel-card" style="margin-bottom: var(--space-6);">
+        <div class="quick-cases-section">
+          <div class="quick-cases-label">Casos Dorados de Demostración Rápida (CP-1 a CP-7)</div>
+          <div class="quick-cases-grid">
+            <button class="quick-btn" data-case="cp-1">CP-1: Gaming S/ 3,500</button>
+            <button class="quick-btn" data-case="cp-2">CP-2: Inyección Prompt</button>
+            <button class="quick-btn" data-case="cp-3">CP-3: Stock Agotado (5500)</button>
+            <button class="quick-btn" data-case="cp-4">CP-4: Presupuesto RTX S/ 1,200</button>
+            <button class="quick-btn" data-case="cp-5">CP-5: Pago Yape S/ 99.99</button>
+            <button class="quick-btn" data-case="cp-6">CP-6: Pedido Idempotente</button>
+            <button class="quick-btn" data-case="cp-7">CP-7: Armador S/ 5,000</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="commercial-layout">
+        <!-- Panel Izquierdo: Chat Interactivo -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              Chat de Consulta Comercial
+            </h2>
+            <span class="badge" style="font-size: 0.75rem; color: var(--text-muted);">Canal: Web</span>
+          </div>
+
+          <div class="chat-window" id="chat-messages" role="log" aria-live="polite">
+            <div class="chat-message bot">
+              <div class="msg-header">
+                <span class="msg-sender">Veltri AI</span>
+                <span class="status-badge completado">completado</span>
+              </div>
+              <div class="msg-body">
+                Bienvenido a Veltri Tecnologic. Puedes cotizar configuraciones de PC gamer, consultar stock de piezas o validar compatibilidad técnica de hardware en Soles (S/).
+              </div>
+            </div>
+          </div>
+
+          <div class="typing-indicator" id="typing-indicator">
+            <div class="spinner-dot"></div>
+            <div class="spinner-dot"></div>
+            <div class="spinner-dot"></div>
+            <span>Procesando consulta en el orquestador...</span>
+          </div>
+
+          <form class="chat-form" id="chat-form">
+            <label for="chat-input" class="sr-only" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">Mensaje de consulta</label>
+            <input type="text" id="chat-input" class="chat-input" placeholder="Ej: Deseo cotizar una PC gamer con presupuesto de S/ 3500..." autocomplete="off" required>
+            <button type="submit" class="btn-primary" id="btn-send">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>
+              Enviar
+            </button>
+          </form>
+        </div>
+
+        <!-- Panel Derecho: Proforma Formal -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" x2="8" y1="13" y2="13"></line><line x1="16" x2="8" y1="17" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              Proforma Formal & Desglose
+            </h2>
+            <button class="btn-secondary" id="btn-view-json" disabled>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+              Ver JSON
+            </button>
+          </div>
+
+          <div class="proforma-container" id="proforma-view">
+            <div class="empty-state">
+              <div class="empty-state-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" x2="12" y1="18" y2="12"></line><line x1="9" x2="15" y1="15" y2="15"></line></svg>
+              </div>
+              <p>Envía una consulta o presiona un caso rápido para generar la proforma detallada.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISTA 2: Supervisión HITL -->
+    <section class="view-section" id="view-hitl" role="tabpanel" aria-labelledby="tab-hitl">
+      <div class="hitl-section">
+        <div class="panel-card">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              Bandeja de Supervisión Humana (HITL)
+            </h2>
+            <span class="badge" style="font-size: 0.75rem; color: var(--text-muted);">Compuerta con umbrales protegidos</span>
+          </div>
+
+          <div class="hitl-table-wrap">
+            <table class="hitl-table">
+              <thead>
+                <tr>
+                  <th>ID Revisión</th>
+                  <th>Hora</th>
+                  <th>Opción</th>
+                  <th>Motivo de Retención & Detalle</th>
+                  <th>Probabilidad (p)</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="hitl-table-body">
+                <!-- Inyectado por JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISTA 3: Trazas y Telemetría -->
+    <section class="view-section" id="view-telemetry" role="tabpanel" aria-labelledby="tab-telemetry">
+      <div class="telemetry-layout">
+        <!-- Panel Izquierdo: Métricas Técnicas -->
+        <div>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <span class="kpi-label">Socket Técnico</span>
+              <span class="kpi-value" style="color: var(--color-success-base);">AM4 (100% OK)</span>
+              <span class="kpi-subtext">CPU y Placa Madre compatibles</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Potencia / TDP</span>
+              <span class="kpi-value">285W / 450W</span>
+              <span class="kpi-subtext">Holgura de fuente: 37% (Adecuada)</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Cuello de Botella</span>
+              <span class="kpi-value" style="color: var(--color-success-base);">Equilibrado</span>
+              <span class="kpi-subtext">Ryzen 5 5600 + RX 6600 (1080p)</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Soporte BIOS</span>
+              <span class="kpi-value" style="color: var(--color-warning-base);">Revisar</span>
+              <span class="kpi-subtext">Placa A520 requiere vF14+</span>
+            </div>
+          </div>
+
+          <div class="panel-card">
+            <div class="panel-header">
+              <h2 class="panel-title">Invariantes de Gobernanza & Seguridad</h2>
+            </div>
+            <div style="padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); font-size: 0.8125rem;">
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
+                <span>Guarda anti prompt-injection previa</span>
+                <span class="status-badge completado">Activo</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
+                <span>Filtro de privacidad PII (DNI, correo, teléfono)</span>
+                <span class="status-badge completado">Activo (0 fugas)</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
+                <span>Aislamiento por Tenant RAG</span>
+                <span class="status-badge completado">veltri_tecnologic_pe</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Aritmética en código determinista</span>
+                <span class="status-badge completado">src/tools/</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel Derecho: Línea de Tiempo del Flujo -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <h2 class="panel-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              Línea de Tiempo del Grafo Multiagente
+            </h2>
+          </div>
+          <div style="padding: var(--space-4);">
+            <div class="timeline" id="timeline-container">
+              <!-- Inyectado por JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal "Ver JSON" -->
+  <div class="modal-overlay" id="json-modal" role="dialog" aria-modal="true" aria-labelledby="json-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="panel-title" id="json-modal-title">Contrato JSON de Respuesta (ConsultaResponse)</h3>
+        <button class="btn-icon" id="btn-close-modal" aria-label="Cerrar modal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre class="json-viewer" id="json-content"></pre>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" id="btn-copy-json">Copiar JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmación HITL -->
+  <div class="modal-overlay" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="panel-title" id="confirm-title">Acción de Supervisión</h3>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: var(--space-3);">
+        <p id="confirm-message">¿Confirmas la acción sobre esta solicitud?</p>
+        <div>
+          <label for="confirm-comment" style="display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Comentario de auditoría (opcional):</label>
+          <input type="text" id="confirm-comment" class="chat-input" placeholder="Ej: Aprobado tras verificar compatibilidad en web de Gigabyte" style="width: 100%;">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-cancel-action">Cancelar</button>
+        <button class="btn-primary" id="btn-confirm-action">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer con aviso legal obligatorio -->
+  <footer class="app-footer">
+    <p>Aviso: Los precios, stock, especificaciones y políticas mostrados son de demostración sintética (Veltri Tecnologic). No constituyen cotizaciones comerciales vinculantes.</p>
+  </footer>
+
+  <script src="./js/icons.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>

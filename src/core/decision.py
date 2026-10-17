@@ -7,6 +7,7 @@ from src.core.criterios import clasificar
 from src.schemas.decision import (
     EvidenciaCotizacion,
     EvidenciaInformacion,
+    EvidenciaLimitacion,
     EvidenciaPago,
     EvidenciaPedido,
     EvidenciaStock,
@@ -24,6 +25,9 @@ def decide(solicitud: SolicitudDecision) -> ResultadoDecision:
     fuentes = []
     if isinstance(evidencia, EvidenciaInformacion):
         fuentes.extend(evidencia.fuentes)
+    elif isinstance(evidencia, EvidenciaLimitacion):
+        fuentes.extend(evidencia.fuentes)
+        bloqueos.extend(evidencia.motivos)
     elif isinstance(evidencia, EvidenciaStock):
         fuentes.append(evidencia.resultado.fuente)
         bloqueos.extend("stock_insuficiente:" + f.sku for f in evidencia.resultado.faltantes)
@@ -49,13 +53,25 @@ def decide(solicitud: SolicitudDecision) -> ResultadoDecision:
         raise ValueError("Evidencia no admitida")
     bloqueos = sorted(set(bloqueos))
     destino = clasificar(solicitud.p, bool(bloqueos))
-    motivos = bloqueos or [{"ejecutar": "umbral_auto_sin_bloqueos",
-                            "revision_humana": "puntaje_requiere_revision",
-                            "escalar": "puntaje_bajo_escalar"}[destino]]
-    canonica = json.dumps(solicitud.model_dump(mode="json"), sort_keys=True,
-                          separators=(",", ":"), ensure_ascii=False)
-    return ResultadoDecision(opcion=solicitud.opcion, p=solicitud.p, c=solicitud.c,
-                             origen_puntuacion=solicitud.origen_puntuacion, destino=destino,
-                             hitl_requerido=destino != "ejecutar", bloqueos=bloqueos,
-                             motivos=motivos, fuentes=sorted(set(fuentes)),
-                             hash_evidencia=hashlib.sha256(canonica.encode()).hexdigest())
+    motivos = bloqueos or [
+        {
+            "ejecutar": "umbral_auto_sin_bloqueos",
+            "revision_humana": "puntaje_requiere_revision",
+            "escalar": "puntaje_bajo_escalar",
+        }[destino]
+    ]
+    canonica = json.dumps(
+        solicitud.model_dump(mode="json"), sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    )
+    return ResultadoDecision(
+        opcion=solicitud.opcion,
+        p=solicitud.p,
+        c=solicitud.c,
+        origen_puntuacion=solicitud.origen_puntuacion,
+        destino=destino,
+        hitl_requerido=destino != "ejecutar",
+        bloqueos=bloqueos,
+        motivos=motivos,
+        fuentes=sorted(set(fuentes)),
+        hash_evidencia=hashlib.sha256(canonica.encode()).hexdigest(),
+    )

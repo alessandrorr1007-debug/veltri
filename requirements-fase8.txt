@@ -1,0 +1,3 @@
+-r requirements-fase7.txt
+fastapi==0.143.3
+httpx==0.28.1

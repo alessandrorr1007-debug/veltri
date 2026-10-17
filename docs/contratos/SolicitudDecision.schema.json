@@ -94,6 +94,54 @@
       "title": "EvidenciaInformacion",
       "type": "object"
     },
+    "EvidenciaLimitacion": {
+      "additionalProperties": false,
+      "description": "Impedimentos explícitos del flujo; nunca autorizan una operación.",
+      "properties": {
+        "tipo": {
+          "const": "limitacion",
+          "title": "Tipo",
+          "type": "string"
+        },
+        "motivos": {
+          "items": {
+            "enum": [
+              "parametros_requeridos",
+              "parametros_no_corresponden",
+              "intencion_desconocida",
+              "sin_configuracion_en_rango",
+              "borrador_no_encontrado",
+              "seguimiento_solo_demo",
+              "conocimiento_no_disponible"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Motivos",
+          "type": "array"
+        },
+        "fuentes": {
+          "items": {
+            "enum": [
+              "data/catalogo.json",
+              "data/compatibilidad.json",
+              "data/politicas.md"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Fuentes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tipo",
+        "motivos",
+        "fuentes"
+      ],
+      "title": "EvidenciaLimitacion",
+      "type": "object"
+    },
     "EvidenciaPago": {
       "additionalProperties": false,
       "description": "Comparación de importes que no acredita un pago bancario.",
@@ -545,6 +593,7 @@
         "mapping": {
           "cotizacion": "#/$defs/EvidenciaCotizacion",
           "informacion": "#/$defs/EvidenciaInformacion",
+          "limitacion": "#/$defs/EvidenciaLimitacion",
           "pago": "#/$defs/EvidenciaPago",
           "pedido": "#/$defs/EvidenciaPedido",
           "stock": "#/$defs/EvidenciaStock",
@@ -570,6 +619,9 @@
         },
         {
           "$ref": "#/$defs/EvidenciaPedido"
+        },
+        {
+          "$ref": "#/$defs/EvidenciaLimitacion"
         }
       ],
       "title": "Evidencia"

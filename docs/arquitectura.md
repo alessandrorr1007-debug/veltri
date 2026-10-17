@@ -121,3 +121,101 @@ flowchart LR
 A7/A8 comparten un registro de borradores por tenant; nunca confirman ventas.
 No se usan puntuaciones reales para autorizar negocio ni se calcula con LLM.
 Contratos, pruebas y límites: docs/agentes.md y docs/agentes/.
+
+## Estado tras FASE 7
+Orquestador LangGraph acotado con seguridad previa, rutas tipadas y compuerta HITL.
+Los mensajes bloqueados van a DLQ local sin guardar texto libre; el grafo opera sobre
+rutas tipadas sin memoria conversacional ni checkpoints. La API y la interfaz quedan
+para las siguientes fases.
+
+```mermaid
+flowchart TD
+    IN[SolicitudFlujo: consulta y parametros] --> SEG[Filtro anti-inyección y PII]
+    SEG -->|entrada bloqueada| DLQ[Cola local DLQ]
+    SEG -->|valido| A1[A1 Interpretacion: fuera del grafo]
+    A1 -->|plan tipado| ORQ[StateGraph: validar_plan]
+    ORQ -->|ruta tipada| DOM{Nodos de Dominio}
+    DOM -->|armar| A2[A2 Armado]
+    DOM -->|cotizar| A3[A3 Cotizacion]
+    DOM -->|compatibilidad| A4[A4 Compatibilidad]
+    DOM -->|stock| A5[A5 Inventario]
+    DOM -->|pago| A6[A6 Pagos]
+    DOM -->|pedido| A7[A7 Pedidos]
+    DOM -->|seguimiento| A8[A8 Seguimiento]
+    DOM -->|informacion| RAG[Recuperacion RAG citada]
+    DOM -->|limitacion o datos invalidos| DEC[Nodo decidir: evaluar]
+    A2 & A3 & A4 & A5 & A6 & A7 & A8 & RAG --> DEC
+    DEC --> HITL{Compuerta decide}
+    HITL -->|requiere revision| BAN[Bandeja HITL por tenant]
+    HITL --> RESP[Nodo responder]
+    BAN --> RESP
+    RESP --> OUT[ResultadoFlujo con ConsultaResponse 1.0-demo]
+```
+
+Detalles de contratos, privacidad, flujo y pruebas en docs/grafo.md.
+
+## Estado tras FASE 8
+API FastAPI (`src/api/main.py`) implementada con el endpoint `/consulta` y contrato
+estricto `ConsultaResponse`. La API actúa como la fachada HTTP pública para clientes
+Web y WhatsApp, sin dependencias CDN (`docs_url=None`, `redoc_url=None`) y garantizando
+que todo error (422, 404, 500) devuelva siempre un JSON estructurado tipado.
+
+```mermaid
+flowchart TD
+    U[Cliente: Web o WhatsApp] -->|POST /consulta| API[FastAPI: main.py]
+    API -->|SolicitudAPI a SolicitudFlujo| ORQ[Orquestador LangGraph]
+    ORQ --> SEG[Filtro anti-inyección y PII]
+    SEG -->|entrada bloqueada| DLQ[Cola local DLQ]
+    SEG -->|valido| GRAFO[StateGraph multiagente: A1 a A8]
+    GRAFO --> DEC[Compuerta decide: HITL]
+    DEC --> RESP[Proyección a ConsultaResponse 1.0-demo]
+    DLQ --> RESP
+    RESP -->|ConsultaResponse JSON| API
+    API -->|HTTP 200 / 422 / 500 tipado| U
+```
+
+Detalles de endpoints, formatos y manejo de errores en docs/api.md.
+
+## Estado tras FASE 9
+Interfaz web local (`frontend/`) servida estáticamente en la raíz por FastAPI (`src/api/main.py`),
+diseñada bajo estándares WCAG AA, sin CDN y sin emojis (reemplazados por iconos SVG locales).
+La UI integra la Consola Comercial con botones rápidos para los casos dorados CP-1 a CP-7,
+proforma formal en Soles (`S/`), supervisión de la bandeja HITL en tiempo real y telemetría de
+los pasos del grafo.
+
+```mermaid
+flowchart TD
+    subgraph UI["Frontend Local (frontend/)"]
+        direction TB
+        CC["Consola Comercial<br>(Casos CP-1 a CP-7)"]
+        PRO["Proforma Formal<br>(Desglose S/ e IGV)"]
+        HITL_UI["Supervisión Humana<br>(Bandeja HITL)"]
+        TEL_UI["Telemetría y Trazas<br>(Observabilidad)"]
+    end
+
+    subgraph API_GW["API FastAPI (src/api/main.py)"]
+        STATIC["StaticFiles: frontend/"]
+        EP["POST /consulta"]
+    end
+
+    subgraph BACKEND["Capa Orquestadora y Multiagente"]
+        ORQ["Orquestador LangGraph<br>(StateGraph)"]
+        DOM["Agentes A1-A8 & RAG"]
+        GATE["Compuerta Decisión HITL"]
+    end
+
+    CC -->|POST /consulta| EP
+    EP --> ORQ
+    ORQ --> DOM
+    DOM --> GATE
+    GATE -->|ConsultaResponse tipado| EP
+    EP -->|JSON respuesta| CC
+    CC --> PRO
+    GATE -. actualización .-> HITL_UI
+    ORQ -. pasos y tiempos .-> TEL_UI
+```
+
+Detalles de maquetación, tokens de diseño y componentes en docs/interfaz.md.
+
+
+

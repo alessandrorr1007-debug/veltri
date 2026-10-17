@@ -14,8 +14,14 @@ from src.schemas.resultados import (
     ResultadoTecnico,
 )
 
-Opcion = Literal["informar", "consultar_stock", "cotizar", "validar_compatibilidad",
-                 "comparar_pago", "registrar_borrador"]
+Opcion = Literal[
+    "informar",
+    "consultar_stock",
+    "cotizar",
+    "validar_compatibilidad",
+    "comparar_pago",
+    "registrar_borrador",
+]
 Puntaje = Annotated[float, Field(ge=0, le=1, allow_inf_nan=False)]
 
 
@@ -67,9 +73,37 @@ class EvidenciaPedido(Contrato):
     resultado: ResultadoPedido
 
 
-Evidencia = Annotated[EvidenciaInformacion | EvidenciaStock | EvidenciaCotizacion
-                      | EvidenciaTecnica | EvidenciaPago | EvidenciaPedido,
-                      Field(discriminator="tipo")]
+class EvidenciaLimitacion(Contrato):
+    """Impedimentos explícitos del flujo; nunca autorizan una operación."""
+
+    tipo: Literal["limitacion"]
+    motivos: Annotated[
+        list[
+            Literal[
+                "parametros_requeridos",
+                "parametros_no_corresponden",
+                "intencion_desconocida",
+                "sin_configuracion_en_rango",
+                "borrador_no_encontrado",
+                "seguimiento_solo_demo",
+                "conocimiento_no_disponible",
+            ]
+        ],
+        Field(min_length=1),
+    ]
+    fuentes: Annotated[list[Fuente], Field(min_length=1)]
+
+
+Evidencia = Annotated[
+    EvidenciaInformacion
+    | EvidenciaStock
+    | EvidenciaCotizacion
+    | EvidenciaTecnica
+    | EvidenciaPago
+    | EvidenciaPedido
+    | EvidenciaLimitacion,
+    Field(discriminator="tipo"),
+]
 
 
 class SolicitudDecision(Contrato):
@@ -83,10 +117,17 @@ class SolicitudDecision(Contrato):
 
     @model_validator(mode="after")
     def evidencia_corresponde(self) -> Self:
-        tipos = {"informar": "informacion", "consultar_stock": "stock",
-                 "cotizar": "cotizacion", "validar_compatibilidad": "tecnico",
-                 "comparar_pago": "pago", "registrar_borrador": "pedido"}
-        if self.evidencia.tipo != tipos[self.opcion]:
+        tipos = {
+            "informar": "informacion",
+            "consultar_stock": "stock",
+            "cotizar": "cotizacion",
+            "validar_compatibilidad": "tecnico",
+            "comparar_pago": "pago",
+            "registrar_borrador": "pedido",
+        }
+        if not (self.opcion == "informar" and self.evidencia.tipo == "limitacion") and (
+            self.evidencia.tipo != tipos[self.opcion]
+        ):
             raise ValueError("Evidencia incompatible con la opción")
         return self
 
