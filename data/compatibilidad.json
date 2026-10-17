@@ -1,0 +1,506 @@
+{
+  "version_esquema": "1.0",
+  "naturaleza": "demostracion_sintetica",
+  "moneda": "PEN",
+  "fecha_referencia": "2026-10-17",
+  "aviso": "Precios, stock y especificaciones sintéticos; no son datos de tienda ni fichas de fabricante verificadas.",
+  "relaciones_cpu_placa": [
+    {
+      "cpu_sku": "CPU-AMD-5500",
+      "placa_sku": "MB-A520-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5500",
+      "placa_sku": "MB-B450-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5500",
+      "placa_sku": "MB-B550-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5600",
+      "placa_sku": "MB-A520-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5600",
+      "placa_sku": "MB-B450-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5600",
+      "placa_sku": "MB-B550-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5600X",
+      "placa_sku": "MB-A520-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5600X",
+      "placa_sku": "MB-B450-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5600X",
+      "placa_sku": "MB-B550-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5700X",
+      "placa_sku": "MB-A520-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5700X",
+      "placa_sku": "MB-B450-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5700X",
+      "placa_sku": "MB-B550-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5700X3D",
+      "placa_sku": "MB-A520-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5700X3D",
+      "placa_sku": "MB-B450-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5700X3D",
+      "placa_sku": "MB-B550-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5800X",
+      "placa_sku": "MB-A520-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5800X",
+      "placa_sku": "MB-B450-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-5800X",
+      "placa_sku": "MB-B550-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7500F",
+      "placa_sku": "MB-A620-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7500F",
+      "placa_sku": "MB-B650-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7500F",
+      "placa_sku": "MB-X670-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7600",
+      "placa_sku": "MB-A620-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7600",
+      "placa_sku": "MB-B650-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7600",
+      "placa_sku": "MB-X670-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7600X",
+      "placa_sku": "MB-A620-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7600X",
+      "placa_sku": "MB-B650-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7600X",
+      "placa_sku": "MB-X670-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7700",
+      "placa_sku": "MB-A620-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7700",
+      "placa_sku": "MB-B650-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7700",
+      "placa_sku": "MB-X670-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7700X",
+      "placa_sku": "MB-A620-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7700X",
+      "placa_sku": "MB-B650-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7700X",
+      "placa_sku": "MB-X670-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7900",
+      "placa_sku": "MB-A620-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7900",
+      "placa_sku": "MB-B650-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-AMD-7900",
+      "placa_sku": "MB-X670-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12100F",
+      "placa_sku": "MB-H610-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12100F",
+      "placa_sku": "MB-H610-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12100F",
+      "placa_sku": "MB-B660-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12100F",
+      "placa_sku": "MB-B660-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12100F",
+      "placa_sku": "MB-B760-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12100F",
+      "placa_sku": "MB-B760-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12400F",
+      "placa_sku": "MB-H610-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12400F",
+      "placa_sku": "MB-H610-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12400F",
+      "placa_sku": "MB-B660-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12400F",
+      "placa_sku": "MB-B660-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12400F",
+      "placa_sku": "MB-B760-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12400F",
+      "placa_sku": "MB-B760-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12600K",
+      "placa_sku": "MB-H610-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12600K",
+      "placa_sku": "MB-H610-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12600K",
+      "placa_sku": "MB-B660-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12600K",
+      "placa_sku": "MB-B660-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12600K",
+      "placa_sku": "MB-B760-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-12600K",
+      "placa_sku": "MB-B760-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-13400F",
+      "placa_sku": "MB-H610-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-13400F",
+      "placa_sku": "MB-H610-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-13400F",
+      "placa_sku": "MB-B660-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-13400F",
+      "placa_sku": "MB-B660-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-13400F",
+      "placa_sku": "MB-B760-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-13400F",
+      "placa_sku": "MB-B760-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-13600K",
+      "placa_sku": "MB-H610-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-13600K",
+      "placa_sku": "MB-H610-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-13600K",
+      "placa_sku": "MB-B660-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-13600K",
+      "placa_sku": "MB-B660-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-13600K",
+      "placa_sku": "MB-B760-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-13600K",
+      "placa_sku": "MB-B760-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-14400F",
+      "placa_sku": "MB-H610-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-14400F",
+      "placa_sku": "MB-H610-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-14400F",
+      "placa_sku": "MB-B660-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-14400F",
+      "placa_sku": "MB-B660-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-14400F",
+      "placa_sku": "MB-B760-DDR4",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    },
+    {
+      "cpu_sku": "CPU-INTEL-14400F",
+      "placa_sku": "MB-B760-DDR5",
+      "estado": "requiere_verificacion",
+      "motivo": "Confirmar lista CPU del fabricante y BIOS."
+    }
+  ],
+  "sockets": {
+    "AM4": {
+      "chipsets": [
+        "A520",
+        "B450",
+        "B550"
+      ],
+      "ram_tipos": [
+        "DDR4"
+      ]
+    },
+    "AM5": {
+      "chipsets": [
+        "A620",
+        "B650",
+        "X670"
+      ],
+      "ram_tipos": [
+        "DDR5"
+      ]
+    },
+    "LGA1700": {
+      "chipsets": [
+        "H610",
+        "B660",
+        "B760"
+      ],
+      "ram_tipos": [
+        "DDR4",
+        "DDR5"
+      ]
+    }
+  },
+  "ram": {
+    "requiere_tipo_identico": true,
+    "mezclar_generaciones": false,
+    "limitar_modulos_a_ranuras": true,
+    "limitar_capacidad_a_placa": true,
+    "velocidad": "Confirmar CPU, QVL y BIOS; XMP/EXPO no garantizado."
+  },
+  "refrigeracion": {
+    "requiere_socket_en_lista": true,
+    "altura_no_supera_gabinete": true,
+    "capacidad_no_inferior_cpu": true,
+    "aviso": "Valores sintéticos, no capacidad térmica medida."
+  },
+  "potencia": {
+    "estado": "propuesta",
+    "reserva_componentes_w": 100,
+    "margen_porcentaje": 25,
+    "formula": "ceil((cpu.potencia_diseno_w + gpu.potencia_diseno_w + reserva_componentes_w) * (1 + margen_porcentaje / 100))",
+    "requiere_conectores_suficientes": true,
+    "aviso": "Estimación para demo, no consumo medido; confirmar recomendación del fabricante."
+  },
+  "montaje": {
+    "formato_placa_en_gabinete": true,
+    "formato_fuente_en_gabinete": true,
+    "longitud_gpu_no_supera_gabinete": true,
+    "ssd_interfaz_en_placa": true
+  },
+  "evidencia": {
+    "fabricante_verificado": false,
+    "faltante_o_incompatible": "revision_humana",
+    "cuello_botella": "Sin porcentajes; requiere carga de trabajo y mediciones verificables."
+  }
+}

@@ -1,0 +1,1219 @@
+{
+  "version_esquema": "1.0",
+  "naturaleza": "demostracion_sintetica",
+  "moneda": "PEN",
+  "fecha_referencia": "2026-10-17",
+  "aviso": "Precios, stock y especificaciones sintéticos; no son datos de tienda ni fichas de fabricante verificadas.",
+  "productos": [
+    {
+      "sku": "CPU-AMD-5500",
+      "nombre": "CPU-AMD-5500 demo",
+      "categoria": "cpu",
+      "precio_centimos": 29000,
+      "stock": 0,
+      "especificaciones": {
+        "socket": "AM4",
+        "potencia_diseno_w": 105
+      }
+    },
+    {
+      "sku": "CPU-AMD-5600",
+      "nombre": "CPU-AMD-5600 demo",
+      "categoria": "cpu",
+      "precio_centimos": 47000,
+      "stock": 7,
+      "especificaciones": {
+        "socket": "AM4",
+        "potencia_diseno_w": 105
+      }
+    },
+    {
+      "sku": "CPU-AMD-5600X",
+      "nombre": "CPU-AMD-5600X demo",
+      "categoria": "cpu",
+      "precio_centimos": 65000,
+      "stock": 14,
+      "especificaciones": {
+        "socket": "AM4",
+        "potencia_diseno_w": 105
+      }
+    },
+    {
+      "sku": "CPU-AMD-5700X",
+      "nombre": "CPU-AMD-5700X demo",
+      "categoria": "cpu",
+      "precio_centimos": 83000,
+      "stock": 2,
+      "especificaciones": {
+        "socket": "AM4",
+        "potencia_diseno_w": 105
+      }
+    },
+    {
+      "sku": "CPU-AMD-5700X3D",
+      "nombre": "CPU-AMD-5700X3D demo",
+      "categoria": "cpu",
+      "precio_centimos": 101000,
+      "stock": 9,
+      "especificaciones": {
+        "socket": "AM4",
+        "potencia_diseno_w": 105
+      }
+    },
+    {
+      "sku": "CPU-AMD-5800X",
+      "nombre": "CPU-AMD-5800X demo",
+      "categoria": "cpu",
+      "precio_centimos": 119000,
+      "stock": 16,
+      "especificaciones": {
+        "socket": "AM4",
+        "potencia_diseno_w": 105
+      }
+    },
+    {
+      "sku": "CPU-AMD-7500F",
+      "nombre": "CPU-AMD-7500F demo",
+      "categoria": "cpu",
+      "precio_centimos": 29000,
+      "stock": 4,
+      "especificaciones": {
+        "socket": "AM5",
+        "potencia_diseno_w": 105
+      }
+    },
+    {
+      "sku": "CPU-AMD-7600",
+      "nombre": "CPU-AMD-7600 demo",
+      "categoria": "cpu",
+      "precio_centimos": 47000,
+      "stock": 11,
+      "especificaciones": {
+        "socket": "AM5",
+        "potencia_diseno_w": 105
+      }
+    },
+    {
+      "sku": "CPU-AMD-7600X",
+      "nombre": "CPU-AMD-7600X demo",
+      "categoria": "cpu",
+      "precio_centimos": 65000,
+      "stock": 18,
+      "especificaciones": {
+        "socket": "AM5",
+        "potencia_diseno_w": 105
+      }
+    },
+    {
+      "sku": "CPU-AMD-7700",
+      "nombre": "CPU-AMD-7700 demo",
+      "categoria": "cpu",
+      "precio_centimos": 83000,
+      "stock": 6,
+      "especificaciones": {
+        "socket": "AM5",
+        "potencia_diseno_w": 105
+      }
+    },
+    {
+      "sku": "CPU-AMD-7700X",
+      "nombre": "CPU-AMD-7700X demo",
+      "categoria": "cpu",
+      "precio_centimos": 101000,
+      "stock": 13,
+      "especificaciones": {
+        "socket": "AM5",
+        "potencia_diseno_w": 105
+      }
+    },
+    {
+      "sku": "CPU-AMD-7900",
+      "nombre": "CPU-AMD-7900 demo",
+      "categoria": "cpu",
+      "precio_centimos": 119000,
+      "stock": 1,
+      "especificaciones": {
+        "socket": "AM5",
+        "potencia_diseno_w": 105
+      }
+    },
+    {
+      "sku": "CPU-INTEL-12100F",
+      "nombre": "CPU-INTEL-12100F demo",
+      "categoria": "cpu",
+      "precio_centimos": 29000,
+      "stock": 8,
+      "especificaciones": {
+        "socket": "LGA1700",
+        "potencia_diseno_w": 180
+      }
+    },
+    {
+      "sku": "CPU-INTEL-12400F",
+      "nombre": "CPU-INTEL-12400F demo",
+      "categoria": "cpu",
+      "precio_centimos": 47000,
+      "stock": 15,
+      "especificaciones": {
+        "socket": "LGA1700",
+        "potencia_diseno_w": 180
+      }
+    },
+    {
+      "sku": "CPU-INTEL-12600K",
+      "nombre": "CPU-INTEL-12600K demo",
+      "categoria": "cpu",
+      "precio_centimos": 65000,
+      "stock": 3,
+      "especificaciones": {
+        "socket": "LGA1700",
+        "potencia_diseno_w": 180
+      }
+    },
+    {
+      "sku": "CPU-INTEL-13400F",
+      "nombre": "CPU-INTEL-13400F demo",
+      "categoria": "cpu",
+      "precio_centimos": 83000,
+      "stock": 10,
+      "especificaciones": {
+        "socket": "LGA1700",
+        "potencia_diseno_w": 180
+      }
+    },
+    {
+      "sku": "CPU-INTEL-13600K",
+      "nombre": "CPU-INTEL-13600K demo",
+      "categoria": "cpu",
+      "precio_centimos": 101000,
+      "stock": 17,
+      "especificaciones": {
+        "socket": "LGA1700",
+        "potencia_diseno_w": 180
+      }
+    },
+    {
+      "sku": "CPU-INTEL-14400F",
+      "nombre": "CPU-INTEL-14400F demo",
+      "categoria": "cpu",
+      "precio_centimos": 119000,
+      "stock": 5,
+      "especificaciones": {
+        "socket": "LGA1700",
+        "potencia_diseno_w": 180
+      }
+    },
+    {
+      "sku": "MB-A520-DDR4",
+      "nombre": "MB-A520-DDR4 demo",
+      "categoria": "placa",
+      "precio_centimos": 44000,
+      "stock": 12,
+      "especificaciones": {
+        "socket": "AM4",
+        "chipset": "A520",
+        "ram_tipo": "DDR4",
+        "formato": "mATX",
+        "ranuras_ram": 2,
+        "ram_max_gb": 64,
+        "interfaces_ssd": [
+          "M2-NVME-PCIE"
+        ],
+        "bios_requiere_verificacion": true
+      }
+    },
+    {
+      "sku": "MB-B450-DDR4",
+      "nombre": "MB-B450-DDR4 demo",
+      "categoria": "placa",
+      "precio_centimos": 44500,
+      "stock": 0,
+      "especificaciones": {
+        "socket": "AM4",
+        "chipset": "B450",
+        "ram_tipo": "DDR4",
+        "formato": "mATX",
+        "ranuras_ram": 2,
+        "ram_max_gb": 64,
+        "interfaces_ssd": [
+          "M2-NVME-PCIE"
+        ],
+        "bios_requiere_verificacion": true
+      }
+    },
+    {
+      "sku": "MB-B550-DDR4",
+      "nombre": "MB-B550-DDR4 demo",
+      "categoria": "placa",
+      "precio_centimos": 45000,
+      "stock": 7,
+      "especificaciones": {
+        "socket": "AM4",
+        "chipset": "B550",
+        "ram_tipo": "DDR4",
+        "formato": "mATX",
+        "ranuras_ram": 2,
+        "ram_max_gb": 64,
+        "interfaces_ssd": [
+          "M2-NVME-PCIE"
+        ],
+        "bios_requiere_verificacion": true
+      }
+    },
+    {
+      "sku": "MB-A620-DDR5",
+      "nombre": "MB-A620-DDR5 demo",
+      "categoria": "placa",
+      "precio_centimos": 45500,
+      "stock": 14,
+      "especificaciones": {
+        "socket": "AM5",
+        "chipset": "A620",
+        "ram_tipo": "DDR5",
+        "formato": "mATX",
+        "ranuras_ram": 2,
+        "ram_max_gb": 64,
+        "interfaces_ssd": [
+          "M2-NVME-PCIE"
+        ],
+        "bios_requiere_verificacion": true
+      }
+    },
+    {
+      "sku": "MB-B650-DDR5",
+      "nombre": "MB-B650-DDR5 demo",
+      "categoria": "placa",
+      "precio_centimos": 46000,
+      "stock": 2,
+      "especificaciones": {
+        "socket": "AM5",
+        "chipset": "B650",
+        "ram_tipo": "DDR5",
+        "formato": "mATX",
+        "ranuras_ram": 2,
+        "ram_max_gb": 64,
+        "interfaces_ssd": [
+          "M2-NVME-PCIE"
+        ],
+        "bios_requiere_verificacion": true
+      }
+    },
+    {
+      "sku": "MB-X670-DDR5",
+      "nombre": "MB-X670-DDR5 demo",
+      "categoria": "placa",
+      "precio_centimos": 46500,
+      "stock": 9,
+      "especificaciones": {
+        "socket": "AM5",
+        "chipset": "X670",
+        "ram_tipo": "DDR5",
+        "formato": "mATX",
+        "ranuras_ram": 2,
+        "ram_max_gb": 64,
+        "interfaces_ssd": [
+          "M2-NVME-PCIE"
+        ],
+        "bios_requiere_verificacion": true
+      }
+    },
+    {
+      "sku": "MB-H610-DDR4",
+      "nombre": "MB-H610-DDR4 demo",
+      "categoria": "placa",
+      "precio_centimos": 47000,
+      "stock": 16,
+      "especificaciones": {
+        "socket": "LGA1700",
+        "chipset": "H610",
+        "ram_tipo": "DDR4",
+        "formato": "mATX",
+        "ranuras_ram": 2,
+        "ram_max_gb": 64,
+        "interfaces_ssd": [
+          "M2-NVME-PCIE"
+        ],
+        "bios_requiere_verificacion": true
+      }
+    },
+    {
+      "sku": "MB-H610-DDR5",
+      "nombre": "MB-H610-DDR5 demo",
+      "categoria": "placa",
+      "precio_centimos": 47500,
+      "stock": 4,
+      "especificaciones": {
+        "socket": "LGA1700",
+        "chipset": "H610",
+        "ram_tipo": "DDR5",
+        "formato": "mATX",
+        "ranuras_ram": 2,
+        "ram_max_gb": 64,
+        "interfaces_ssd": [
+          "M2-NVME-PCIE"
+        ],
+        "bios_requiere_verificacion": true
+      }
+    },
+    {
+      "sku": "MB-B660-DDR4",
+      "nombre": "MB-B660-DDR4 demo",
+      "categoria": "placa",
+      "precio_centimos": 48000,
+      "stock": 11,
+      "especificaciones": {
+        "socket": "LGA1700",
+        "chipset": "B660",
+        "ram_tipo": "DDR4",
+        "formato": "mATX",
+        "ranuras_ram": 2,
+        "ram_max_gb": 64,
+        "interfaces_ssd": [
+          "M2-NVME-PCIE"
+        ],
+        "bios_requiere_verificacion": true
+      }
+    },
+    {
+      "sku": "MB-B660-DDR5",
+      "nombre": "MB-B660-DDR5 demo",
+      "categoria": "placa",
+      "precio_centimos": 48500,
+      "stock": 18,
+      "especificaciones": {
+        "socket": "LGA1700",
+        "chipset": "B660",
+        "ram_tipo": "DDR5",
+        "formato": "mATX",
+        "ranuras_ram": 2,
+        "ram_max_gb": 64,
+        "interfaces_ssd": [
+          "M2-NVME-PCIE"
+        ],
+        "bios_requiere_verificacion": true
+      }
+    },
+    {
+      "sku": "MB-B760-DDR4",
+      "nombre": "MB-B760-DDR4 demo",
+      "categoria": "placa",
+      "precio_centimos": 49000,
+      "stock": 6,
+      "especificaciones": {
+        "socket": "LGA1700",
+        "chipset": "B760",
+        "ram_tipo": "DDR4",
+        "formato": "mATX",
+        "ranuras_ram": 2,
+        "ram_max_gb": 64,
+        "interfaces_ssd": [
+          "M2-NVME-PCIE"
+        ],
+        "bios_requiere_verificacion": true
+      }
+    },
+    {
+      "sku": "MB-B760-DDR5",
+      "nombre": "MB-B760-DDR5 demo",
+      "categoria": "placa",
+      "precio_centimos": 49500,
+      "stock": 13,
+      "especificaciones": {
+        "socket": "LGA1700",
+        "chipset": "B760",
+        "ram_tipo": "DDR5",
+        "formato": "mATX",
+        "ranuras_ram": 2,
+        "ram_max_gb": 64,
+        "interfaces_ssd": [
+          "M2-NVME-PCIE"
+        ],
+        "bios_requiere_verificacion": true
+      }
+    },
+    {
+      "sku": "GPU-RX6600",
+      "nombre": "GPU-RX6600 demo",
+      "categoria": "gpu",
+      "precio_centimos": 79000,
+      "stock": 1,
+      "especificaciones": {
+        "potencia_diseno_w": 150,
+        "longitud_mm": 240,
+        "conectores_requeridos": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "GPU-RX6650XT",
+      "nombre": "GPU-RX6650XT demo",
+      "categoria": "gpu",
+      "precio_centimos": 99000,
+      "stock": 8,
+      "especificaciones": {
+        "potencia_diseno_w": 165,
+        "longitud_mm": 248,
+        "conectores_requeridos": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "GPU-RX7600",
+      "nombre": "GPU-RX7600 demo",
+      "categoria": "gpu",
+      "precio_centimos": 119000,
+      "stock": 15,
+      "especificaciones": {
+        "potencia_diseno_w": 180,
+        "longitud_mm": 256,
+        "conectores_requeridos": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "GPU-RX7700XT",
+      "nombre": "GPU-RX7700XT demo",
+      "categoria": "gpu",
+      "precio_centimos": 139000,
+      "stock": 3,
+      "especificaciones": {
+        "potencia_diseno_w": 195,
+        "longitud_mm": 264,
+        "conectores_requeridos": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "GPU-RX7800XT",
+      "nombre": "GPU-RX7800XT demo",
+      "categoria": "gpu",
+      "precio_centimos": 159000,
+      "stock": 10,
+      "especificaciones": {
+        "potencia_diseno_w": 210,
+        "longitud_mm": 272,
+        "conectores_requeridos": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "GPU-RTX3050",
+      "nombre": "GPU-RTX3050 demo",
+      "categoria": "gpu",
+      "precio_centimos": 179000,
+      "stock": 17,
+      "especificaciones": {
+        "potencia_diseno_w": 225,
+        "longitud_mm": 280,
+        "conectores_requeridos": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "GPU-RTX3060",
+      "nombre": "GPU-RTX3060 demo",
+      "categoria": "gpu",
+      "precio_centimos": 199000,
+      "stock": 5,
+      "especificaciones": {
+        "potencia_diseno_w": 240,
+        "longitud_mm": 288,
+        "conectores_requeridos": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "GPU-RTX4060",
+      "nombre": "GPU-RTX4060 demo",
+      "categoria": "gpu",
+      "precio_centimos": 219000,
+      "stock": 12,
+      "especificaciones": {
+        "potencia_diseno_w": 255,
+        "longitud_mm": 296,
+        "conectores_requeridos": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "GPU-RTX4060TI",
+      "nombre": "GPU-RTX4060TI demo",
+      "categoria": "gpu",
+      "precio_centimos": 239000,
+      "stock": 0,
+      "especificaciones": {
+        "potencia_diseno_w": 270,
+        "longitud_mm": 304,
+        "conectores_requeridos": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "GPU-RTX4070",
+      "nombre": "GPU-RTX4070 demo",
+      "categoria": "gpu",
+      "precio_centimos": 259000,
+      "stock": 7,
+      "especificaciones": {
+        "potencia_diseno_w": 285,
+        "longitud_mm": 312,
+        "conectores_requeridos": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "GPU-RTX4070SUPER",
+      "nombre": "GPU-RTX4070SUPER demo",
+      "categoria": "gpu",
+      "precio_centimos": 279000,
+      "stock": 14,
+      "especificaciones": {
+        "potencia_diseno_w": 300,
+        "longitud_mm": 320,
+        "conectores_requeridos": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "GPU-RTX4080SUPER",
+      "nombre": "GPU-RTX4080SUPER demo",
+      "categoria": "gpu",
+      "precio_centimos": 299000,
+      "stock": 2,
+      "especificaciones": {
+        "potencia_diseno_w": 315,
+        "longitud_mm": 328,
+        "conectores_requeridos": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "RAM-DDR4-8-2666",
+      "nombre": "RAM-DDR4-8-2666 demo",
+      "categoria": "ram",
+      "precio_centimos": 14400,
+      "stock": 9,
+      "especificaciones": {
+        "ram_tipo": "DDR4",
+        "capacidad_total_gb": 8,
+        "modulos": 1,
+        "velocidad_mt_s": 2666
+      }
+    },
+    {
+      "sku": "RAM-DDR4-8-3200",
+      "nombre": "RAM-DDR4-8-3200 demo",
+      "categoria": "ram",
+      "precio_centimos": 14400,
+      "stock": 16,
+      "especificaciones": {
+        "ram_tipo": "DDR4",
+        "capacidad_total_gb": 8,
+        "modulos": 1,
+        "velocidad_mt_s": 3200
+      }
+    },
+    {
+      "sku": "RAM-DDR4-16-2666",
+      "nombre": "RAM-DDR4-16-2666 demo",
+      "categoria": "ram",
+      "precio_centimos": 20800,
+      "stock": 4,
+      "especificaciones": {
+        "ram_tipo": "DDR4",
+        "capacidad_total_gb": 16,
+        "modulos": 2,
+        "velocidad_mt_s": 2666
+      }
+    },
+    {
+      "sku": "RAM-DDR4-16-3200",
+      "nombre": "RAM-DDR4-16-3200 demo",
+      "categoria": "ram",
+      "precio_centimos": 20800,
+      "stock": 11,
+      "especificaciones": {
+        "ram_tipo": "DDR4",
+        "capacidad_total_gb": 16,
+        "modulos": 2,
+        "velocidad_mt_s": 3200
+      }
+    },
+    {
+      "sku": "RAM-DDR4-32-2666",
+      "nombre": "RAM-DDR4-32-2666 demo",
+      "categoria": "ram",
+      "precio_centimos": 33600,
+      "stock": 18,
+      "especificaciones": {
+        "ram_tipo": "DDR4",
+        "capacidad_total_gb": 32,
+        "modulos": 2,
+        "velocidad_mt_s": 2666
+      }
+    },
+    {
+      "sku": "RAM-DDR4-32-3200",
+      "nombre": "RAM-DDR4-32-3200 demo",
+      "categoria": "ram",
+      "precio_centimos": 33600,
+      "stock": 6,
+      "especificaciones": {
+        "ram_tipo": "DDR4",
+        "capacidad_total_gb": 32,
+        "modulos": 2,
+        "velocidad_mt_s": 3200
+      }
+    },
+    {
+      "sku": "RAM-DDR5-8-4800",
+      "nombre": "RAM-DDR5-8-4800 demo",
+      "categoria": "ram",
+      "precio_centimos": 14400,
+      "stock": 13,
+      "especificaciones": {
+        "ram_tipo": "DDR5",
+        "capacidad_total_gb": 8,
+        "modulos": 1,
+        "velocidad_mt_s": 4800
+      }
+    },
+    {
+      "sku": "RAM-DDR5-8-5600",
+      "nombre": "RAM-DDR5-8-5600 demo",
+      "categoria": "ram",
+      "precio_centimos": 14400,
+      "stock": 1,
+      "especificaciones": {
+        "ram_tipo": "DDR5",
+        "capacidad_total_gb": 8,
+        "modulos": 1,
+        "velocidad_mt_s": 5600
+      }
+    },
+    {
+      "sku": "RAM-DDR5-16-4800",
+      "nombre": "RAM-DDR5-16-4800 demo",
+      "categoria": "ram",
+      "precio_centimos": 20800,
+      "stock": 8,
+      "especificaciones": {
+        "ram_tipo": "DDR5",
+        "capacidad_total_gb": 16,
+        "modulos": 2,
+        "velocidad_mt_s": 4800
+      }
+    },
+    {
+      "sku": "RAM-DDR5-16-5600",
+      "nombre": "RAM-DDR5-16-5600 demo",
+      "categoria": "ram",
+      "precio_centimos": 20800,
+      "stock": 15,
+      "especificaciones": {
+        "ram_tipo": "DDR5",
+        "capacidad_total_gb": 16,
+        "modulos": 2,
+        "velocidad_mt_s": 5600
+      }
+    },
+    {
+      "sku": "RAM-DDR5-32-4800",
+      "nombre": "RAM-DDR5-32-4800 demo",
+      "categoria": "ram",
+      "precio_centimos": 33600,
+      "stock": 3,
+      "especificaciones": {
+        "ram_tipo": "DDR5",
+        "capacidad_total_gb": 32,
+        "modulos": 2,
+        "velocidad_mt_s": 4800
+      }
+    },
+    {
+      "sku": "RAM-DDR5-32-5600",
+      "nombre": "RAM-DDR5-32-5600 demo",
+      "categoria": "ram",
+      "precio_centimos": 33600,
+      "stock": 10,
+      "especificaciones": {
+        "ram_tipo": "DDR5",
+        "capacidad_total_gb": 32,
+        "modulos": 2,
+        "velocidad_mt_s": 5600
+      }
+    },
+    {
+      "sku": "SSD-NVME-500-G3",
+      "nombre": "SSD-NVME-500-G3 demo",
+      "categoria": "ssd",
+      "precio_centimos": 20000,
+      "stock": 17,
+      "especificaciones": {
+        "capacidad_gb": 500,
+        "interfaz": "M2-NVME-PCIE",
+        "generacion_pcie": 3,
+        "formato": "2280"
+      }
+    },
+    {
+      "sku": "SSD-NVME-500-G4",
+      "nombre": "SSD-NVME-500-G4 demo",
+      "categoria": "ssd",
+      "precio_centimos": 20000,
+      "stock": 5,
+      "especificaciones": {
+        "capacidad_gb": 500,
+        "interfaz": "M2-NVME-PCIE",
+        "generacion_pcie": 4,
+        "formato": "2280"
+      }
+    },
+    {
+      "sku": "SSD-NVME-1000-G3",
+      "nombre": "SSD-NVME-1000-G3 demo",
+      "categoria": "ssd",
+      "precio_centimos": 30000,
+      "stock": 12,
+      "especificaciones": {
+        "capacidad_gb": 1000,
+        "interfaz": "M2-NVME-PCIE",
+        "generacion_pcie": 3,
+        "formato": "2280"
+      }
+    },
+    {
+      "sku": "SSD-NVME-1000-G4",
+      "nombre": "SSD-NVME-1000-G4 demo",
+      "categoria": "ssd",
+      "precio_centimos": 30000,
+      "stock": 0,
+      "especificaciones": {
+        "capacidad_gb": 1000,
+        "interfaz": "M2-NVME-PCIE",
+        "generacion_pcie": 4,
+        "formato": "2280"
+      }
+    },
+    {
+      "sku": "SSD-NVME-2000-G3",
+      "nombre": "SSD-NVME-2000-G3 demo",
+      "categoria": "ssd",
+      "precio_centimos": 50000,
+      "stock": 7,
+      "especificaciones": {
+        "capacidad_gb": 2000,
+        "interfaz": "M2-NVME-PCIE",
+        "generacion_pcie": 3,
+        "formato": "2280"
+      }
+    },
+    {
+      "sku": "SSD-NVME-2000-G4",
+      "nombre": "SSD-NVME-2000-G4 demo",
+      "categoria": "ssd",
+      "precio_centimos": 50000,
+      "stock": 14,
+      "especificaciones": {
+        "capacidad_gb": 2000,
+        "interfaz": "M2-NVME-PCIE",
+        "generacion_pcie": 4,
+        "formato": "2280"
+      }
+    },
+    {
+      "sku": "SSD-NVME-4000-G3",
+      "nombre": "SSD-NVME-4000-G3 demo",
+      "categoria": "ssd",
+      "precio_centimos": 90000,
+      "stock": 2,
+      "especificaciones": {
+        "capacidad_gb": 4000,
+        "interfaz": "M2-NVME-PCIE",
+        "generacion_pcie": 3,
+        "formato": "2280"
+      }
+    },
+    {
+      "sku": "SSD-NVME-4000-G4",
+      "nombre": "SSD-NVME-4000-G4 demo",
+      "categoria": "ssd",
+      "precio_centimos": 90000,
+      "stock": 9,
+      "especificaciones": {
+        "capacidad_gb": 4000,
+        "interfaz": "M2-NVME-PCIE",
+        "generacion_pcie": 4,
+        "formato": "2280"
+      }
+    },
+    {
+      "sku": "PSU-450",
+      "nombre": "PSU-450 demo",
+      "categoria": "fuente",
+      "precio_centimos": 25000,
+      "stock": 16,
+      "especificaciones": {
+        "potencia_nominal_w": 450,
+        "formato": "ATX",
+        "conectores": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "PSU-550",
+      "nombre": "PSU-550 demo",
+      "categoria": "fuente",
+      "precio_centimos": 28300,
+      "stock": 4,
+      "especificaciones": {
+        "potencia_nominal_w": 550,
+        "formato": "ATX",
+        "conectores": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "PSU-650",
+      "nombre": "PSU-650 demo",
+      "categoria": "fuente",
+      "precio_centimos": 31600,
+      "stock": 11,
+      "especificaciones": {
+        "potencia_nominal_w": 650,
+        "formato": "ATX",
+        "conectores": {
+          "pcie_8pin": 2
+        }
+      }
+    },
+    {
+      "sku": "PSU-750",
+      "nombre": "PSU-750 demo",
+      "categoria": "fuente",
+      "precio_centimos": 35000,
+      "stock": 18,
+      "especificaciones": {
+        "potencia_nominal_w": 750,
+        "formato": "ATX",
+        "conectores": {
+          "pcie_8pin": 4
+        }
+      }
+    },
+    {
+      "sku": "PSU-850",
+      "nombre": "PSU-850 demo",
+      "categoria": "fuente",
+      "precio_centimos": 38300,
+      "stock": 6,
+      "especificaciones": {
+        "potencia_nominal_w": 850,
+        "formato": "ATX",
+        "conectores": {
+          "pcie_8pin": 4
+        }
+      }
+    },
+    {
+      "sku": "PSU-1000",
+      "nombre": "PSU-1000 demo",
+      "categoria": "fuente",
+      "precio_centimos": 43300,
+      "stock": 13,
+      "especificaciones": {
+        "potencia_nominal_w": 1000,
+        "formato": "ATX",
+        "conectores": {
+          "pcie_8pin": 4
+        }
+      }
+    },
+    {
+      "sku": "CASE-01",
+      "nombre": "CASE-01 demo",
+      "categoria": "gabinete",
+      "precio_centimos": 16000,
+      "stock": 1,
+      "especificaciones": {
+        "formatos_placa": [
+          "mATX",
+          "ATX"
+        ],
+        "formatos_fuente": [
+          "ATX"
+        ],
+        "gpu_max_mm": 290,
+        "cooler_max_mm": 153
+      }
+    },
+    {
+      "sku": "CASE-02",
+      "nombre": "CASE-02 demo",
+      "categoria": "gabinete",
+      "precio_centimos": 19000,
+      "stock": 8,
+      "especificaciones": {
+        "formatos_placa": [
+          "mATX",
+          "ATX"
+        ],
+        "formatos_fuente": [
+          "ATX"
+        ],
+        "gpu_max_mm": 300,
+        "cooler_max_mm": 156
+      }
+    },
+    {
+      "sku": "CASE-03",
+      "nombre": "CASE-03 demo",
+      "categoria": "gabinete",
+      "precio_centimos": 22000,
+      "stock": 15,
+      "especificaciones": {
+        "formatos_placa": [
+          "mATX",
+          "ATX"
+        ],
+        "formatos_fuente": [
+          "ATX"
+        ],
+        "gpu_max_mm": 310,
+        "cooler_max_mm": 159
+      }
+    },
+    {
+      "sku": "CASE-04",
+      "nombre": "CASE-04 demo",
+      "categoria": "gabinete",
+      "precio_centimos": 25000,
+      "stock": 3,
+      "especificaciones": {
+        "formatos_placa": [
+          "mATX",
+          "ATX"
+        ],
+        "formatos_fuente": [
+          "ATX"
+        ],
+        "gpu_max_mm": 320,
+        "cooler_max_mm": 162
+      }
+    },
+    {
+      "sku": "CASE-05",
+      "nombre": "CASE-05 demo",
+      "categoria": "gabinete",
+      "precio_centimos": 28000,
+      "stock": 10,
+      "especificaciones": {
+        "formatos_placa": [
+          "mATX",
+          "ATX"
+        ],
+        "formatos_fuente": [
+          "ATX"
+        ],
+        "gpu_max_mm": 330,
+        "cooler_max_mm": 165
+      }
+    },
+    {
+      "sku": "CASE-06",
+      "nombre": "CASE-06 demo",
+      "categoria": "gabinete",
+      "precio_centimos": 31000,
+      "stock": 17,
+      "especificaciones": {
+        "formatos_placa": [
+          "mATX",
+          "ATX"
+        ],
+        "formatos_fuente": [
+          "ATX"
+        ],
+        "gpu_max_mm": 340,
+        "cooler_max_mm": 168
+      }
+    },
+    {
+      "sku": "CASE-07",
+      "nombre": "CASE-07 demo",
+      "categoria": "gabinete",
+      "precio_centimos": 34000,
+      "stock": 5,
+      "especificaciones": {
+        "formatos_placa": [
+          "mATX",
+          "ATX"
+        ],
+        "formatos_fuente": [
+          "ATX"
+        ],
+        "gpu_max_mm": 350,
+        "cooler_max_mm": 171
+      }
+    },
+    {
+      "sku": "CASE-08",
+      "nombre": "CASE-08 demo",
+      "categoria": "gabinete",
+      "precio_centimos": 37000,
+      "stock": 12,
+      "especificaciones": {
+        "formatos_placa": [
+          "mATX",
+          "ATX"
+        ],
+        "formatos_fuente": [
+          "ATX"
+        ],
+        "gpu_max_mm": 360,
+        "cooler_max_mm": 174
+      }
+    },
+    {
+      "sku": "COOL-01",
+      "nombre": "COOL-01 demo",
+      "categoria": "refrigeracion",
+      "precio_centimos": 8500,
+      "stock": 0,
+      "especificaciones": {
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700"
+        ],
+        "altura_mm": 143,
+        "capacidad_diseno_w": 125
+      }
+    },
+    {
+      "sku": "COOL-02",
+      "nombre": "COOL-02 demo",
+      "categoria": "refrigeracion",
+      "precio_centimos": 11000,
+      "stock": 7,
+      "especificaciones": {
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700"
+        ],
+        "altura_mm": 146,
+        "capacidad_diseno_w": 150
+      }
+    },
+    {
+      "sku": "COOL-03",
+      "nombre": "COOL-03 demo",
+      "categoria": "refrigeracion",
+      "precio_centimos": 13500,
+      "stock": 14,
+      "especificaciones": {
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700"
+        ],
+        "altura_mm": 149,
+        "capacidad_diseno_w": 175
+      }
+    },
+    {
+      "sku": "COOL-04",
+      "nombre": "COOL-04 demo",
+      "categoria": "refrigeracion",
+      "precio_centimos": 16000,
+      "stock": 2,
+      "especificaciones": {
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700"
+        ],
+        "altura_mm": 152,
+        "capacidad_diseno_w": 200
+      }
+    },
+    {
+      "sku": "COOL-05",
+      "nombre": "COOL-05 demo",
+      "categoria": "refrigeracion",
+      "precio_centimos": 18500,
+      "stock": 9,
+      "especificaciones": {
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700"
+        ],
+        "altura_mm": 155,
+        "capacidad_diseno_w": 225
+      }
+    },
+    {
+      "sku": "COOL-06",
+      "nombre": "COOL-06 demo",
+      "categoria": "refrigeracion",
+      "precio_centimos": 21000,
+      "stock": 16,
+      "especificaciones": {
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700"
+        ],
+        "altura_mm": 158,
+        "capacidad_diseno_w": 250
+      }
+    },
+    {
+      "sku": "COOL-07",
+      "nombre": "COOL-07 demo",
+      "categoria": "refrigeracion",
+      "precio_centimos": 23500,
+      "stock": 4,
+      "especificaciones": {
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700"
+        ],
+        "altura_mm": 161,
+        "capacidad_diseno_w": 275
+      }
+    },
+    {
+      "sku": "COOL-08",
+      "nombre": "COOL-08 demo",
+      "categoria": "refrigeracion",
+      "precio_centimos": 26000,
+      "stock": 11,
+      "especificaciones": {
+        "sockets": [
+          "AM4",
+          "AM5",
+          "LGA1700"
+        ],
+        "altura_mm": 164,
+        "capacidad_diseno_w": 300
+      }
+    }
+  ]
+}

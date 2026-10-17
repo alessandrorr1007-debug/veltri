@@ -1,0 +1,10 @@
+# Dependencias de ejecución. Al final del proyecto, congela versiones con: pip freeze
+fastapi
+uvicorn[standard]
+pydantic>=2
+pydantic-settings
+python-dotenv
+langchain
+langgraph
+langchain-google-genai
+chromadb

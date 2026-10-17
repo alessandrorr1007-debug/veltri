@@ -1,0 +1,11 @@
+{
+  "descripcion": "Configuración documental de Veltri; no activa hooks del IDE.",
+  "protegidos": [
+    "src/core/umbrales.py",
+    "evals/linea_base.json"
+  ],
+  "verificar": "python scripts/verificar.py",
+  "instalar_hook_git": "python scripts/instalar_hooks.py",
+  "autorizacion_excepcional": "VELTRI_AUTORIZO_CAMBIO_PROTEGIDO=1",
+  "nota": "La variable requiere autorización explícita previa; no la concede."
+}

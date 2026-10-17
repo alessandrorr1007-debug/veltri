@@ -1,0 +1,22 @@
+# Secretos y entorno
+.env
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Datos generados
+chroma_db/
+*.log
+*.sqlite3
+
+# Editores y sistema
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

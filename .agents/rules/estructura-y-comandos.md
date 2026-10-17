@@ -1,0 +1,40 @@
+# Estructura y comandos reales del proyecto
+
+Actualizar esta regla cuando aparezcan módulos o comandos nuevos.
+
+## Archivos y carpetas existentes (FASES 1 y 2)
+- AGENTS.md apunta a GEMINI.md; LEEME_entorno.md guía la instalación.
+- .agents/workflows/, .agents/skills/ y .agents/rules/: guías instaladas.
+- claude/: paquete original conservado como referencia.
+- scripts/: verificar.py, proteger.py, escanear_secretos.py, instalar_hooks.py.
+- data/: catalogo.json, compatibilidad.json y politicas.md (ejemplos sintéticos).
+- docs/: arquitectura.md, datos.md, herramientas.md, guion-video.md.
+- evals/: casos_dorados.json y linea_base.json (protegido).
+- src/core/: llm.py (fábrica aún sin implementar), umbrales.py (protegido).
+- src/tools/: catalogo.py, inventario.py, hardware.py, cotizacion.py, armador.py,
+  pagos.py y pedidos.py. Pedidos son borradores de demo en memoria.
+- src/schemas/, src/knowledge/, src/graph/, src/api/: paquetes vacíos.
+- src/agents/: paquetes vacíos d1_ventas, d2_tecnico, d3_inventario y d4_pedidos.
+- Cada paquete Python trae __init__.py.
+- tests/: test_invariantes.py, test_datos.py y test_herramientas.py.
+- frontend/: solo .gitkeep; no hay interfaz implementada.
+- requirements-fase1.txt: pytest y ruff; requirements-dev.txt y requirements.txt:
+  listas completas previstas por la plantilla, no necesarias para estas dos fases.
+
+## Comandos disponibles
+- python scripts/verificar.py: ruff + pytest + escaneo de secretos.
+- python scripts/escanear_secretos.py: escaneo de secretos.
+- python scripts/proteger.py: protección de archivos staged.
+- python scripts/instalar_hooks.py: instala el hook pre-commit en Git.
+- python -m pytest: pruebas completas.
+- python -m pytest tests/test_herramientas.py -q: pruebas de herramientas.
+
+## Fases futuras (sin comandos ejecutables todavía)
+Esquemas Pydantic, RAG, decisión/HITL, agentes, grafo, API e interfaz.
+No existen config.py, decision.py, hitl.py, seguridad.py, gobernanza.py,
+demo.py, src/api/main.py ni src/knowledge/ingesta.py.
+
+## Convenciones
+Python 3.12 o superior, tipado y docstring corto en español por módulo.
+Nombres en minúsculas con guion bajo; __init__.py por paquete.
+Una prueba por comportamiento. No confundir escenarios dorados con flujos ya ejecutables.
