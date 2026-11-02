@@ -90,7 +90,7 @@ class TransporteUnico(TransporteDiagnostico):
         self.escritura_habilitada = True
         self.lecturas = set()
 
-    def _destino(self, request):
+    def _destino(self, request) -> tuple[str, str]:
         url = urlsplit(request.url)
         if (url.scheme != "https" or url.netloc != "api.smith.langchain.com"
                 or url.query or url.fragment):
@@ -103,6 +103,7 @@ class TransporteUnico(TransporteDiagnostico):
     def send(self, request, **kwargs):
         if self.primer_fallo is not None:
             raise DetenerIntento("primer_fallo_conservado")
+        cuerpo = None
         try:
             self._destino(request)
             if request.method in {"POST", "PATCH"}:
@@ -146,10 +147,10 @@ class TransporteUnico(TransporteDiagnostico):
             response = super().send(request, **kwargs)
         except ErrorTransporteSeguro:
             raise DetenerIntento("http_fallido") from None
-        if request.method == "POST":
+        if request.method == "POST" and cuerpo is not None:
             # Solo los atributos cerrados ya validados, nunca headers ni cuerpos originales.
             self.altas[cuerpo["id"]] = cuerpo
-        elif request.method == "PATCH":
+        elif request.method == "PATCH" and cuerpo is not None:
             self.cierres.add(cuerpo["id"])
         return response
 
@@ -220,6 +221,7 @@ def lanzar(config, registro=REGISTRO, *, clave_rotada_confirmada=False,
         if pausa_verificacion:
             time.sleep(pausa_verificacion)
         raiz = next(r for r in transporte.altas.values() if r.get("parent_run_id") is None)
+        proyecto = None
         for alta in transporte.altas.values():
             response = transporte.get(
                 config.endpoint + "/runs/" + alta["id"],
@@ -245,6 +247,8 @@ def lanzar(config, registro=REGISTRO, *, clave_rotada_confirmada=False,
             })
             if remoto["id"] == raiz["id"]:
                 proyecto = str(UUID(remoto["session_id"]))
+        if proyecto is None:
+            raise DetenerIntento("proyecto_remoto_no_verificado")
         response = transporte.get(config.endpoint + "/sessions/" + proyecto,
                                  headers={"x-api-key": config.clave.get_secret_value()}, timeout=10)
         if response.json().get("name") != config.proyecto:

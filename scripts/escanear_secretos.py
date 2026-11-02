@@ -13,13 +13,14 @@ CARPETAS_IGNORADAS = {
     ".git", ".venv", "venv", "__pycache__", "node_modules",
     ".pytest_cache", ".mypy_cache", ".ruff_cache", "chroma_db",
 }
-ARCHIVOS_IGNORADOS = {".env", ".env.example"}
+ARCHIVOS_IGNORADOS = {".env", ".env.txt", ".env.example"}
 EXTENSIONES_BINARIAS = {
     ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".woff", ".woff2",
     ".ttf", ".otf", ".zip", ".pdf", ".sqlite3", ".pyc",
 }
 
 PATRONES = {
+    "Token de LangSmith": re.compile(r"lsv2_[A-Za-z0-9_]{20,}"),
     "Clave de Google (AIza...)": re.compile(r"AIza[0-9A-Za-z_\-]{35}"),
     "Token de GitHub": re.compile(r"gh[pousr]_[A-Za-z0-9]{36,}"),
     "Clave de AWS": re.compile(r"AKIA[0-9A-Z]{16}"),

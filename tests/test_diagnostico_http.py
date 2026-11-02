@@ -33,6 +33,7 @@ def test_estados_y_privacidad(codigo, metodo, etapa, monkeypatch):
     else:
         with pytest.raises(ErrorTransporteSeguro, match="fallo_http_seguro"):
             transporte.request(metodo, "https://api.smith.langchain.com" + path, **kwargs)
+        assert transporte.primer_fallo is not None
         original = transporte.primer_fallo.copy()
         with pytest.raises(ErrorTransporteSeguro, match="transporte_detenido"):
             transporte.post("https://api.smith.langchain.com/runs")
@@ -43,20 +44,27 @@ def test_estados_y_privacidad(codigo, metodo, etapa, monkeypatch):
     assert set(registro) == {"metodo", "ruta", "estado", "categoria", "correlacion", "etapa"}
     UUID(registro["correlacion"])
     assert canario not in json.dumps(transporte.registros)
-    assert transporte.get_adapter("https://").max_retries.total == 0
+    adaptador = transporte.get_adapter("https://")
+    assert isinstance(adaptador, HTTPAdapter)
+    assert adaptador.max_retries.total == 0
 
 
-@pytest.mark.parametrize("error,categoria", [
-    (requests.Timeout("detalle_privado"), "timeout"),
-    (requests.ConnectionError("detalle_privado"), "conexion"),
-])
+@pytest.mark.parametrize(
+    "error,categoria",
+    [
+        (requests.Timeout("detalle_privado"), "timeout"),
+        (requests.ConnectionError("detalle_privado"), "conexion"),
+    ],
+)
 def test_excepciones_no_se_registran(error, categoria, monkeypatch):
     def simulado(*args, **kwargs):
         raise error
+
     monkeypatch.setattr(HTTPAdapter, "send", simulado)
     transporte = TransporteDiagnostico()
     with pytest.raises(ErrorTransporteSeguro) as fallo:
         transporte.post("https://api.smith.langchain.com/runs")
+    assert transporte.primer_fallo is not None
     assert transporte.primer_fallo["categoria"] == categoria
     assert "detalle_privado" not in str(fallo.value) + json.dumps(transporte.registros)
 
@@ -64,6 +72,7 @@ def test_excepciones_no_se_registran(error, categoria, monkeypatch):
 def test_ruta_query_y_destino_no_filtran(monkeypatch):
     def prohibido(*args, **kwargs):
         pytest.fail("No debe llegar al transporte")
+
     monkeypatch.setattr(HTTPAdapter, "send", prohibido)
     transporte = TransporteDiagnostico()
     with pytest.raises(ErrorTransporteSeguro):
@@ -76,8 +85,9 @@ def test_query_no_aparece_en_registro(monkeypatch):
     def simulado(*args, **kwargs):
         respuesta = requests.Response()
         respuesta.status_code = 202
-        respuesta._content = b'{}'
+        respuesta._content = b"{}"
         return respuesta
+
     monkeypatch.setattr(HTTPAdapter, "send", simulado)
     transporte = TransporteDiagnostico()
     transporte.post("https://api.smith.langchain.com/runs?dato=canario")
@@ -100,16 +110,22 @@ def test_demo_sdk_expone_diagnostico_cerrado(codigo, monkeypatch):
         llamadas.append(request.method)
         respuesta = requests.Response()
         respuesta.status_code = codigo if request.method == "PATCH" else 202
-        respuesta._content = b'contenido_sintetico_privado'
+        respuesta._content = b"contenido_sintetico_privado"
         return respuesta
 
     monkeypatch.setattr(HTTPAdapter, "send", simulado)
     monkeypatch.setattr(obs, "Client", SDKClient)
     diagnostico = []
-    salida = ejecutar_demo(ConfiguracionObservabilidad(
-        habilitada=True, permitir_envio_externo=True,
-        endpoint="https://api.smith.langchain.com", clave=SecretStr("valor_sintetico"),
-    ), None, diagnostico_http=diagnostico)
+    salida = ejecutar_demo(
+        ConfiguracionObservabilidad(
+            habilitada=True,
+            permitir_envio_externo=True,
+            endpoint="https://api.smith.langchain.com",
+            clave=SecretStr("valor_sintetico"),
+        ),
+        None,
+        diagnostico_http=diagnostico,
+    )
     assert salida.respuesta.hitl_requerido
     assert diagnostico[2]["estado"] == codigo
     assert diagnostico[2]["etapa"] == "cerrar_span"
@@ -128,7 +144,7 @@ def test_redirect_no_se_sigue(monkeypatch):
         respuesta = requests.Response()
         respuesta.status_code = 302
         respuesta.headers["Location"] = "https://otro.example.test/dato_privado"
-        respuesta._content = b'{}'
+        respuesta._content = b"{}"
         respuesta._content_consumed = True
         respuesta.url = request.url
         return respuesta
@@ -138,5 +154,6 @@ def test_redirect_no_se_sigue(monkeypatch):
     with pytest.raises(ErrorTransporteSeguro):
         transporte.post("https://api.smith.langchain.com/runs", allow_redirects=True)
     assert len(llamadas) == 1
+    assert transporte.primer_fallo is not None
     assert transporte.primer_fallo["estado"] == 302
     assert "dato_privado" not in json.dumps(transporte.registros)

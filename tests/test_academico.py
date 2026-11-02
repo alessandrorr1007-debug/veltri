@@ -2,7 +2,7 @@
 
 import pytest
 from langchain_core.messages import ToolMessage
-from langchain_core.runnables import RunnableSequence
+from langchain_core.runnables import RunnableConfig, RunnableSequence
 from langgraph.types import Command
 from pydantic import ValidationError
 
@@ -29,7 +29,7 @@ def test_entrada_cerrada(entrada):
 @pytest.mark.parametrize("accion", ["aprobar", "rechazar", "corregir"])
 def test_hitl_interrupcion_y_reanudacion(accion):
     grafo = crear_grafo()
-    config = {"configurable": {"thread_id": accion}}
+    config: RunnableConfig = {"configurable": {"thread_id": accion}}
     pausa = grafo.invoke({"sintetico": True}, config)
     assert pausa["__interrupt__"]
     assert grafo.get_state(config).next == ("revision_humana",)
@@ -40,7 +40,7 @@ def test_hitl_interrupcion_y_reanudacion(accion):
 
 def test_hitl_decision_invalida():
     grafo = crear_grafo()
-    config = {"configurable": {"thread_id": "invalida"}}
+    config: RunnableConfig = {"configurable": {"thread_id": "invalida"}}
     grafo.invoke({"sintetico": True}, config)
     with pytest.raises(ValidationError):
         grafo.invoke(Command(resume={"accion": "despachar"}), config)

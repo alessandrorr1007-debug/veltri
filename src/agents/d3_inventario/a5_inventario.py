@@ -20,5 +20,7 @@ class A5Inventario(BaseAgent):
         plan = self._plan({"tarea": "stock"})
         stock = self._ejecutar(comprobar_stock, catalogo, entrada.seleccion)
         sugerencias = {f["sku"]: alternativas(catalogo, f["sku"]) for f in stock["faltantes"]}
-        resultado = ResultadoInventario(stock=stock, alternativas=sugerencias)
+        resultado = ResultadoInventario.model_validate(
+            {"stock": stock, "alternativas": sugerencias}
+        )
         return self._salida(entrada.tenant_id, plan, resultado, ResultadoInventario)

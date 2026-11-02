@@ -76,17 +76,26 @@ def seleccion():
 def entradas(seleccion):
     return [
         ConsultaRequest(mensaje="Consultar stock", canal="web", tenant_id="veltri"),
-        EntradaArmado(tenant_id="veltri", solicitud={"maximo_centimos": 350000}),
-        EntradaCotizacion(tenant_id="veltri", solicitud={"seleccion": seleccion}),
-        EntradaSeleccion(tenant_id="veltri", seleccion=seleccion),
-        EntradaSeleccion(tenant_id="veltri", seleccion=seleccion),
-        EntradaPago(
-            tenant_id="veltri", solicitud={"total_centimos": 10000, "pagado_centimos": 10000}
+        EntradaArmado.model_validate(
+            {"tenant_id": "veltri", "solicitud": {"maximo_centimos": 350000}}
         ),
-        EntradaPedido(
-            tenant_id="veltri",
-            solicitud={"cliente": "demo_cliente", "seleccion": seleccion, "canal": "web"},
-            confirmar_borrador=True,
+        EntradaCotizacion.model_validate(
+            {"tenant_id": "veltri", "solicitud": {"seleccion": seleccion}}
+        ),
+        EntradaSeleccion(tenant_id="veltri", seleccion=seleccion),
+        EntradaSeleccion(tenant_id="veltri", seleccion=seleccion),
+        EntradaPago.model_validate(
+            {
+                "tenant_id": "veltri",
+                "solicitud": {"total_centimos": 10000, "pagado_centimos": 10000},
+            }
+        ),
+        EntradaPedido.model_validate(
+            {
+                "tenant_id": "veltri",
+                "solicitud": {"cliente": "demo_cliente", "seleccion": seleccion, "canal": "web"},
+                "confirmar_borrador": True,
+            }
         ),
         EntradaSeguimiento(tenant_id="veltri", clave="a" * 64),
     ]
@@ -165,7 +174,10 @@ def test_a1_bloquea_antes_de_consultar_modelo(mensaje):
 
 def test_a2_limite_insuficiente_no_inventa_pc(catalogo):
     salida = agente(1).run(
-        EntradaArmado(tenant_id="veltri", solicitud={"maximo_centimos": 120000}), catalogo
+        EntradaArmado.model_validate(
+            {"tenant_id": "veltri", "solicitud": {"maximo_centimos": 120000}}
+        ),
+        catalogo,
     )
     assert salida.resultado.cotizacion is None
     assert salida.resultado.minimo_catalogo_centimos > 120000
@@ -173,8 +185,8 @@ def test_a2_limite_insuficiente_no_inventa_pc(catalogo):
 
 def test_a3_total_exactamente_de_herramienta_y_bloqueo_presupuesto(catalogo, seleccion):
     salida = agente(2).run(
-        EntradaCotizacion(
-            tenant_id="veltri", solicitud={"seleccion": seleccion, "maximo_centimos": 1}
+        EntradaCotizacion.model_validate(
+            {"tenant_id": "veltri", "solicitud": {"seleccion": seleccion, "maximo_centimos": 1}}
         ),
         catalogo,
     )
@@ -198,12 +210,14 @@ def test_a5_cp3_fuente_sku_alternativas_y_revision(catalogo):
     assert salida.resultado.stock.fuente == "data/catalogo.json"
     assert salida.resultado.alternativas["CPU-AMD-5500"]
     decision = decide(
-        SolicitudDecision(
-            opcion="consultar_stock",
-            p=salida.plan.p,
-            c=salida.plan.c,
-            origen_puntuacion=salida.origen_puntuacion,
-            evidencia={"tipo": "stock", "resultado": salida.resultado.stock},
+        SolicitudDecision.model_validate(
+            {
+                "opcion": "consultar_stock",
+                "p": salida.plan.p,
+                "c": salida.plan.c,
+                "origen_puntuacion": salida.origen_puntuacion,
+                "evidencia": {"tipo": "stock", "resultado": salida.resultado.stock},
+            }
         )
     )
     assert decision.hitl_requerido and decision.destino == "revision_humana"
@@ -211,8 +225,8 @@ def test_a5_cp3_fuente_sku_alternativas_y_revision(catalogo):
 
 def test_a6_cp5_pago_discrepante_sin_conciliar():
     salida = agente(5).run(
-        EntradaPago(
-            tenant_id="veltri", solicitud={"total_centimos": 10000, "pagado_centimos": 9999}
+        EntradaPago.model_validate(
+            {"tenant_id": "veltri", "solicitud": {"total_centimos": 10000, "pagado_centimos": 9999}}
         )
     )
     assert salida.resultado.estado == "no_conciliado"

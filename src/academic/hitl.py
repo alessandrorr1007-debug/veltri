@@ -22,7 +22,7 @@ class Estado(TypedDict, total=False):
 
 def crear_grafo():
     """Cada instancia mantiene sus propios checkpoints; no persisten entre procesos."""
-    def revisar(estado: Estado):
+    def revisar(state: Estado) -> Estado:
         decision = Decision.model_validate(interrupt({"tipo": "revision_sintetica"}))
         return {"resultado": decision.accion}
 

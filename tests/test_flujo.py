@@ -93,9 +93,11 @@ def test_cp3_stock_agotado_cita_alternativas_y_revision():
     orquestador = flujo("stock")
     salida = orquestador.consultar(entrada({"tipo": "stock", "seleccion": {"CPU-AMD-5500": 1}}))
     assert salida.respuesta.status == "revision_humana" and salida.revision_id
+    assert salida.respuesta.stock is not None
     assert salida.respuesta.stock.faltantes[0].sku == "CPU-AMD-5500"
     assert salida.respuesta.fuentes == ["data/catalogo.json"]
     assert salida.alternativas["CPU-AMD-5500"]
+    assert salida.decision is not None
     assert "stock_insuficiente:CPU-AMD-5500" in salida.decision.bloqueos
     assert orquestador.bandeja.obtener("veltri", salida.revision_id).estado == "pendiente"
     assert ResultadoFlujo.model_validate_json(salida.model_dump_json()) == salida
@@ -104,6 +106,7 @@ def test_cp3_stock_agotado_cita_alternativas_y_revision():
 def test_stock_disponible_completa_consulta_sin_autorizar_venta():
     salida = flujo("stock").consultar(entrada({"tipo": "stock", "seleccion": {"CPU-AMD-5600": 1}}))
     assert salida.respuesta.status == "completado" and not salida.respuesta.hitl_requerido
+    assert salida.respuesta.stock is not None
     assert salida.respuesta.stock.disponible
     assert not salida.respuesta.genera_proforma and not salida.respuesta.aprobado_tecnicamente
     assert salida.revision_id is None
@@ -114,7 +117,9 @@ def test_cp1_demo_no_se_presenta_como_aprobacion_real():
         entrada({"tipo": "armar", "solicitud": {"maximo_centimos": 350000}})
     )
     assert salida.respuesta.status == "revision_humana"
+    assert salida.respuesta.cotizacion is not None
     assert salida.respuesta.cotizacion.total_centimos <= 350000
+    assert salida.respuesta.cotizacion is not None
     assert salida.respuesta.cotizacion.tecnico.sin_conflictos_datos
     assert not salida.respuesta.aprobado_tecnicamente
     assert "verificar_soporte_cpu_bios" in salida.respuesta.motivos
@@ -126,7 +131,9 @@ def test_cp4_rtx_insuficiente_no_genera_proforma():
     )
     assert salida.respuesta.status == "revision_humana"
     assert salida.respuesta.cotizacion is None and not salida.respuesta.genera_proforma
+    assert salida.minimo_catalogo_centimos is not None
     assert salida.minimo_catalogo_centimos > 120000
+    assert salida.decision is not None
     assert "sin_configuracion_en_rango" in salida.decision.bloqueos
 
 
@@ -145,6 +152,7 @@ def test_socket_incompatible_no_lo_autoriza_p_alta(seleccion):
         entrada({"tipo": "compatibilidad", "seleccion": seleccion})
     )
     assert salida.respuesta.status == "revision_humana"
+    assert salida.respuesta.tecnico is not None
     assert "socket_incompatible" in salida.respuesta.tecnico.conflictos
 
 
@@ -154,7 +162,9 @@ def test_cp5_comparacion_no_acredita_pago(pagado):
         entrada({"tipo": "pago", "solicitud": {"total_centimos": 10000, "pagado_centimos": pagado}})
     )
     assert salida.respuesta.status == "revision_humana"
+    assert salida.respuesta.pago is not None
     assert salida.respuesta.pago.estado == "no_conciliado"
+    assert salida.decision is not None
     assert "pago_no_conciliado" in salida.decision.bloqueos
 
 
@@ -167,13 +177,20 @@ def test_cp6_pedido_idempotente_y_seguimiento_aislado(seleccion):
     }
     uno = orquestador.consultar(entrada(parametros))
     dos = orquestador.consultar(entrada(parametros))
+    assert dos.respuesta.pedido is not None
+    assert uno.respuesta.pedido is not None
     assert uno.respuesta.pedido.registros_creados + dos.respuesta.pedido.registros_creados == 1
+    assert dos.respuesta.pedido is not None
     assert dos.respuesta.pedido.duplicado
+    assert uno.respuesta.pedido is not None
     assert uno.respuesta.pedido.pedido.estado == "borrador_demo"
     seguimiento = flujo("seguimiento", registro=orquestador._servicios.registro)
+    assert uno.respuesta.pedido is not None
     clave = uno.respuesta.pedido.pedido.clave
     propio = seguimiento.consultar(entrada({"tipo": "seguimiento", "clave": clave}))
     ajeno = seguimiento.consultar(entrada({"tipo": "seguimiento", "clave": clave}, tenant="otro"))
+    assert ajeno.seguimiento is not None
+    assert propio.seguimiento is not None
     assert propio.seguimiento.encontrado and not ajeno.seguimiento.encontrado
     assert propio.respuesta.status == "revision_humana"
     assert ajeno.revision_id != propio.revision_id
@@ -203,6 +220,7 @@ def test_puntaje_inicial_bajo_detiene_dominios(p, estado, monkeypatch):
     monkeypatch.setattr(A5Inventario, "run", prohibido)
     salida = orquestador.consultar(entrada({"tipo": "stock", "seleccion": {"CPU-AMD-5600": 1}}))
     assert salida.respuesta.status == "revision_humana"
+    assert salida.revision_id is not None
     assert orquestador.bandeja.obtener("veltri", salida.revision_id).estado == estado
 
 
@@ -218,12 +236,14 @@ def test_puntaje_inicial_bajo_detiene_dominios(p, estado, monkeypatch):
 )
 def test_faltantes_y_conflicto_de_parametros_requieren_revision(parametros, motivo):
     salida = flujo("stock").consultar(entrada(parametros))
+    assert salida.decision is not None
     assert salida.respuesta.status == "revision_humana" and motivo in salida.decision.bloqueos
 
 
 def test_intencion_desconocida_no_se_enruta_por_texto():
     salida = flujo("desconocida").consultar(entrada(mensaje="stock CPU-AMD-5600"))
     assert salida.respuesta.status == "revision_humana"
+    assert salida.decision is not None
     assert "intencion_desconocida" in salida.decision.bloqueos
 
 
@@ -281,6 +301,7 @@ def test_rag_informativo_cita_tenant_y_no_genera_respuesta_sin_fuente(tmp_path):
     assert salida.citas and all(c.fuente == "data/politicas.md" for c in salida.citas)
     ajeno = orquestador.consultar(entrada(parametros, tenant="otro"))
     assert ajeno.respuesta.status == "revision_humana" and not ajeno.citas
+    assert ajeno.decision is not None
     assert "conocimiento_no_disponible" in ajeno.decision.bloqueos
 
 

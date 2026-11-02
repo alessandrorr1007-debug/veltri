@@ -82,7 +82,7 @@ El hook instalado protege commits contra ediciones de archivos críticos, no imp
 
 ## Estructura
 `data/`: catálogo, relaciones y políticas; `docs/`: documentación de arquitectura, datos, herramientas, esquemas, interfaz y entrega académica;
-`tests/`: pruebas unitarias e integradas (464 pruebas); `scripts/`: verificadores y protección;
+`tests/`: pruebas unitarias e integradas (477 pruebas); `scripts/`: verificadores y protección;
 `.agents/`: reglas, workflows y skills vigentes;
 `src/`: núcleo, herramientas, contratos tipados, conocimiento RAG, agentes A1-A8, orquestador LangGraph y API FastAPI;
 `frontend/`: interfaz web local SPA (HTML, CSS y JS sin dependencias externas ni CDN);

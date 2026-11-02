@@ -18,5 +18,6 @@ class A8Seguimiento(BaseAgent):
         entrada = self._entrada(entrada, EntradaSeguimiento)
         plan = self._plan({"tarea": "seguimiento"})
         borrador = self._ejecutar(registro.consultar, entrada.tenant_id, entrada.clave)
-        resultado = EstadoBorrador(encontrado=borrador is not None, borrador=borrador)
+        resultado = EstadoBorrador.model_validate({
+            "encontrado": borrador is not None, "borrador": borrador})
         return self._salida(entrada.tenant_id, plan, resultado, EstadoBorrador)

@@ -1,5 +1,6 @@
 """Orquestador local LangGraph con seguridad previa y sin historial conversacional."""
 
+from collections.abc import Hashable
 from copy import deepcopy
 from functools import partial
 from typing import Any
@@ -31,7 +32,7 @@ def crear_grafo(servicios: Servicios):
     constructor.add_node("validar_plan", validar_plan)
     constructor.add_node("decidir", partial(evaluar, servicios=servicios))
     constructor.add_node("responder", responder)
-    rutas = {"decidir": "decidir", "informacion": "recuperar"}
+    rutas: dict[Hashable, str] = {"decidir": "decidir", "informacion": "recuperar"}
     constructor.add_node("recuperar", partial(recuperar, servicios=servicios))
     constructor.add_edge("recuperar", "decidir")
     for accion, nombre in [
@@ -121,11 +122,8 @@ class Orquestador:
             with tracing_context(enabled=False):
                 plan = self._servicios.agente(A1Interpretacion).run(entrada.consulta).plan
                 resultado = self._grafo.invoke(
-                    {
-                        "tenant_id": entrada.consulta.tenant_id,
-                        "plan": plan,
-                        "parametros": entrada.parametros,
-                    },
+                    EstadoFlujo(tenant_id=entrada.consulta.tenant_id, plan=plan,
+                                parametros=entrada.parametros),
                     config={"callbacks": [], "recursion_limit": 12},
                 )
                 salida = resultado["salida"]

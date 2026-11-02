@@ -1,5 +1,7 @@
 """Composición LCEL determinista sobre un fixture académico cerrado."""
 
+from typing import Any
+
 from langchain_core.runnables import RunnableLambda, RunnableParallel
 
 from src.schemas.academico import EntradaAcademica, SalidaAcademica
@@ -12,9 +14,17 @@ def crear_pipeline():
     return (
         RunnableLambda(EntradaAcademica.model_validate)
         | RunnableParallel(
-            escenario=RunnableLambda(lambda entrada: entrada.escenario),
+            escenario=RunnableLambda(_escenario),
             revision=RunnableLambda(lambda _: comprobar_stock(
                 Catalogo(), {"CPU-AMD-5500": 1})["hitl_requerido"]),
         )
-        | RunnableLambda(lambda ramas: SalidaAcademica(requiere_revision=ramas["revision"]))
+        | RunnableLambda(_salida)
     )
+
+
+def _escenario(entrada: EntradaAcademica) -> str:
+    return entrada.escenario
+
+
+def _salida(ramas: dict[str, Any]) -> SalidaAcademica:
+    return SalidaAcademica(requiere_revision=ramas["revision"])

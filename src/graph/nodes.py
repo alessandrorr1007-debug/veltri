@@ -28,7 +28,17 @@ from src.schemas.agentes import (
 )
 from src.schemas.consulta import ConsultaResponse
 from src.schemas.decision import SolicitudDecision
-from src.schemas.flujo import CitaRecuperada, ResultadoFlujo
+from src.schemas.flujo import (
+    CitaRecuperada,
+    ParametrosArmado,
+    ParametrosCotizacion,
+    ParametrosInformacion,
+    ParametrosPago,
+    ParametrosPedido,
+    ParametrosSeguimiento,
+    ParametrosSeleccion,
+    ResultadoFlujo,
+)
 from src.tools.catalogo import Catalogo
 from src.tools.registro import RegistroPorTenant
 
@@ -53,29 +63,34 @@ class Servicios:
 
 def limitacion(estado: EstadoFlujo, motivo: str, fuentes=None) -> SolicitudDecision:
     """Un impedimento del flujo se convierte en evidencia que fuerza revisión."""
-    return SolicitudDecision(
-        opcion="informar",
-        p=estado.plan.p,
-        c=estado.plan.c,
-        origen_puntuacion="prueba_no_calibrada",
-        evidencia={
-            "tipo": "limitacion",
-            "motivos": [motivo],
-            "fuentes": fuentes or ["data/politicas.md"],
-        },
+    return SolicitudDecision.model_validate(
+        {
+            "opcion": "informar",
+            "p": estado.plan.p,
+            "c": estado.plan.c,
+            "origen_puntuacion": "prueba_no_calibrada",
+            "evidencia": {
+                "tipo": "limitacion",
+                "motivos": [motivo],
+                "fuentes": fuentes or ["data/politicas.md"],
+            },
+        }
     )
 
 
 @observar("validar_plan")
-def validar_plan(estado: EstadoFlujo) -> dict[str, Any]:
+def validar_plan(state: EstadoFlujo) -> dict[str, Any]:
     """Deriva ruta solo de enums validados y verifica parámetros antes de efectos."""
+    estado = state
     if clasificar(estado.plan.p, False) != "ejecutar":
-        solicitud = SolicitudDecision(
-            opcion="informar",
-            p=estado.plan.p,
-            c=estado.plan.c,
-            origen_puntuacion="prueba_no_calibrada",
-            evidencia={"tipo": "informacion", "fuentes": ["data/politicas.md"]},
+        solicitud = SolicitudDecision.model_validate(
+            {
+                "opcion": "informar",
+                "p": estado.plan.p,
+                "c": estado.plan.c,
+                "origen_puntuacion": "prueba_no_calibrada",
+                "evidencia": {"tipo": "informacion", "fuentes": ["data/politicas.md"]},
+            }
         )
         return {"ruta": "decidir", "solicitud_decision": solicitud}
     if estado.plan.accion == "desconocida":
@@ -90,14 +105,15 @@ def validar_plan(estado: EstadoFlujo) -> dict[str, Any]:
 
 
 @observar("dominio")
-def dominio(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
+def dominio(state: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
     """Invoca un único dominio con parámetros del llamador, nunca del modelo."""
+    estado = state
     params = estado.parametros
     tenant = estado.tenant_id
     comunes = {"tenant_id": tenant}
     accion = estado.ruta
     extras = {}
-    if accion == "armar":
+    if accion == "armar" and isinstance(params, ParametrosArmado):
         salida = servicios.agente(A2Armado).run(
             EntradaArmado(**comunes, solicitud=params.solicitud), servicios.catalogo
         )
@@ -113,30 +129,30 @@ def dominio(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
             }
         payload = salida.resultado.cotizacion
         opcion, tipo, evidencia = "cotizar", "cotizacion", payload
-    elif accion == "cotizar":
+    elif accion == "cotizar" and isinstance(params, ParametrosCotizacion):
         salida = servicios.agente(A3Cotizacion).run(
             EntradaCotizacion(**comunes, solicitud=params.solicitud), servicios.catalogo
         )
         payload = salida.resultado
         opcion, tipo, evidencia = "cotizar", "cotizacion", payload
-    elif accion == "compatibilidad":
+    elif accion == "compatibilidad" and isinstance(params, ParametrosSeleccion):
         salida = servicios.agente(A4Compatibilidad).run(
             EntradaSeleccion(**comunes, seleccion=params.seleccion), servicios.catalogo
         )
         payload = salida.resultado
         opcion, tipo, evidencia = "validar_compatibilidad", "tecnico", payload
-    elif accion == "stock":
+    elif accion == "stock" and isinstance(params, ParametrosSeleccion):
         salida = servicios.agente(A5Inventario).run(
             EntradaSeleccion(**comunes, seleccion=params.seleccion), servicios.catalogo
         )
         payload = salida.resultado
         extras["alternativas"] = payload.alternativas
         opcion, tipo, evidencia = "consultar_stock", "stock", payload.stock
-    elif accion == "pago":
+    elif accion == "pago" and isinstance(params, ParametrosPago):
         salida = servicios.agente(A6Pagos).run(EntradaPago(**comunes, solicitud=params.solicitud))
         payload = salida.resultado
         opcion, tipo, evidencia = "comparar_pago", "pago", payload
-    elif accion == "pedido":
+    elif accion == "pedido" and isinstance(params, ParametrosPedido):
         salida = servicios.agente(A7Pedidos).run(
             EntradaPedido(
                 **comunes, solicitud=params.solicitud, confirmar_borrador=params.confirmar_borrador
@@ -146,7 +162,7 @@ def dominio(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
         )
         payload = salida.resultado
         opcion, tipo, evidencia = "registrar_borrador", "pedido", payload
-    elif accion == "seguimiento":
+    elif accion == "seguimiento" and isinstance(params, ParametrosSeguimiento):
         salida = servicios.agente(A8Seguimiento).run(
             EntradaSeguimiento(**comunes, clave=params.clave), servicios.registro
         )
@@ -161,21 +177,26 @@ def dominio(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
         }
     else:
         raise ValueError("Ruta de dominio inválida")
-    solicitud = SolicitudDecision(
-        opcion=opcion,
-        p=min(estado.plan.p, salida.plan.p),
-        c=min(estado.plan.c, salida.plan.c),
-        origen_puntuacion="prueba_no_calibrada",
-        evidencia={"tipo": tipo, "resultado": evidencia.model_dump()},
+    solicitud = SolicitudDecision.model_validate(
+        {
+            "opcion": opcion,
+            "p": min(estado.plan.p, salida.plan.p),
+            "c": min(estado.plan.c, salida.plan.c),
+            "origen_puntuacion": "prueba_no_calibrada",
+            "evidencia": {"tipo": tipo, "resultado": evidencia.model_dump()},
+        }
     )
     return {**extras, "payload": payload, "solicitud_decision": solicitud}
 
 
 @observar("recuperar")
-def recuperar(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
+def recuperar(state: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
     """Temas enumerados a contexto citado; ningún fragmento se ejecuta o se envía al LLM."""
+    estado = state
     if servicios.almacen is None:
         return {"solicitud_decision": limitacion(estado, "conocimiento_no_disponible")}
+    if not isinstance(estado.parametros, ParametrosInformacion):
+        raise ValueError("Parámetros de información requeridos")
     tema = estado.parametros.tema
     consultas = {
         "politicas": ("políticas cotización", "data/politicas.md"),
@@ -191,32 +212,42 @@ def recuperar(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
         CitaRecuperada(**{k: r[k] for k in ("fuente", "referencia", "hash_fuente", "snapshot")})
         for r in resultados
     ]
-    solicitud = SolicitudDecision(
-        opcion="informar",
-        p=estado.plan.p,
-        c=estado.plan.c,
-        origen_puntuacion="prueba_no_calibrada",
-        evidencia={"tipo": "informacion", "fuentes": sorted({r["fuente"] for r in resultados})},
+    solicitud = SolicitudDecision.model_validate(
+        {
+            "opcion": "informar",
+            "p": estado.plan.p,
+            "c": estado.plan.c,
+            "origen_puntuacion": "prueba_no_calibrada",
+            "evidencia": {
+                "tipo": "informacion",
+                "fuentes": sorted({r["fuente"] for r in resultados}),
+            },
+        }
     )
     return {"citas": citas, "solicitud_decision": solicitud}
 
 
 @observar("decidir")
-def evaluar(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
+def evaluar(state: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
     """Aplica invariantes y registra revisión o escalado sin aprobar negocio."""
-    decision = decide(estado.solicitud_decision)
+    estado = state
+    solicitud = estado.solicitud_decision
+    if solicitud is None:
+        raise ValueError("Evidencia de decisión requerida")
+    decision = decide(solicitud)
     revision_id = None
     if decision.hitl_requerido:
-        revision_id = servicios.bandeja.encolar(
-            estado.tenant_id, estado.solicitud_decision
-        ).revision.id
+        revision_id = servicios.bandeja.encolar(estado.tenant_id, solicitud).revision.id
     return {"decision": decision, "revision_id": revision_id}
 
 
 @observar("responder")
-def responder(estado: EstadoFlujo) -> dict[str, Any]:
+def responder(state: EstadoFlujo) -> dict[str, Any]:
     """Proyecta resultados a ConsultaResponse; no redacta hechos con el modelo."""
+    estado = state
     decision = estado.decision
+    if decision is None:
+        raise ValueError("Decisión requerida para responder")
     payload = estado.payload
     motivos = set(decision.motivos) if decision.hitl_requerido else set()
     valores = {
@@ -237,6 +268,10 @@ def responder(estado: EstadoFlujo) -> dict[str, Any]:
             "pedido": ("pedido", "pedido"),
         }[estado.ruta]
         if estado.ruta == "stock":
+            from src.schemas.agentes import ResultadoInventario
+
+            if not isinstance(payload, ResultadoInventario):
+                raise ValueError("Resultado de inventario requerido")
             payload = payload.stock
             if not payload.disponible:
                 motivos.add("stock_insuficiente")

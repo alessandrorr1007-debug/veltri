@@ -20,8 +20,15 @@ from src.tools.pedidos import RegistroDemo
 
 
 def informativa(p=1.0, c=1.0):
-    return SolicitudDecision(opcion="informar", p=p, c=c, origen_puntuacion="prueba_no_calibrada",
-                             evidencia={"tipo": "informacion", "fuentes": ["data/politicas.md"]})
+    return SolicitudDecision.model_validate(
+        {
+            "opcion": "informar",
+            "p": p,
+            "c": c,
+            "origen_puntuacion": "prueba_no_calibrada",
+            "evidencia": {"tipo": "informacion", "fuentes": ["data/politicas.md"]},
+        }
+    )
 
 
 @pytest.fixture
@@ -37,14 +44,26 @@ def seleccion():
 
 
 def solicitud(opcion, tipo, resultado, p=1.0):
-    return SolicitudDecision(opcion=opcion, p=p, c=1.0, origen_puntuacion="prueba_no_calibrada",
-                             evidencia={"tipo": tipo, "resultado": resultado})
+    return SolicitudDecision.model_validate(
+        {
+            "opcion": opcion,
+            "p": p,
+            "c": 1.0,
+            "origen_puntuacion": "prueba_no_calibrada",
+            "evidencia": {"tipo": tipo, "resultado": resultado},
+        }
+    )
 
 
 def resolucion(accion):
-    motivo = {"aprobar_demo": "informacion_verificada", "rechazar": "revision_rechazada",
-              "solicitar_correccion": "requiere_correccion"}[accion]
-    return ResolucionRevision(accion=accion, revisor="demo_operador", motivo=motivo)
+    motivo = {
+        "aprobar_demo": "informacion_verificada",
+        "rechazar": "revision_rechazada",
+        "solicitar_correccion": "requiere_correccion",
+    }[accion]
+    return ResolucionRevision.model_validate(
+        {"accion": accion, "revisor": "demo_operador", "motivo": motivo}
+    )
 
 
 @pytest.mark.parametrize("p,destino", [
@@ -143,7 +162,10 @@ def test_borrador_no_se_convierte_en_pedido_confirmado(catalogo, seleccion):
 
 
 def test_revalida_modelos_que_fueron_mutados():
+    from src.schemas.decision import EvidenciaInformacion
+
     evaluacion = informativa()
+    assert isinstance(evaluacion.evidencia, EvidenciaInformacion)
     evaluacion.evidencia.fuentes.clear()
     with pytest.raises(ValidationError):
         decide(evaluacion)
@@ -229,10 +251,13 @@ def test_escalado_requiere_nueva_evidencia_antes_de_aprobar():
 
 def test_revisor_y_motivos_no_admiten_pii():
     with pytest.raises(ValidationError):
-        ResolucionRevision(accion="rechazar", revisor="persona@example.test",
-                           motivo="revision_rechazada")
+        ResolucionRevision(
+            accion="rechazar", revisor="persona@example.test", motivo="revision_rechazada"
+        )
     with pytest.raises(ValidationError):
-        ResolucionRevision(accion="rechazar", revisor="demo_operador", motivo="comentario libre")
+        ResolucionRevision.model_validate(
+            {"accion": "rechazar", "revisor": "demo_operador", "motivo": "comentario libre"}
+        )
 
 
 def test_encolado_concurrente_crea_un_solo_registro():

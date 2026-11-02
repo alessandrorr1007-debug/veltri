@@ -13,6 +13,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Inches, Pt, RGBColor
+from docx.styles.style import ParagraphStyle
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -190,7 +191,7 @@ d.text(
 im.save(F / "deepagents.png")
 
 im, d = canvas(1600, 840, "Ecosistema LangChain aplicado a Veltri")
-for i, (title, sub) in enumerate(
+for i, (title, subtitulo) in enumerate(
     [
         ("Deep Agents", "Coordinación y subagentes académicos"),
         ("LangChain", "LCEL, BaseChatModel y herramientas"),
@@ -198,7 +199,7 @@ for i, (title, sub) in enumerate(
     ]
 ):
     y = 120 + i * 220
-    box(d, (40, y, 1000, y + 160), title + "\n" + sub, 31)
+    box(d, (40, y, 1000, y + 160), title + "\n" + subtitulo, 31)
     if i < 2:
         arrow(d, (520, y + 160), (520, y + 220))
 box(
@@ -217,14 +218,19 @@ sec.page_height, sec.page_width = Cm(29.7), Cm(21)
 sec.top_margin, sec.bottom_margin = Cm(1.8), Cm(1.8)
 sec.left_margin = sec.right_margin = Cm(2)
 normal = doc.styles["Normal"]
+if not isinstance(normal, ParagraphStyle):
+    raise TypeError("Normal debe ser un estilo de párrafo")
 normal.font.name = "Calibri"
 normal.font.size = Pt(11)
 normal.paragraph_format.space_after = Pt(7)
 normal.paragraph_format.line_spacing = 1.12
 for name, size in [("Title", 30), ("Heading 1", 20), ("Heading 2", 14)]:
-    doc.styles[name].font.name = "Calibri"
-    doc.styles[name].font.size = Pt(size)
-    doc.styles[name].font.color.rgb = RGBColor.from_string(
+    estilo = doc.styles[name]
+    if not isinstance(estilo, ParagraphStyle):
+        raise TypeError("El encabezado debe ser un estilo de párrafo")
+    estilo.font.name = "Calibri"
+    estilo.font.size = Pt(size)
+    estilo.font.color.rgb = RGBColor.from_string(
         "000000" if name == "Title" else "183047"
     )
 doc.core_properties.title = "Veltri Tecnologic Semana 10"
@@ -1006,7 +1012,7 @@ target = OUT / "Veltri_Semana10_Informe_Academico.docx"
 for root in (doc.styles.element, doc.element):
     for border in root.findall(".//" + qn("w:pBdr")):
         border.getparent().remove(border)
-doc.save(target)
+doc.save(str(target))
 manifest = {
     "fecha": "2026-10-31",
     "documento": target.name,

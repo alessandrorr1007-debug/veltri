@@ -6,7 +6,7 @@ import pytest
 from pydantic import SecretStr, ValidationError
 
 from src.config import Configuracion, cargar_configuracion
-from src.core.llm import ErrorModelo, MockLLM, get_llm
+from src.core.llm import ErrorModelo, GeminiLLM, MockLLM, get_llm
 from src.schemas.agentes import PlanModelo
 
 
@@ -55,6 +55,7 @@ def test_conector_real_con_sdk_y_transporte_simulado(monkeypatch):
     llamadas = []
     config = Configuracion(usar_mock=False, modelo="desde-env", clave=SecretStr("x"))
     modelo = get_llm(configuracion=config)
+    assert isinstance(modelo, GeminiLLM)
     recurso = type(modelo._cliente.interactions)
 
     def transporte(self, **kwargs):
@@ -75,6 +76,7 @@ def test_conector_real_con_sdk_y_transporte_simulado(monkeypatch):
 def test_error_del_proveedor_no_filtra_entrada(monkeypatch):
     config = Configuracion(usar_mock=False, modelo="desde-env", clave=SecretStr("x"))
     modelo = get_llm(configuracion=config)
+    assert isinstance(modelo, GeminiLLM)
 
     def fallar(self, **kwargs):
         raise RuntimeError("dato privado sintético")

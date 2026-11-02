@@ -286,7 +286,10 @@ def test_ruta_inexistente_retorna_404_con_consulta_response():
 
 
 def test_fallo_interno_retorna_500_con_consulta_response(monkeypatch):
+    from fastapi import FastAPI
+
     client = cliente_api("stock")
+    assert isinstance(client.app, FastAPI)
 
     def fallar(*args, **kwargs):
         raise RuntimeError("Fallo interno simulado")

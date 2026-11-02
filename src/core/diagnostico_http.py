@@ -27,7 +27,7 @@ class TransporteDiagnostico(requests.Session):
         self.primer_fallo = None
         self.correlacion = str(uuid4())
 
-    def _destino(self, request):
+    def _destino(self, request) -> tuple[str, str]:
         url = urlsplit(request.url)
         if url.scheme != "https" or url.netloc not in {
             "api.smith.langchain.com", "eu.api.smith.langchain.com"}:
@@ -55,6 +55,8 @@ class TransporteDiagnostico(requests.Session):
         # Session.request ya preparó TLS, timeout y proxies para este envío.
         kwargs.pop("allow_redirects", None)
         try:
+            if request.url is None:
+                raise ErrorTransporteSeguro("destino_no_permitido")
             respuesta = self.get_adapter(request.url).send(request, **kwargs)
         except requests.Timeout:
             self._registrar(request.method, ruta, None, "timeout", etapa)

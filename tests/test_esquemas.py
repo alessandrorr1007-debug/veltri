@@ -39,9 +39,19 @@ def catalogo():
 
 @pytest.fixture
 def seleccion():
-    return dict.fromkeys(["CPU-AMD-5600", "MB-A520-DDR4", "GPU-RX6600",
-                          "RAM-DDR4-8-2666", "SSD-NVME-500-G3", "PSU-450",
-                          "CASE-01", "COOL-02"], 1)
+    return dict.fromkeys(
+        [
+            "CPU-AMD-5600",
+            "MB-A520-DDR4",
+            "GPU-RX6600",
+            "RAM-DDR4-8-2666",
+            "SSD-NVME-500-G3",
+            "PSU-450",
+            "CASE-01",
+            "COOL-02",
+        ],
+        1,
+    )
 
 
 @pytest.fixture
@@ -51,18 +61,30 @@ def cotizacion(catalogo, seleccion):
 
 @pytest.fixture
 def respuesta(cotizacion):
-    return {"status": "revision_humana", "intencion": "cotizacion",
-            "mensaje": "Propuesta de demostración pendiente de revisión.",
-            "hitl_requerido": True, "motivos": cotizacion["tecnico"]["pendientes"],
-            "fuentes": ["data/catalogo.json", "data/compatibilidad.json"],
-            "cotizacion": cotizacion}
+    return {
+        "status": "revision_humana",
+        "intencion": "cotizacion",
+        "mensaje": "Propuesta de demostración pendiente de revisión.",
+        "hitl_requerido": True,
+        "motivos": cotizacion["tecnico"]["pendientes"],
+        "fuentes": ["data/catalogo.json", "data/compatibilidad.json"],
+        "cotizacion": cotizacion,
+    }
 
 
-@pytest.mark.parametrize("campo,valor", [
-    ("mensaje", ""), ("mensaje", "   "), ("mensaje", 42),
-    ("canal", "email"), ("tenant_id", ""), ("tenant_id", "otro/tenant"),
-    ("tenant_id", " tenant"), ("mensaje", "x" * 4001),
-])
+@pytest.mark.parametrize(
+    "campo,valor",
+    [
+        ("mensaje", ""),
+        ("mensaje", "   "),
+        ("mensaje", 42),
+        ("canal", "email"),
+        ("tenant_id", ""),
+        ("tenant_id", "otro/tenant"),
+        ("tenant_id", " tenant"),
+        ("mensaje", "x" * 4001),
+    ],
+)
 def test_solicitud_rechaza_campos_invalidos(campo, valor):
     datos = {"mensaje": "Cotizar PC", "canal": "web", "tenant_id": "veltri"}
     datos[campo] = valor
@@ -72,9 +94,11 @@ def test_solicitud_rechaza_campos_invalidos(campo, valor):
 
 def test_tenant_explicito_y_campos_extra_prohibidos():
     with pytest.raises(ValidationError):
-        ConsultaRequest(mensaje="PC", canal="web")
+        ConsultaRequest.model_validate({"mensaje": "PC", "canal": "web"})
     with pytest.raises(ValidationError):
-        ConsultaRequest(mensaje="PC", canal="web", tenant_id="veltri", api_key="prohibido")
+        ConsultaRequest.model_validate(
+            {"mensaje": "PC", "canal": "web", "tenant_id": "veltri", "api_key": "prohibido"}
+        )
 
 
 def test_repr_y_error_no_imprimen_mensaje():
@@ -82,11 +106,13 @@ def test_repr_y_error_no_imprimen_mensaje():
     solicitud = ConsultaRequest(mensaje=texto, canal="web", tenant_id="veltri")
     assert texto not in repr(solicitud)
     with pytest.raises(ValidationError) as error:
-        ConsultaRequest(mensaje=texto, canal="desconocido", tenant_id="veltri")
+        ConsultaRequest.model_validate(
+            {"mensaje": texto, "canal": "desconocido", "tenant_id": "veltri"}
+        )
     assert "input_value" not in str(error.value)
     assert "input_value" not in ErrorValidacion().model_dump_json()
     with pytest.raises(ValidationError):
-        ErrorValidacion(campos=[texto])
+        ErrorValidacion.model_validate({"campos": [texto]})
 
 
 @pytest.mark.parametrize("valor", [True, False, -1, 3.5, "350000"])
@@ -105,8 +131,10 @@ def test_rango_valido_y_abierto():
         ArmadoRequest(minimo_centimos=6, maximo_centimos=5)
 
 
-@pytest.mark.parametrize("seleccion", [{}, {"cpu-amd-5500": 1}, {"CPU-AMD-5500": True},
-                                        {"CPU-AMD-5500": 0}, {"CPU-AMD-5500": "1"}])
+@pytest.mark.parametrize(
+    "seleccion",
+    [{}, {"cpu-amd-5500": 1}, {"CPU-AMD-5500": True}, {"CPU-AMD-5500": 0}, {"CPU-AMD-5500": "1"}],
+)
 def test_seleccion_invalida(seleccion):
     with pytest.raises(ValidationError):
         CotizacionRequest(seleccion=seleccion)
@@ -123,14 +151,23 @@ def test_validacion_conserva_resultado_real_y_json(cotizacion, respuesta):
     assert resultado.model_dump() == cotizacion
     sobre = ConsultaResponse.model_validate(respuesta)
     assert ConsultaResponse.model_validate_json(sobre.model_dump_json()) == sobre
+    assert sobre.cotizacion is not None
     assert sobre.cotizacion.total_centimos == cotizacion["total_centimos"]
 
 
-@pytest.mark.parametrize("campo,valor", [
-    ("total_centimos", 1), ("genera_proforma", True), ("hitl_requerido", False),
-    ("hitl_requerido", 1), ("genera_proforma", 0), ("bloqueos", ["inventado"]),
-    ("moneda", "USD"), ("sobre_presupuesto", True),
-])
+@pytest.mark.parametrize(
+    "campo,valor",
+    [
+        ("total_centimos", 1),
+        ("genera_proforma", True),
+        ("hitl_requerido", False),
+        ("hitl_requerido", 1),
+        ("genera_proforma", 0),
+        ("bloqueos", ["inventado"]),
+        ("moneda", "USD"),
+        ("sobre_presupuesto", True),
+    ],
+)
 def test_cotizacion_rechaza_contradicciones(cotizacion, campo, valor):
     cotizacion[campo] = valor
     with pytest.raises(ValidationError):
@@ -182,8 +219,7 @@ def test_contrato_armador_con_y_sin_solucion(catalogo, maximo):
     datos = armar(catalogo, maximo_centimos=maximo)
     resultado = ResultadoArmado.model_validate(datos)
     assert bool(resultado.cotizacion) == (resultado.estado == "propuesta_demo")
-    datos["estado"] = ("sin_configuracion_en_rango" if resultado.cotizacion
-                       else "propuesta_demo")
+    datos["estado"] = "sin_configuracion_en_rango" if resultado.cotizacion else "propuesta_demo"
     with pytest.raises(ValidationError):
         ResultadoArmado.model_validate(datos)
 
@@ -211,12 +247,21 @@ def test_contrato_pedido_duplicado_y_alias(catalogo, seleccion):
         PedidoDemoRequest(cliente="persona@example.test", seleccion=seleccion, canal="web")
 
 
-@pytest.mark.parametrize("campo,valor", [
-    ("status", "completado"), ("hitl_requerido", False), ("motivos", []),
-    ("fuentes", ["data/politicas.md"]), ("fuentes", ["https://inventado.test"]),
-    ("genera_proforma", True), ("aprobado_tecnicamente", True),
-    ("intencion", "pago"), ("archivado_en_dlq", True), ("version_contrato", "2.0"),
-])
+@pytest.mark.parametrize(
+    "campo,valor",
+    [
+        ("status", "completado"),
+        ("hitl_requerido", False),
+        ("motivos", []),
+        ("fuentes", ["data/politicas.md"]),
+        ("fuentes", ["https://inventado.test"]),
+        ("genera_proforma", True),
+        ("aprobado_tecnicamente", True),
+        ("intencion", "pago"),
+        ("archivado_en_dlq", True),
+        ("version_contrato", "2.0"),
+    ],
+)
 def test_sobre_no_oculta_revision_fuentes_o_intencion(respuesta, campo, valor):
     respuesta[campo] = valor
     with pytest.raises(ValidationError):
@@ -233,21 +278,38 @@ def test_respuesta_bloqueada_no_contiene_cotizacion(respuesta):
 
 
 def test_respuesta_error_e_informacion():
-    error = ConsultaResponse(status="error", intencion="desconocida", mensaje="Entrada inválida",
-                             hitl_requerido=False, motivos=["entrada_invalida"])
+    error = ConsultaResponse(
+        status="error",
+        intencion="desconocida",
+        mensaje="Entrada inválida",
+        hitl_requerido=False,
+        motivos=["entrada_invalida"],
+    )
     assert error.cotizacion is None
-    info = ConsultaResponse(status="completado", intencion="informacion",
-                            mensaje="Los datos son sintéticos.", hitl_requerido=False,
-                            fuentes=["data/politicas.md"])
+    info = ConsultaResponse(
+        status="completado",
+        intencion="informacion",
+        mensaje="Los datos son sintéticos.",
+        hitl_requerido=False,
+        fuentes=["data/politicas.md"],
+    )
     assert not info.genera_proforma
 
 
 def test_sobre_pago_preserva_motivos_y_fuente():
     pago = comparar_pago(10000, 9999)
-    datos = {"status": "revision_humana", "intencion": "pago", "mensaje": "Pago no conciliado",
-             "hitl_requerido": True, "motivos": pago["motivos"],
-             "fuentes": ["data/politicas.md"], "pago": pago}
-    assert ConsultaResponse.model_validate(datos).pago.estado == "no_conciliado"
+    datos = {
+        "status": "revision_humana",
+        "intencion": "pago",
+        "mensaje": "Pago no conciliado",
+        "hitl_requerido": True,
+        "motivos": pago["motivos"],
+        "fuentes": ["data/politicas.md"],
+        "pago": pago,
+    }
+    respuesta = ConsultaResponse.model_validate(datos)
+    assert respuesta.pago is not None
+    assert respuesta.pago.estado == "no_conciliado"
     datos["motivos"] = ["pago_discrepante"]
     with pytest.raises(ValidationError):
         ConsultaResponse.model_validate(datos)
@@ -255,23 +317,44 @@ def test_sobre_pago_preserva_motivos_y_fuente():
 
 def test_sobres_stock_tecnico_y_pedido(catalogo, seleccion):
     stock = comprobar_stock(catalogo, seleccion)
-    stock_sobre = ConsultaResponse(status="completado", intencion="stock",
-                                   mensaje="Stock de demostración disponible.",
-                                   hitl_requerido=False, fuentes=["data/catalogo.json"],
-                                   stock=stock)
+    stock_sobre = ConsultaResponse.model_validate(
+        {
+            "status": "completado",
+            "intencion": "stock",
+            "mensaje": "Stock de demostración disponible.",
+            "hitl_requerido": False,
+            "fuentes": ["data/catalogo.json"],
+            "stock": stock,
+        }
+    )
+    assert stock_sobre.stock is not None
     assert stock_sobre.stock.disponible
     tecnico = validar_configuracion(catalogo, seleccion)
-    tecnico_sobre = ConsultaResponse(status="revision_humana", intencion="compatibilidad",
-                                     mensaje="Falta evidencia de fabricante.", hitl_requerido=True,
-                                     motivos=tecnico["pendientes"],
-                                     fuentes=["data/compatibilidad.json"], tecnico=tecnico)
+    tecnico_sobre = ConsultaResponse.model_validate(
+        {
+            "status": "revision_humana",
+            "intencion": "compatibilidad",
+            "mensaje": "Falta evidencia de fabricante.",
+            "hitl_requerido": True,
+            "motivos": tecnico["pendientes"],
+            "fuentes": ["data/compatibilidad.json"],
+            "tecnico": tecnico,
+        }
+    )
     assert not tecnico_sobre.aprobado_tecnicamente
     pedido = RegistroDemo().registrar("demo_cliente", seleccion, "web", catalogo)
-    pedido_sobre = ConsultaResponse(status="revision_humana", intencion="pedido",
-                                    mensaje="Borrador de demostración.", hitl_requerido=True,
-                                    motivos=["borrador_demo"],
-                                    fuentes=["data/catalogo.json", "data/politicas.md"],
-                                    pedido=pedido)
+    pedido_sobre = ConsultaResponse.model_validate(
+        {
+            "status": "revision_humana",
+            "intencion": "pedido",
+            "mensaje": "Borrador de demostración.",
+            "hitl_requerido": True,
+            "motivos": ["borrador_demo"],
+            "fuentes": ["data/catalogo.json", "data/politicas.md"],
+            "pedido": pedido,
+        }
+    )
+    assert pedido_sobre.pedido is not None
     assert pedido_sobre.pedido.pedido.estado == "borrador_demo"
 
 

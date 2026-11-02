@@ -9,7 +9,7 @@ from langchain_core.tools import tool
 from pydantic import PrivateAttr
 
 from src.config import Configuracion
-from src.core.llm import get_llm
+from src.core.llm import Modelo, get_llm
 from src.schemas.academico import EntradaAcademica, PasoMock
 from src.tools.evidencia_academica import revisar_fixture_sintetico
 
@@ -17,7 +17,7 @@ from src.tools.evidencia_academica import revisar_fixture_sintetico
 class AdaptadorMock(BaseChatModel):
     """Traduce fixtures tipados del MockLLM a llamadas estándar de herramientas."""
 
-    _mock: object = PrivateAttr()
+    _mock: Modelo = PrivateAttr()
     _permitidas: set = PrivateAttr(default_factory=set)
     _auditoria: list = PrivateAttr(default_factory=list)
     _rol: str = PrivateAttr(default="")

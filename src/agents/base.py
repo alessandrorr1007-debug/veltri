@@ -12,6 +12,7 @@ from src.core.seguridad import EntradaBloqueada, validar_entrada_modelo
 from src.schemas.agentes import Accion, PlanModelo, SalidaAgente
 
 T = TypeVar("T")
+EntradaT = TypeVar("EntradaT", bound=BaseModel)
 
 
 class ErrorAgente(RuntimeError):
@@ -33,7 +34,7 @@ class BaseAgent:
     ) -> None:
         self._llm = get_llm(configuracion=configuracion, respuestas=respuestas)
 
-    def _entrada(self, entrada: BaseModel, esquema: type[BaseModel]) -> BaseModel:
+    def _entrada(self, entrada: BaseModel, esquema: type[EntradaT]) -> EntradaT:
         try:
             return esquema.model_validate(entrada.model_dump())
         except (ValidationError, AttributeError):
@@ -62,10 +63,7 @@ class BaseAgent:
     def _salida(
         self, tenant: str, plan: PlanModelo, resultado: T, esquema: type[T]
     ) -> SalidaAgente[T]:
-        return SalidaAgente[esquema](
-            agente=self.id,
-            tenant_id=tenant,
-            plan=plan,
-            origen_puntuacion=self._llm.origen_puntuacion,
-            resultado=resultado,
-        )
+        return SalidaAgente[esquema].model_validate({
+            "agente": self.id, "tenant_id": tenant, "plan": plan,
+            "origen_puntuacion": self._llm.origen_puntuacion, "resultado": resultado,
+        })

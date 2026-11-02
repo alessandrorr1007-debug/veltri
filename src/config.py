@@ -64,9 +64,9 @@ def cargar_configuracion(
     modo = valores.get("USE_MOCK_LLM", "1")
     if modo not in ("0", "1"):
         raise ValueError("USE_MOCK_LLM debe ser 0 o 1")
-    return Configuracion(
-        usar_mock=modo == "1",
-        proveedor=valores.get("LLM_PROVIDER", "gemini"),
-        modelo=valores.get("LLM_MODEL", "") or "",
-        clave=SecretStr(valores.get("GOOGLE_API_KEY", "") or ""),
-    )
+    return Configuracion.model_validate({
+        "usar_mock": modo == "1",
+        "proveedor": valores.get("LLM_PROVIDER", "gemini"),
+        "modelo": valores.get("LLM_MODEL", "") or "",
+        "clave": SecretStr(valores.get("GOOGLE_API_KEY", "") or ""),
+    })

@@ -78,8 +78,12 @@ class GeminiLLM:
                     "schema": esquema.model_json_schema(),
                 },
                 store=False,
+                stream=False,
             )
-            return esquema.model_validate_json(interaccion.output_text)
+            texto = getattr(interaccion, "output_text", None)
+            if not isinstance(texto, str):
+                raise ErrorModelo("respuesta_modelo_invalida")
+            return esquema.model_validate_json(texto)
         except Exception:
             raise ErrorModelo("proveedor_no_disponible_o_respuesta_invalida") from None
 
