@@ -1,0 +1,30 @@
+{
+  "agent_cases": 24,
+  "agent_checks_passed": 24,
+  "agents_verified": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8"
+  ],
+  "real_model_invocations": 0,
+  "all_cases_mode": "MockLLM",
+  "hitl_states": [
+    "pendiente",
+    "correccion_solicitada",
+    "aprobada_demo",
+    "rechazada"
+  ],
+  "observed_graph_nodes": [
+    "validar_plan",
+    "a5_inventario",
+    "decidir",
+    "responder"
+  ],
+  "api_operations": 4,
+  "synthetic_only": true
+}

@@ -1,0 +1,46 @@
+{
+  "started_utc": "2026-10-31T13:38:07.978895+00:00",
+  "external_demo_attempts": 1,
+  "status": "detenida_sin_reintento",
+  "project": "veltri-semana10-demo",
+  "endpoint": "https://api.smith.langchain.com",
+  "model_mode": "mock",
+  "run_id": null,
+  "verified_remote": false,
+  "remote_spans": [],
+  "screenshots_obtained": false,
+  "optin_verified_before_send": {
+    "enabled": true,
+    "external": true,
+    "synthetic_only": true
+  },
+  "error_code": "transporte_detenido",
+  "disabled_verified": true,
+  "persistent_config_unchanged_and_off": true,
+  "http_audit": [
+    {
+      "method": "POST",
+      "path": "/runs",
+      "status": 202
+    },
+    {
+      "method": "POST",
+      "path": "/runs",
+      "status": 202
+    },
+    {
+      "method": "PATCH",
+      "path": "/runs/3a267b0f-6726-4f18-bf24-825507efa35b",
+      "status": 400
+    }
+  ],
+  "finished_utc": "2026-10-31T13:38:09.300914+00:00",
+  "primary_failure": {
+    "method": "PATCH",
+    "http_status": 400,
+    "description": "El primer cierre de span fue rechazado tras dos creaciones HTTP 202."
+  },
+  "diagnosis_limit": "No se guardó el cuerpo de error del servidor. No se atribuye una causa interna no verificada.",
+  "requirement_3": "No acreditado: ejecución parcial, sin traza completa verificada ni capturas.",
+  "new_authorization_required_before_any_resend": true
+}

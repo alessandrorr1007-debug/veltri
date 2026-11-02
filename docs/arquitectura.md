@@ -2,6 +2,20 @@
 
 Diagrama inicial por capas. Se refina a medida que se implementa cada fase.
 
+## Semana 10, Fase 3: observabilidad opt-in
+
+Sin cambios en nodos, aristas o reglas comerciales. La API no abre sesiones de trazado.
+La demo fija usa MockLLM y spans manuales con cuerpos vacíos; envío externo desactivado.
+Guía y restricciones: [observabilidad.md](observabilidad.md).
+
+```mermaid
+flowchart LR
+    DEMO[Driver con fixture sintetico fijo] --> SES[Sesion de confianza opt-in]
+    SES --> OR[Orquestador existente con captura automatica apagada]
+    OR -. nombres cerrados y tiempos .-> CAP[Capturador local]
+    SES -. segundo permiso externo apagado .-> LS[Cliente LangSmith futuro]
+```
+
 ```mermaid
 flowchart TD
     U[Cliente: Web o WhatsApp] --> API[API FastAPI /consulta]
@@ -216,6 +230,24 @@ flowchart TD
 ```
 
 Detalles de maquetación, tokens de diseño y componentes en docs/interfaz.md.
+
+## Demostraciones académicas aisladas de Semana 10
+
+No sustituyen el flujo comercial ni se exponen por HTTP.
+
+```mermaid
+flowchart TB
+ DA[Deep Agents: coordinador y dos especialistas] --> LC[LangChain: modelos con herramientas]
+ LC --> LG[LangGraph: ejecución de agentes]
+ X[LCEL: validación y ramas paralelas] --> E[Evidencia sintética local]
+ H[LangGraph académico: interrupt y checkpoint en memoria] --> E
+ DA --> E
+ LS[LangSmith transversal: opt-in apagado] -. instrumenta flujo comercial autorizado .-> C[Orquestador comercial A1 a A8]
+```
+
+Fuente reproducible: `python scripts/demo_academica.py`. Las respuestas de MockLLM
+son programadas; planificación y delegación las ejecuta el framework real.
+LangSmith sigue pendiente de verificación remota; las demos locales desactivan trazas.
 
 
 

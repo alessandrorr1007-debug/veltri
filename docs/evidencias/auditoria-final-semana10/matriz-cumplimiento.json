@@ -1,0 +1,249 @@
+{
+  "fecha": "2026-10-31",
+  "alcance": "Árbol local actual de D:/Proyectos/veltri-orquestador; base histórica 591670b, con cambios sin commit.",
+  "matriz": [
+    {
+      "requisito": "1. Identificar términos LCEL",
+      "estado": "Identificación documental acreditable; uso LCEL limitado y capturas pendientes.",
+      "evidencias": "Grafo compilado es Runnable; llamada invoke real; auditoría AST sin cadenas LCEL explícitas.",
+      "archivos": "src/graph/workflow.py:28, :53, :123; src/agents/base.py:42; src/core/llm.py:20; src/schemas/base.py:15.",
+      "capturas": "invoke y grafo Runnable; prompts propios y Pydantic rotulados como componentes no LCEL.",
+      "pendiente": "Capturas auténticas del código; no existe una composición prompt | model | parser propia.",
+      "accion": "Presentar los términos presentes y las ausencias; no agregar cadenas solo para aparentar cumplimiento."
+    },
+    {
+      "requisito": "2. LangGraph, HITL y BPMN",
+      "estado": "Implementado y documentado; compatibilidad parcial. Paquete visual aún incompleto.",
+      "evidencias": "14 vértices incluidos START/END, 12 nodos operativos y 20 aristas compiladas; bandeja y resoluciones sintéticas desde código.",
+      "archivos": "src/graph/workflow.py:28; src/graph/state.py:21; src/graph/nodes.py:70, :93, :205, :217; src/core/hitl.py:27, :62; docs/bpmn_to_be.bpmn.",
+      "capturas": "Grafo compilado, BPMN original en modelador y registro antes/después HITL; no pantalla de aprobación inexistente.",
+      "pendiente": "Capturar diagramas y revisión; no hay interrupt, checkpoints o aprobación web autenticada.",
+      "accion": "Explicar discrepancias por actividad. HITL propio ≠ reanudación nativa; BPMN no es motor ejecutado."
+    },
+    {
+      "requisito": "3. Ejecución monitoreada en LangSmith",
+      "estado": "NO acreditado con las evidencias actuales.",
+      "evidencias": "Segundo intento: 9 POST y 9 PATCH HTTP 202; primer GET 403; run_id_verificado=null; 0 spans cotejados remotamente.",
+      "archivos": "docs/evidencias/semana10-fase43/ejecucion-unica.json:1; src/core/observabilidad.py:37; scripts/langsmith_segundo_intento.py.",
+      "capturas": "Proyecto y raíz consulta; run_id/duración; árbol de nueve spans; metadata sintética e inputs/outputs vacíos.",
+      "pendiente": "Verificar la traza existente. HTTP 202 acredita aceptación para ingestión, no persistencia completa.",
+      "accion": "Revisión manual del panel o lectura autenticada expresamente autorizada; no otra demo. No se accedió a la cuenta en esta auditoría."
+    },
+    {
+      "requisito": "4. Deep Agents generados",
+      "estado": "NO implementado: 0 Deep Agents del framework; 8 agentes personalizados.",
+      "evidencias": "deepagents ausente de distribuciones/módulos; sin create_deep_agent ni middleware/subagentes Deep Agents. A1–A8 heredan BaseAgent.",
+      "archivos": "src/agents/base.py:21; src/agents/d1_ventas/a1_interpretacion.py:8; demás clases en agentes-personalizados.json; src/graph/nodes.py:47.",
+      "capturas": "Metadatos de paquetes y clases BaseAgent. Rotular claramente ausencia de Deep Agents.",
+      "pendiente": "No existen planificación, filesystem/contexto, delegación o memoria proporcionados por Deep Agents.",
+      "accion": "Reportar ausencia como brecha de implementación. Si el curso exige generarlos, pedir autorización separada; no instalar ni renombrar A1–A8."
+    },
+    {
+      "requisito": "5. Cuatro componentes/capas del ecosistema",
+      "estado": "Documentación completada conforme al enunciado confirmado; adopción técnica desigual.",
+      "evidencias": "Deep Agents ausente; LangChain presente indirectamente como langchain-core/Runnable; LangGraph real; LangSmith instrumentado y pendiente de verificación.",
+      "archivos": "src/graph/workflow.py:7, :30, :123; src/agents/base.py:21; src/core/llm.py:20; src/core/observabilidad.py:37; paquetes-instalados.json.",
+      "capturas": "Diagrama de tres capas y observabilidad transversal; código y versiones por componente.",
+      "pendiente": "No describir el stack completo como implementado; Deep Agents ausente y LangSmith aún no acreditado.",
+      "accion": "Sustituir la clasificación provisional Build/Test/Deploy/Monitor por Deep Agents → LangChain → LangGraph, con LangSmith transversal."
+    }
+  ],
+  "lcel": [
+    [
+      "Runnable",
+      "Interfaz de ejecución/composición común de langchain-core.",
+      "Grafo compilado: isinstance(..., Runnable)=True; implementación heredada, no Runnable custom.",
+      "src/graph/workflow.py:53; grafo-compilado.json"
+    ],
+    [
+      "invoke",
+      "Invocación síncrona de un Runnable.",
+      "Se ejecuta sobre el grafo con estado tipado y callbacks vacíos.",
+      "src/graph/workflow.py:123"
+    ],
+    [
+      "StateGraph.compile",
+      "Compila nodos/aristas a runtime invocable.",
+      "Componente LangGraph compatible con Runnable; no equivale a cadena LCEL explícita.",
+      "src/graph/workflow.py:30, :53"
+    ],
+    [
+      "Prompt",
+      "Instrucciones del agente.",
+      "Strings de cada clase; no ChatPromptTemplate ni PromptTemplate LangChain.",
+      "src/agents/base.py:26; src/agents/d1_ventas/a2_armado.py:15"
+    ],
+    [
+      "Modelo",
+      "Proveedor de interpretación de intención.",
+      "Protocolo Modelo.generar y MockLLM/GeminiLLM propios; no BaseChatModel ni modelo Runnable LangChain.",
+      "src/core/llm.py:20, :28, :51, :87"
+    ],
+    [
+      "Parser / validación",
+      "Validación de JSON y contratos.",
+      "Pydantic model_validate y model_validate_json propios; no parsers LCEL.",
+      "src/schemas/base.py:15; src/core/llm.py:82; src/agents/base.py:37"
+    ],
+    [
+      "Herramientas",
+      "Funciones deterministas invocadas por agentes.",
+      "Llamadas Python directas mediante _ejecutar; no @tool/Tool como composición LCEL.",
+      "src/agents/base.py:53; src/agents/d3_inventario/a5_inventario.py:21"
+    ],
+    [
+      "RunnableSequence / Parallel / operador |",
+      "Composición de Runnables.",
+      "No se encontró composición LCEL propia ni esas clases usadas en src.",
+      "inspeccion-ast.json; alcance src/**/*.py"
+    ],
+    [
+      "PlanModelo",
+      "Acción y puntuaciones estructuradas.",
+      "Selección de una ruta comercial; no plan Deep Agents ni motor de planificación multi paso.",
+      "src/schemas/agentes.py:32; src/graph/nodes.py:70"
+    ]
+  ],
+  "capas": [
+    [
+      "Deep Agents",
+      "Capa de mayor nivel sobre LangChain/LangGraph: planificación, contexto mediante filesystem, subagentes y memoria.",
+      "No instalada ni implementada; ninguna función de runtime del proyecto pertenece al framework.",
+      "paquetes-instalados.json; inspeccion-ast.json"
+    ],
+    [
+      "LangChain",
+      "Capa de abstracciones y componentes de agentes/modelos/herramientas; LCEL compone Runnables.",
+      "langchain no instalado; langchain-core 1.6.12 sí por dependencias del grafo. El modelo y herramientas propios no se transforman por ello en cadenas LangChain.",
+      "src/core/llm.py:20; src/agents/base.py:21; workflow.py:123"
+    ],
+    [
+      "LangGraph",
+      "Capa de orquestación/runtime de grafos con estado.",
+      "langgraph 1.2.16: StateGraph, rutas tipadas y Runnable compilado. No utiliza su persistencia o interrupciones nativas.",
+      "src/graph/workflow.py:28; src/graph/state.py:21"
+    ],
+    [
+      "LangSmith",
+      "Plataforma transversal de trazado, evaluación y observabilidad, no cuarta capa de ejecución debajo de LangGraph.",
+      "langsmith 0.14.11; spans manuales opt-in; 18 escrituras aceptadas y lectura 403. Sin traza completa verificada.",
+      "src/core/observabilidad.py:37; docs/evidencias/semana10-fase43/ejecucion-unica.json"
+    ]
+  ],
+  "bpmn": [
+    [
+      "Seguridad y DLQ",
+      "Task_Filtro_Seguridad / Task_Registrar_DLQ",
+      "Validación previa al modelo/grafo; entrada prohibida genera DLQ.",
+      "Coincidencia funcional; filtro bloquea PII, no prometer anonimización universal.",
+      "workflow.py:102; core/seguridad.py; core/dlq.py"
+    ],
+    [
+      "A1",
+      "Task_A1_Interpretacion",
+      "Clase A1 produce PlanModelo; ejecutada fuera de StateGraph.",
+      "Compatible en propósito; no representarla como nodo compilado.",
+      "workflow.py:122; a1_interpretacion.py:8"
+    ],
+    [
+      "Enrutador",
+      "Gateway_Enrutador_Dominio (inclusiveGateway)",
+      "Conditional edges eligen una ruta por enum; decisión directa si faltan parámetros o puntuación.",
+      "Parcial: gateway inclusivo puede representar varias ramas, runtime selecciona una.",
+      "workflow.py:50; nodes.py:70"
+    ],
+    [
+      "Ventas/técnico",
+      "A2 → A4 → A5 → A3",
+      "Nodos alternativos a2_armado, a3_cotizacion, a4_compatibilidad, a5_inventario; A2 llama herramientas propias.",
+      "No existe esa secuencia de cuatro agentes en un recorrido; cálculos internos no son invocaciones de A4/A5/A3.",
+      "workflow.py:37; nodes.py:93"
+    ],
+    [
+      "Compatibilidad/potencia",
+      "Task_A4_Compatibilidad_TDP",
+      "Reglas deterministas de socket/RAM/potencia; datos sintéticos y pendientes de fabricante/BIOS.",
+      "Coincidencia parcial, no aprobación técnica de hardware real.",
+      "tools/hardware.py; agents/d2_tecnico/a4_compatibilidad.py:10"
+    ],
+    [
+      "Cotización/IGV",
+      "Task_A3_Cotizacion_Formal con IGV 18%",
+      "Backend suma importes; política fiscal pendiente y UI descompone total/1.18.",
+      "Discrepancia ya detectada; no se corrigió IGV ni se editó BPMN.",
+      "docs/bpmn_to_be.bpmn:117; frontend/js/app.js:257; data/politicas.md:24"
+    ],
+    [
+      "Pagos",
+      "Task_A6_Conciliar_Pago",
+      "Comparación de importes; pago permanece no_conciliado.",
+      "No acreditar conciliación bancaria real.",
+      "agents/d4_pedidos/a6_pagos.py:9; tools/pagos.py"
+    ],
+    [
+      "Pedidos y A8",
+      "Task_A7_Idempotencia_SHA256; A8 ausente",
+      "Borradores idempotentes y consulta del tenant mediante A8.",
+      "A7 parcial respecto a pedido/despacho real; A8 no modelado en TO-BE.",
+      "agents/d4_pedidos/a7_pedidos.py:10; a8_seguimiento.py:8"
+    ],
+    [
+      "RAG",
+      "Task_RAG_Recuperar_Politicas",
+      "Nodo recuperar con tenant explícito; requiere almacén.",
+      "Compatible en función; sin almacén se registra limitación, no recuperación ficticia.",
+      "nodes.py:175; knowledge/almacen.py"
+    ],
+    [
+      "Decisión y HITL",
+      "Task_Compuerta_Decide / Task_Supervisar_HITL_Humano",
+      "decide + bandeja en memoria + resolver demo; respuesta revision_humana.",
+      "Parcial: sin revisor autenticado, persistencia, pausa/reanudación o ejecución de negocio tras resolver.",
+      "nodes.py:205; core/hitl.py:27, :62"
+    ],
+    [
+      "Respuesta",
+      "Task_Proyectar_ConsultaResponse / fin retenido",
+      "responder produce contrato también para HITL.",
+      "BPMN deriva retenidos a un fin separado; API sí devuelve JSON para revisión.",
+      "nodes.py:217; workflow.py:132"
+    ],
+    [
+      "Ejecución y SLA",
+      "isExecutable=true; fin <1.5s",
+      "Se ejecuta LangGraph/FastAPI, no motor BPMN; no benchmark del objetivo.",
+      "Bandera XML y nombre de evento no prueban ejecución BPMN o latencia garantizada.",
+      "docs/bpmn_to_be.bpmn:22; :169"
+    ]
+  ],
+  "deepchecks": [
+    [
+      "Paquete deepagents",
+      "No instalado ni módulo local encontrado."
+    ],
+    [
+      "create_deep_agent",
+      "Sin importación ni llamada en src; no constructor Deep Agents."
+    ],
+    [
+      "Delegación/subagentes",
+      "No SubAgentMiddleware ni tool task de Deep Agents; A1–A8 son ramas del orquestador."
+    ],
+    [
+      "Planificación",
+      "PlanModelo es intención/puntuaciones, no lista de tareas Deep Agents; armador.py es cálculo determinista."
+    ],
+    [
+      "Contexto",
+      "EstadoFlujo y contexto comercial propios; sin filesystem ni compresión del harness Deep Agents."
+    ],
+    [
+      "Memoria",
+      "Bandeja/borradores en memoria, RAG Chroma y contexto explícito; ninguno es memoria Deep Agents."
+    ],
+    [
+      "Relación A1–A8/framework",
+      "Ocho clases BaseAgent propias, sin herencia/importación del framework ni delegación autónoma entre ellas."
+    ]
+  ]
+}

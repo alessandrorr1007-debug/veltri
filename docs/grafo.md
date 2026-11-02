@@ -93,7 +93,7 @@ En `tests/test_flujo.py` se validan los escenarios dorados de extremo a extremo:
 
 ## Comandos de verificación
 ```powershell
-.\.venv\Scripts\python -m pip install -r requirements-fase7.txt
+.\.venv\Scripts\python -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python -m pytest tests/test_flujo.py -q
 .\.venv\Scripts\python scripts/verificar.py
 ```

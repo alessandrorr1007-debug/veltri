@@ -1,0 +1,71 @@
+[
+  {
+    "nombre": "A1",
+    "tipo": "Agente personalizado BaseAgent",
+    "responsabilidad": "Interpretar solicitudes",
+    "framework_deepagents": false
+  },
+  {
+    "nombre": "A2",
+    "tipo": "Agente personalizado BaseAgent",
+    "responsabilidad": "Armar por presupuesto",
+    "framework_deepagents": false
+  },
+  {
+    "nombre": "A3",
+    "tipo": "Agente personalizado BaseAgent",
+    "responsabilidad": "Cotizar",
+    "framework_deepagents": false
+  },
+  {
+    "nombre": "A4",
+    "tipo": "Agente personalizado BaseAgent",
+    "responsabilidad": "Validar compatibilidad",
+    "framework_deepagents": false
+  },
+  {
+    "nombre": "A5",
+    "tipo": "Agente personalizado BaseAgent",
+    "responsabilidad": "Consultar stock",
+    "framework_deepagents": false
+  },
+  {
+    "nombre": "A6",
+    "tipo": "Agente personalizado BaseAgent",
+    "responsabilidad": "Comparar pagos",
+    "framework_deepagents": false
+  },
+  {
+    "nombre": "A7",
+    "tipo": "Agente personalizado BaseAgent",
+    "responsabilidad": "Registrar borradores",
+    "framework_deepagents": false
+  },
+  {
+    "nombre": "A8",
+    "tipo": "Agente personalizado BaseAgent",
+    "responsabilidad": "Consultar borradores",
+    "framework_deepagents": false
+  },
+  {
+    "nombre": "DA-CoordinadorAcademico",
+    "tipo": "Deep Agent académico real",
+    "responsabilidad": "Plan programado y delegación",
+    "framework_deepagents": true,
+    "modelo": "Adaptador de MockLLM programado"
+  },
+  {
+    "nombre": "DA-Catalogo",
+    "tipo": "Deep Agent académico real",
+    "responsabilidad": "Revisar evidencia sintética D3",
+    "framework_deepagents": true,
+    "modelo": "Adaptador de MockLLM programado"
+  },
+  {
+    "nombre": "DA-Revision",
+    "tipo": "Deep Agent académico real",
+    "responsabilidad": "Explicar revisión D4",
+    "framework_deepagents": true,
+    "modelo": "Adaptador de MockLLM programado"
+  }
+]

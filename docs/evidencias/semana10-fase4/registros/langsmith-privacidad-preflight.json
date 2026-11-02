@@ -1,0 +1,27 @@
+{
+  "timestamp_utc": "2026-10-31T13:37:34.110003+00:00",
+  "privacy_passed": true,
+  "serialized_payloads_checked": 18,
+  "synthetic_only": true,
+  "inputs_outputs_empty": true,
+  "no_credentials_or_business_identifiers_in_bodies": true,
+  "two_optin_gates_verified": true,
+  "network_connections": 0,
+  "source_sha256": "c957b171836eabfec45b18802e6363285c97565742f9bafc0e7dd955d4f21eea",
+  "payload_top_level_keys": [
+    "dotted_order",
+    "end_time",
+    "extra",
+    "id",
+    "inputs",
+    "name",
+    "outputs",
+    "parent_run_id",
+    "run_type",
+    "session_id",
+    "session_name",
+    "start_time",
+    "tags",
+    "trace_id"
+  ]
+}

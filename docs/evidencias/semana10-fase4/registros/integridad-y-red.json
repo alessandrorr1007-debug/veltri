@@ -1,0 +1,11 @@
+{
+  "verified_utc": "2026-10-31T13:17:11.628632+00:00",
+  "commercial_files_checked": 26,
+  "commercial_files_unchanged": true,
+  "closed_process_network_audits": 7,
+  "external_attempts_closed_processes": 0,
+  "server_network_guard": "loopback-only; proceso servidor aún activo",
+  "capturas_png": [],
+  "langsmith_run_id": null,
+  "envio_externo_autorizado": false
+}

@@ -11,9 +11,10 @@ Actualizar esta regla cuando aparezcan módulos o comandos nuevos.
 - docs/: arquitectura.md, datos.md, herramientas.md, esquemas.md, guion-video.md,
   conocimiento.md, decision_hitl.md, agentes.md, grafo.md, api.md, interfaz.md, agentes/ y contratos/ con 35 JSON Schema.
 - evals/: casos_dorados.json y linea_base.json (protegido).
-- src/core/: llm.py (fábrica real/mock), umbrales.py (protegido),
+- src/core/: llm.py (fábrica real/mock), observabilidad.py (spans sintéticos opt-in), umbrales.py (protegido),
   criterios.py, decision.py, hitl.py, seguridad.py (guarda previa al modelo) y dlq.py (cola local de bloqueos).
 - src/config.py: configuración .env/entorno, mock por defecto.
+- src/core/diagnostico_http.py: transporte de diagnóstico con primer fallo seguro y sin reintentos; tests/test_diagnostico_http.py lo verifica offline.
 - src/tools/: catalogo.py, inventario.py, hardware.py, cotizacion.py, armador.py,
   pagos.py, pedidos.py, montos.py, registro.py y consulta_comercial.py (atención determinista con memoria y catálogo).
 - src/schemas/: base.py, entradas.py, resultados.py, consulta.py, decision.py, hitl.py, agentes.py,
@@ -28,15 +29,18 @@ Actualizar esta regla cuando aparezcan módulos o comandos nuevos.
 - tests/: test_invariantes.py, test_datos.py, test_herramientas.py, test_esquemas.py,
   test_conocimiento.py, test_decision_hitl.py, test_llm.py, test_agentes.py, test_flujo.py, test_api.py y test_consulta_comercial.py.
 - frontend/: index.html, css/tokens.css, css/styles.css, js/icons.js, js/api.js, js/app.js (SPA de cliente sin CDN ni emojis con Consola Comercial y Catálogo de Hardware).
-- requirements-fase1.txt: pytest y ruff; requirements-dev.txt y requirements.txt:
-  listas completas previstas por la plantilla. requirements-fase3.txt añade Pydantic
-  y reúne las dependencias mínimas de contratos; requirements-fase4.txt añade
-  ChromaDB y filelock para conocimiento. requirements-fase6.txt añade dotenv y
-  google-genai para configuración y conector del modelo. requirements-fase7.txt añade
-  langgraph y langsmith para el orquestador local. requirements-fase8.txt añade
-  fastapi y httpx para la API.
+- requirements.txt: dependencias de ejecución y académicas, con versiones directas y transitivas fijadas para el perfil Windows x64/CPython 3.14 verificado.
+- requirements-dev.txt: incluye requirements.txt y añade pytest, Ruff, httpx y herramientas del generador Word.
+- requirements-academico.txt: alias de compatibilidad hacia requirements.txt; no es otra lista de versiones.
+- docs/README.md: índice vigente; docs/mantenimiento/limpieza-20261102.md: auditoría y recuperación de residuos.
+
 
 ## Comandos disponibles
+- docs/entrega-semana10/: informe Word, figuras documentales, procedencia y QA de la Fase 6. generar_informe.py usa el runtime documental y las evidencias guardadas, sin red.
+- python scripts/demo_academica.py: LCEL, HITL nativo y Deep Agents reales con MockLLM; exporta evidencia local sin trazas.
+- python -m pip install -r requirements-dev.txt: instalación completa verificada; requirements-academico.txt conserva compatibilidad con las guías académicas.
+- python scripts/langsmith_segundo_intento.py --enviar-autorizado --rotacion-confirmada: una demo externa SOLO bajo autorización humana nueva, registro de un solo uso; guía docs/lanzador-langsmith-fase43.md.
+- python scripts/demo_observabilidad.py: demo sintética fija, captura local sin envío por defecto; guía en docs/observabilidad.md.
 - python scripts/verificar.py: ruff + pytest + escaneo de secretos.
 - python scripts/escanear_secretos.py: escaneo de secretos.
 - python scripts/proteger.py: protección de archivos staged.

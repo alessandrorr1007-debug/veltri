@@ -1,0 +1,104 @@
+{
+  "timestamp_utc": "2026-10-31T13:15:57.128016+00:00",
+  "revisor_autenticado": false,
+  "before": {
+    "id": "8fa8909997b9c1d4d87baed9972e391754b5373745e3eab954b50c08310d07b8",
+    "tenant_id": "veltri_demo_sintetica",
+    "solicitud": {
+      "opcion": "consultar_stock",
+      "p": 1.0,
+      "c": 1.0,
+      "origen_puntuacion": "prueba_no_calibrada",
+      "evidencia": {
+        "tipo": "stock",
+        "resultado": {
+          "disponible": false,
+          "hitl_requerido": true,
+          "faltantes": [
+            {
+              "sku": "CPU-AMD-5500",
+              "solicitado": 1,
+              "disponible": 0,
+              "motivo": "stock_insuficiente"
+            }
+          ],
+          "fuente": "data/catalogo.json"
+        }
+      }
+    },
+    "decision": {
+      "opcion": "consultar_stock",
+      "p": 1.0,
+      "c": 1.0,
+      "origen_puntuacion": "prueba_no_calibrada",
+      "destino": "revision_humana",
+      "hitl_requerido": true,
+      "bloqueos": [
+        "stock_insuficiente:CPU-AMD-5500"
+      ],
+      "motivos": [
+        "stock_insuficiente:CPU-AMD-5500"
+      ],
+      "fuentes": [
+        "data/catalogo.json"
+      ],
+      "hash_evidencia": "85c346fda4d6e2609fed02fa5f1fc18058479e4b7c1e5bab44cf04497f15e5f2",
+      "accion_ejecutada": false
+    },
+    "estado": "pendiente",
+    "resolucion": null,
+    "accion_ejecutada": false
+  },
+  "after": {
+    "id": "8fa8909997b9c1d4d87baed9972e391754b5373745e3eab954b50c08310d07b8",
+    "tenant_id": "veltri_demo_sintetica",
+    "solicitud": {
+      "opcion": "consultar_stock",
+      "p": 1.0,
+      "c": 1.0,
+      "origen_puntuacion": "prueba_no_calibrada",
+      "evidencia": {
+        "tipo": "stock",
+        "resultado": {
+          "disponible": false,
+          "hitl_requerido": true,
+          "faltantes": [
+            {
+              "sku": "CPU-AMD-5500",
+              "solicitado": 1,
+              "disponible": 0,
+              "motivo": "stock_insuficiente"
+            }
+          ],
+          "fuente": "data/catalogo.json"
+        }
+      }
+    },
+    "decision": {
+      "opcion": "consultar_stock",
+      "p": 1.0,
+      "c": 1.0,
+      "origen_puntuacion": "prueba_no_calibrada",
+      "destino": "revision_humana",
+      "hitl_requerido": true,
+      "bloqueos": [
+        "stock_insuficiente:CPU-AMD-5500"
+      ],
+      "motivos": [
+        "stock_insuficiente:CPU-AMD-5500"
+      ],
+      "fuentes": [
+        "data/catalogo.json"
+      ],
+      "hash_evidencia": "85c346fda4d6e2609fed02fa5f1fc18058479e4b7c1e5bab44cf04497f15e5f2",
+      "accion_ejecutada": false
+    },
+    "estado": "correccion_solicitada",
+    "resolucion": {
+      "accion": "solicitar_correccion",
+      "revisor": "demo_revisor",
+      "motivo": "requiere_correccion"
+    },
+    "accion_ejecutada": false
+  }
+}

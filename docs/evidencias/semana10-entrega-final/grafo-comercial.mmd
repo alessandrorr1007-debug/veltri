@@ -1,0 +1,42 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	validar_plan(validar_plan)
+	decidir(decidir)
+	responder(responder)
+	recuperar(recuperar)
+	a2_armado(a2_armado)
+	a3_cotizacion(a3_cotizacion)
+	a4_compatibilidad(a4_compatibilidad)
+	a5_inventario(a5_inventario)
+	a6_pagos(a6_pagos)
+	a7_pedidos(a7_pedidos)
+	a8_seguimiento(a8_seguimiento)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> validar_plan;
+	a2_armado --> decidir;
+	a3_cotizacion --> decidir;
+	a4_compatibilidad --> decidir;
+	a5_inventario --> decidir;
+	a6_pagos --> decidir;
+	a7_pedidos --> decidir;
+	a8_seguimiento --> decidir;
+	decidir --> responder;
+	recuperar --> decidir;
+	validar_plan -. &nbsp;armar&nbsp; .-> a2_armado;
+	validar_plan -. &nbsp;cotizar&nbsp; .-> a3_cotizacion;
+	validar_plan -. &nbsp;compatibilidad&nbsp; .-> a4_compatibilidad;
+	validar_plan -. &nbsp;stock&nbsp; .-> a5_inventario;
+	validar_plan -. &nbsp;pago&nbsp; .-> a6_pagos;
+	validar_plan -. &nbsp;pedido&nbsp; .-> a7_pedidos;
+	validar_plan -. &nbsp;seguimiento&nbsp; .-> a8_seguimiento;
+	validar_plan -.-> decidir;
+	validar_plan -. &nbsp;informacion&nbsp; .-> recuperar;
+	responder --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc

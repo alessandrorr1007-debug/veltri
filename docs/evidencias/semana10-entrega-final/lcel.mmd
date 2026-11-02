@@ -1,0 +1,7 @@
+flowchart LR
+ E[Fixture cerrado] --> V[RunnableLambda: validación Pydantic]
+ V --> P[RunnableParallel]
+ P --> S[Escenario]
+ P --> I[comprobar_stock: catálogo sintético local]
+ S --> O[RunnableLambda: SalidaAcademica]
+ I --> O

@@ -1,0 +1,18 @@
+{
+  "timestamp_utc": "2026-10-31T13:32:42.451531+00:00",
+  "status": "detenido_por_configuracion",
+  "env_exists": true,
+  "effective_key_present": false,
+  "effective_endpoint_matches": false,
+  "alternative_env_txt_key_present": true,
+  "alternative_env_txt_endpoint_matches": true,
+  "authorization_received": true,
+  "external_demo_attempts": 0,
+  "external_connections": 0,
+  "run_id": null,
+  "spans_verified_remote": [],
+  "tracing_enabled": false,
+  "external_sending_enabled": false,
+  "requirement_3": "pendiente",
+  "cause": "Los campos requeridos están en .env.txt; el cargador utiliza .env."
+}

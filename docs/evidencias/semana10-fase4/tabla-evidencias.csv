@@ -1,0 +1,14 @@
+﻿Codigo,Requisito,Descripcion,Fuente,Fecha verificacion UTC,Fecha origen,Estado tecnico,Estado captura
+C01,1,LCEL y límites,registros/componentes-lcel-fuentes.txt,2026-10-31T13:17:11.628632+00:00,2026-10-31,Lista para capturar,Pendiente de captura auténtica
+C02,2,StateGraph real,diagramas/stategraph-real.mmd; diagramas/stategraph-real.svg,2026-10-31T13:17:11.628632+00:00,2026-10-31,Obtenida y verificada,Pendiente de captura auténtica
+C03,2,BPMN TO-BE,diagramas/bpmn_to_be-original.bpmn,2026-10-31T13:17:11.628632+00:00,2026-10-31,Lista para capturar,Pendiente de captura auténtica
+C04,2,HITL registrado,registros/hitl-demo-antes-despues.json,2026-10-31T13:17:11.628632+00:00,2026-10-31,Obtenida y verificada,Pendiente de captura auténtica
+C05,2,HITL resuelto desde código,registros/hitl-demo-antes-despues.json,2026-10-31T13:17:11.628632+00:00,2026-10-31,Obtenida y verificada,Pendiente de captura auténtica
+C06,3,Aplicación local,registros/api-local-entradas-salidas.json; registros/resumen-demostracion.json,2026-10-31T13:17:11.628632+00:00,2026-10-31,Lista para capturar,Pendiente de captura auténtica
+C07,4,Ocho agentes,registros/agentes-24-casos-FASE3-20261029.json; registros/agentes-documentacion-existente.md,2026-10-31T13:17:11.628632+00:00,2026-10-29,Obtenida y verificada,Pendiente de captura auténtica
+C08,4,Pruebas y calidad,pruebas/verificar.log; pruebas/pytest-suite.xml,2026-10-31T13:17:11.628632+00:00,2026-10-31,Obtenida y verificada,Pendiente de captura auténtica
+C09,3,LangSmith,registros/configuracion-langsmith-PENDIENTE-AUTORIZACION.json; registros/spans-locales-NO-LANGSMITH.json,2026-10-31T13:17:11.628632+00:00,2026-10-31,Pendiente de configuración,Pendiente de captura auténtica
+C10,5,Etapa desarrollar,registros/agentes-documentacion-existente.md,2026-10-31T13:17:11.628632+00:00,2026-10-31,Pendiente de confirmación académica,Pendiente de captura auténtica
+C11,5,Etapa probar,pruebas/verificar.log,2026-10-31T13:17:11.628632+00:00,2026-10-31,Pendiente de confirmación académica,Pendiente de captura auténtica
+C12,5,Etapa desplegar,registros/api-local-entradas-salidas.json,2026-10-31T13:17:11.628632+00:00,2026-10-31,Pendiente de confirmación académica,Pendiente de captura auténtica
+C13,5,Etapa monitorear,registros/configuracion-langsmith-PENDIENTE-AUTORIZACION.json,2026-10-31T13:17:11.628632+00:00,2026-10-31,Pendiente de confirmación académica,Pendiente de captura auténtica

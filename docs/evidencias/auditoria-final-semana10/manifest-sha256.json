@@ -1,0 +1,16 @@
+{
+  "agentes-personalizados.json": "3e3ac543f003f5650fd5d8d94bca32b8e41db5ae9c86487af8a35283454797d7",
+  "bpmn-elementos.json": "2f6f773e4d75c9b95323d027b5a3711692248f0a964cd3a0ced2a9efa5488735",
+  "grafo-compilado.json": "3b705a45c6fe4ff269fb24b86e23df8d42dfdd92b40a454fc92d40521441a8b2",
+  "grafo-compilado.mmd": "c9d2234680407d58033e16313afb974f582e183d4ecc260a0b1a81665f706181",
+  "grafo-compilado.svg": "d7328d62b0e7a1191d5ec7fceefc40893ce480c70ea810c5d9cbe192680c90d5",
+  "inspeccion-ast.json": "f5fce7a2858a1c3ad22856a78a5f7895b59bc64500082415e0217084715b3f61",
+  "langsmith-estado-auditado.json": "05d468bc306de532b8c346de555c938bbc259bffb72135a09618a972c134463e",
+  "matriz-cumplimiento.json": "73de10cd85bb6bed1fa6286efd95461318a60182acd960b66c002deb7440327e",
+  "metodo-y-alcance.json": "bed28c2367af97338adde2b05fdb6f324163678d2ae72f09138ac5d14ec731a3",
+  "paquetes-instalados.json": "49f20566a17c3b0aaa11392ab5e560990bfbd95f0d526f8fafe2cc7fc53bb87e",
+  "pytest-suite.xml": "2a03ee141b5e1294097ef007f16685e2e0d95dbfacc1006ec0af9129acb11b9a",
+  "resultado-auditoria.json": "5192477dff01016c3a7ecd662ca0d2e42d6d506acd3fe583d2b314cb26973999",
+  "suite-summary.json": "3c944369a88865be4c7633046c3b59cf7aa1d9f2428ddc127c29018d643db8c2",
+  "verificar.log": "55beea15ae00cfde01b01d7e317a95254b792c1e083cfc41e788d9f91c3c6f6b"
+}

@@ -1,0 +1,12 @@
+{
+  "diagnostico.md": "84f44e62774702b5a0ab73a66d8bc0bc033d13bec94ad4a7eb9222100f739eeb",
+  "pytest-suite.xml": "34886b99b6bda6cda40ba546e3447e518d6f2a992bd197cb17fa357aba8cc3b4",
+  "regresion-antes.log": "395c97976f53d5a8bea726052c911fcbf7332e704f259ee217176eb300cf1d62",
+  "resultado-local.json": "91e4d97b531e169c53236c539f11e4017654b47a3d8e1ef03f262c9c37c66bed",
+  "sdk-antes-diagnostico.json": "4ae93b035366b6b24d31417d10da995d4d7a4399c00477ffee840186822bcbcd",
+  "sdk-antes-payloads.json": "c4544cce6b4516b804c4c819e224685a1eab223d7f0c10f773eca24e9bdbece3",
+  "sdk-despues-diagnostico.json": "ea72fa8df429ab3c23add2ba8d8272dbac3ff5858c5fb6d4eb85aa8af78b3a46",
+  "sdk-despues-payloads.json": "e7eb32704fcd001f80ebca3e3b741be50453f57bea933c7e598b1d1a07f3f048",
+  "suite-summary.json": "e14ff0870af785daf46baf2e2558629da540365c7557893a434b22639e0539cb",
+  "verificar.log": "eac6a8964659f326c5ec6685e0c794d3523b01d746a555015f763545ffb2ff2b"
+}

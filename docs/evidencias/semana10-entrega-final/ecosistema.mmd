@@ -1,0 +1,6 @@
+flowchart TB
+ DA[Deep Agents: planificación y delegación académica] --> LC[LangChain: herramientas, BaseChatModel y LCEL]
+ LC --> LG[LangGraph: runtime, estado y checkpoints]
+ LS[LangSmith: observabilidad transversal, apagada por defecto] -.-> DA
+ LS -.-> LC
+ LS -.-> LG

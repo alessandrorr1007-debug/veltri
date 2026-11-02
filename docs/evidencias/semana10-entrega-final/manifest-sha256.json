@@ -1,0 +1,19 @@
+{
+  "agentes.json": "f91ecdebfd63d9c69dc2f6fb27b2aaf02fe359be5b882dfa9bf6ca76e9e09fc4",
+  "deep-agents.mmd": "505728bbf9a24587dc02df563f27a978f7748e4cab921bb85544742afafd5054",
+  "ecosistema.mmd": "a3ffc46c282f5660261569e9f16852f541b42ecb95231dbab839b1044c2bd9a9",
+  "ecosistema.svg": "5d56c54bf903d8adae521eb011a9646af07926e8672c993a06bdea0f1b798dca",
+  "ejecuciones.json": "10c827ac40bbc2cb216e1824d606d58dfe8f57b292bea0c488da9b63ad3e6f6e",
+  "fuentes-con-lineas.txt": "0c4e247557ce8861c08ae752fe420743f94431e083453812bcd47d70595db2fb",
+  "grafo-comercial.json": "02437152f30bd6c50c41a04b294ebfdfc7fa9bb814e7e285d80119b82f75d06e",
+  "grafo-comercial.mmd": "c9d2234680407d58033e16313afb974f582e183d4ecc260a0b1a81665f706181",
+  "grafo-comercial.svg": "d7328d62b0e7a1191d5ec7fceefc40893ce480c70ea810c5d9cbe192680c90d5",
+  "hitl-nativo.mmd": "4270b5af95ef757ed04bbb6327a1ebf68c793778e9e1ccd23ae63981d8a06d18",
+  "inventario-13.json": "e61d031eee7c2827affb19f013665a6ae61a65c40d5237b29f32cd80e3e1d43f",
+  "lcel.mmd": "bdcab4a5f38925c4f1ef99bef5d0ae730ecacc2a57c63c8df4cdd9ec24e9914a",
+  "matriz-cumplimiento.json": "a41f77ddbf9abdce9b09bb70dfcbd655afd4b73155d2e828c1ac5e3949377e77",
+  "pytest-suite.xml": "acce805f185e78fe442ef654c1a526978ebd35e251e90744d6fbf93ea668ff1e",
+  "README.md": "307e3ecbfdb74a44f54b07446f81577f62cb29dba17823469b2598c70e976dbf",
+  "suite-summary.json": "adedbfe62ee698c0edc545bd460a5e2f25037d9ee523f3928a594de53322bd22",
+  "verificar.log": "b067d30a239d7a46732de134dc39985a5a53feedcfe479b758f3eed01d40b677"
+}

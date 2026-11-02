@@ -35,8 +35,7 @@ que un modelo particular admita el esquema o que una cuenta tenga acceso.
 Referencia: [salidas estructuradas de Gemini](https://ai.google.dev/gemini-api/docs/structured-output).
 
 Dependencias directas nuevas: google-genai 2.31.0 para el conector y python-dotenv
-1.2.4 para leer .env (ya transitiva en el entorno). requirements-fase6.txt incluye
-las fases previas. pip ajustó dependencias transitivas compatibles; pip check debe
+1.2.4 para leer .env (ya transitiva en el entorno). requirements-dev.txt instala actualmente el conjunto completo de la aplicación y las demostraciones académicas. pip ajustó dependencias transitivas compatibles; pip check debe
 seguir pasando. No se instalaron LangGraph ni LangChain para esta fase.
 
 ## Contratos y límites del modelo
@@ -98,7 +97,7 @@ CP-2 se prueba parcialmente como bloqueo previo, sin archivo en cola.
 
 ## Probar sin red ni cuota
 ```powershell
-.\.venv\Scripts\python -m pip install -r requirements-fase6.txt
+.\.venv\Scripts\python -m pip install -r requirements-dev.txt
 .\.venv\Scripts\Activate.ps1
 python -m pytest tests/test_llm.py tests/test_agentes.py -q
 python scripts/exportar_esquemas.py

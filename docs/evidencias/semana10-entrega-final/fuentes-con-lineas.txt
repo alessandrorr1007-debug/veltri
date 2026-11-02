@@ -1,0 +1,488 @@
+src/academic/lcel.py
+1: """Composición LCEL determinista sobre un fixture académico cerrado."""
+2: 
+3: from langchain_core.runnables import RunnableLambda, RunnableParallel
+4: 
+5: from src.schemas.academico import EntradaAcademica, SalidaAcademica
+6: from src.tools.catalogo import Catalogo
+7: from src.tools.inventario import comprobar_stock
+8: 
+9: 
+10: def crear_pipeline():
+11:     """Validación -> ramas paralelas -> contrato de salida mediante operador LCEL."""
+12:     return (
+13:         RunnableLambda(EntradaAcademica.model_validate)
+14:         | RunnableParallel(
+15:             escenario=RunnableLambda(lambda entrada: entrada.escenario),
+16:             revision=RunnableLambda(lambda _: comprobar_stock(
+17:                 Catalogo(), {"CPU-AMD-5500": 1})["hitl_requerido"]),
+18:         )
+19:         | RunnableLambda(lambda ramas: SalidaAcademica(requiere_revision=ramas["revision"]))
+20:     )
+
+src/academic/hitl.py
+1: """HITL nativo académico con checkpoint en memoria y decisión validada."""
+2: 
+3: from typing import Literal, TypedDict
+4: 
+5: from langgraph.checkpoint.memory import InMemorySaver
+6: from langgraph.graph import END, START, StateGraph
+7: from langgraph.types import interrupt
+8: from pydantic import BaseModel, ConfigDict
+9: 
+10: 
+11: class Decision(BaseModel):
+12:     """Decisión simulada, sin aprobar pedidos ni pagos."""
+13: 
+14:     model_config = ConfigDict(extra="forbid")
+15:     accion: Literal["aprobar", "rechazar", "corregir"]
+16: 
+17: 
+18: class Estado(TypedDict, total=False):
+19:     sintetico: bool
+20:     resultado: str
+21: 
+22: 
+23: def crear_grafo():
+24:     """Cada instancia mantiene sus propios checkpoints; no persisten entre procesos."""
+25:     def revisar(estado: Estado):
+26:         decision = Decision.model_validate(interrupt({"tipo": "revision_sintetica"}))
+27:         return {"resultado": decision.accion}
+28: 
+29:     grafo = StateGraph(Estado)
+30:     grafo.add_node("revision_humana", revisar)
+31:     grafo.add_edge(START, "revision_humana")
+32:     grafo.add_edge("revision_humana", END)
+33:     return grafo.compile(checkpointer=InMemorySaver())
+
+src/academic/deep_agents.py
+1: """Deep Agents real con adaptador programado de MockLLM, sin inferencia remota."""
+2: 
+3: from uuid import uuid4
+4: 
+5: from langchain_core.language_models.chat_models import BaseChatModel
+6: from langchain_core.messages import AIMessage, ToolMessage
+7: from langchain_core.outputs import ChatGeneration, ChatResult
+8: from langchain_core.tools import tool
+9: from pydantic import PrivateAttr
+10: 
+11: from src.config import Configuracion
+12: from src.core.llm import get_llm
+13: from src.schemas.academico import EntradaAcademica, PasoMock
+14: from src.tools.evidencia_academica import revisar_fixture_sintetico
+15: 
+16: 
+17: class AdaptadorMock(BaseChatModel):
+18:     """Traduce fixtures tipados del MockLLM a llamadas estándar de herramientas."""
+19: 
+20:     _mock: object = PrivateAttr()
+21:     _permitidas: set = PrivateAttr(default_factory=set)
+22:     _auditoria: list = PrivateAttr(default_factory=list)
+23:     _rol: str = PrivateAttr(default="")
+24: 
+25:     def __init__(self, pasos: list[dict], auditoria=None, rol="coordinador"):
+26:         super().__init__()
+27:         self._mock = get_llm(configuracion=Configuracion(usar_mock=True), respuestas=pasos)
+28:         self._auditoria = auditoria if auditoria is not None else []
+29:         self._rol = rol
+30: 
+31:     @property
+32:     def _llm_type(self):
+33:         return "veltri-mock-academico"
+34: 
+35:     def bind_tools(self, tools, **kwargs):
+36:         self._permitidas = {
+37:             tool.get("name") if isinstance(tool, dict) else tool.name for tool in tools
+38:         }
+39:         return self
+40: 
+41:     def _generate(self, messages, stop=None, run_manager=None, **kwargs):
+42:         herramientas = [m for m in messages if isinstance(m, ToolMessage)]
+43:         if any(m.status == "error" for m in herramientas):
+44:             raise ValueError("herramienta_academica_fallida")
+45:         self._auditoria.append({"rol": self._rol, "respuestas_herramientas": [
+46:             {"nombre": m.name, "estado": m.status} for m in herramientas]})
+47:         paso = self._mock.generar("fixture académico", {}, PasoMock)
+48:         llamadas = []
+49:         if paso.herramienta:
+50:             if paso.herramienta not in self._permitidas:
+51:                 raise ValueError("herramienta_no_permitida")
+52:             llamadas = [{"name": paso.herramienta, "args": paso.argumentos,
+53:                          "id": str(uuid4()), "type": "tool_call"}]
+54:         return ChatResult(generations=[ChatGeneration(message=AIMessage(
+55:             content=paso.contenido, tool_calls=llamadas))])
+56: 
+57: 
+58: def crear_agente(auditoria=None):
+59:     """Construye el framework; task y write_todos son herramientas reales de Deep Agents."""
+60:     from deepagents import create_deep_agent
+61: 
+62:     herramienta = tool(revisar_fixture_sintetico)
+63: 
+64:     pasos = [{"herramienta": "write_todos", "argumentos": {"todos": [
+65:         {"content": "Revisar evidencia sintética", "status": "in_progress"},
+66:         {"content": "Explicar bloqueo", "status": "pending"}]}}]
+67:     subagentes = []
+68:     for nombre, descripcion in [
+69:         ("DA-Catalogo", "Revisar evidencia sintética, dominio D3"),
+70:         ("DA-Revision", "Explicar bloqueo de revisión, dominio D4"),
+71:     ]:
+72:         pasos.append({"herramienta": "task", "argumentos": {
+73:             "subagent_type": nombre, "description": descripcion}})
+74:         subagentes.append({"name": nombre, "description": descripcion,
+75:                           "system_prompt": "Solo evidencia sintética; sin efectos comerciales.",
+76:                           "model": AdaptadorMock([
+77:                               {"herramienta": "revisar_fixture_sintetico", "argumentos": {}},
+78:                               {"contenido":
+79:                               '{"sintetico":true,"requiere_revision":true}'}],
+80:                               auditoria=auditoria, rol=nombre),
+81:                           "tools": [herramienta]})
+82:     pasos += [{"herramienta": "write_todos", "argumentos": {"todos": [
+83:         {"content": "Revisar evidencia sintética", "status": "completed"},
+84:         {"content": "Explicar bloqueo", "status": "completed"}]}},
+85:         {"contenido": '{"sintetico":true,"requiere_revision":true,"efecto_comercial":false}'}]
+86:     return create_deep_agent(
+87:         model=AdaptadorMock(pasos, auditoria=auditoria), tools=[], subagents=subagentes,
+88:         system_prompt="DA-CoordinadorAcademico: coordinación académica sin efectos comerciales.",
+89:     )
+90: 
+91: 
+92: def ejecutar(entrada: dict, auditoria=None):
+93:     """Solo admite un escenario cerrado; no acepta mensajes arbitrarios."""
+94:     from langsmith import tracing_context
+95: 
+96:     EntradaAcademica.model_validate(entrada)
+97:     with tracing_context(enabled=False):
+98:         return crear_agente(auditoria).invoke({"messages": [
+99:             {"role": "user", "content": "Revisar fixture sintético académico."}]})
+
+src/tools/evidencia_academica.py
+1: """Herramienta académica de solo lectura; nunca autoriza una operación comercial."""
+2: 
+3: from src.tools.catalogo import Catalogo
+4: from src.tools.inventario import comprobar_stock
+5: 
+6: 
+7: def revisar_fixture_sintetico() -> dict:
+8:     """Reduce evidencia local a atributos permitidos, sin exponer identificadores."""
+9:     stock = comprobar_stock(Catalogo(), {"CPU-AMD-5500": 1})
+10:     return {"sintetico": True, "requiere_revision": stock["hitl_requerido"],
+11:             "efecto_comercial": False}
+
+src/schemas/academico.py
+1: """Contratos cerrados de las demostraciones académicas, sin datos de clientes."""
+2: 
+3: from typing import Literal
+4: 
+5: from pydantic import BaseModel, ConfigDict, Field
+6: 
+7: 
+8: class EntradaAcademica(BaseModel):
+9:     """Solo un fixture conocido; no acepta mensajes ni credenciales."""
+10: 
+11:     model_config = ConfigDict(extra="forbid")
+12:     escenario: Literal["revision_sintetica"] = "revision_sintetica"
+13: 
+14: 
+15: class SalidaAcademica(BaseModel):
+16:     """Resultado sin efectos comerciales."""
+17: 
+18:     sintetico: Literal[True] = True
+19:     requiere_revision: Literal[True] = True
+20:     efecto_comercial: Literal[False] = False
+21: 
+22: 
+23: class PasoMock(BaseModel):
+24:     """Respuesta estructurada consumida por el adaptador local."""
+25: 
+26:     herramienta: str = ""
+27:     argumentos: dict = Field(default_factory=dict)
+28:     contenido: str = ""
+
+src/graph/workflow.py
+1: """Orquestador local LangGraph con seguridad previa y sin historial conversacional."""
+2: 
+3: from copy import deepcopy
+4: from functools import partial
+5: from typing import Any
+6: 
+7: from langgraph.graph import END, START, StateGraph
+8: from langsmith import tracing_context
+9: from pydantic import ValidationError
+10: 
+11: from src.agents.base import ErrorAgente
+12: from src.agents.d1_ventas.a1_interpretacion import A1Interpretacion
+13: from src.config import Configuracion, cargar_configuracion
+14: from src.core.dlq import ColaBloqueos
+15: from src.core.hitl import BandejaRevision
+16: from src.core.llm import ErrorModelo
+17: from src.core.observabilidad import observar, span
+18: from src.core.seguridad import EntradaBloqueada, validar_entrada_modelo
+19: from src.graph.nodes import Servicios, dominio, evaluar, recuperar, responder, validar_plan
+20: from src.graph.state import EstadoFlujo
+21: from src.knowledge.almacen import Almacen
+22: from src.schemas.consulta import ConsultaResponse
+23: from src.schemas.flujo import ResultadoFlujo, SolicitudFlujo
+24: from src.tools.catalogo import Catalogo
+25: from src.tools.registro import RegistroPorTenant
+26: 
+27: 
+28: def crear_grafo(servicios: Servicios):
+29:     """Compila DAG acotado; sin checkpointer, caché ni modelo de texto libre en rutas."""
+30:     constructor = StateGraph(EstadoFlujo)
+31:     constructor.add_node("validar_plan", validar_plan)
+32:     constructor.add_node("decidir", partial(evaluar, servicios=servicios))
+33:     constructor.add_node("responder", responder)
+34:     rutas = {"decidir": "decidir", "informacion": "recuperar"}
+35:     constructor.add_node("recuperar", partial(recuperar, servicios=servicios))
+36:     constructor.add_edge("recuperar", "decidir")
+37:     for accion, nombre in [
+38:         ("armar", "a2_armado"),
+39:         ("cotizar", "a3_cotizacion"),
+40:         ("compatibilidad", "a4_compatibilidad"),
+41:         ("stock", "a5_inventario"),
+42:         ("pago", "a6_pagos"),
+43:         ("pedido", "a7_pedidos"),
+44:         ("seguimiento", "a8_seguimiento"),
+45:     ]:
+46:         constructor.add_node(nombre, partial(dominio, servicios=servicios))
+47:         constructor.add_edge(nombre, "decidir")
+48:         rutas[accion] = nombre
+49:     constructor.add_edge(START, "validar_plan")
+50:     constructor.add_conditional_edges("validar_plan", lambda estado: estado.ruta, rutas)
+51:     constructor.add_edge("decidir", "responder")
+52:     constructor.add_edge("responder", END)
+53:     return constructor.compile()
+54: 
+55: 
+56: class Orquestador:
+57:     """Fachada sin API: valida antes del grafo y devuelve contratos, nunca excepciones crudas."""
+58: 
+59:     def __init__(
+60:         self,
+61:         *,
+62:         guiones: dict[str, list[dict[str, Any]]],
+63:         configuracion: Configuracion | None = None,
+64:         catalogo: Catalogo | None = None,
+65:         registro: RegistroPorTenant | None = None,
+66:         bandeja: BandejaRevision | None = None,
+67:         dlq: ColaBloqueos | None = None,
+68:         almacen: Almacen | None = None,
+69:     ) -> None:
+70:         self._servicios = Servicios(
+71:             configuracion or cargar_configuracion(),
+72:             deepcopy(guiones),
+73:             catalogo or Catalogo(),
+74:             registro or RegistroPorTenant(),
+75:             bandeja or BandejaRevision(),
+76:             almacen,
+77:         )
+78:         self.dlq = dlq if dlq is not None else ColaBloqueos()
+79:         self.bandeja = self._servicios.bandeja
+80:         self._grafo = crear_grafo(self._servicios)
+81: 
+82:     def _error(self, codigo: str) -> ResultadoFlujo:
+83:         return ResultadoFlujo(
+84:             respuesta=ConsultaResponse(
+85:                 status="error",
+86:                 intencion="desconocida",
+87:                 mensaje="No se pudo procesar la solicitud; revisa los parámetros o solicita ayuda.",
+88:                 hitl_requerido=False,
+89:                 motivos=[codigo],
+90:             )
+91:         )
+92: 
+93:     @observar("consulta")
+94:     def consultar(self, entrada: SolicitudFlujo | dict[str, Any]) -> ResultadoFlujo:
+95:         """Seguridad y A1 fuera del estado; contexto de trazas desactivado incluso por entorno."""
+96:         try:
+97:             entrada = SolicitudFlujo.model_validate(
+98:                 entrada.model_dump() if isinstance(entrada, SolicitudFlujo) else entrada
+99:             )
+100:         except (ValidationError, ValueError, TypeError):
+101:             return self._error("entrada_invalida")
+102:         try:
+103:             with span("seguridad"):
+104:                 validar_entrada_modelo(entrada.consulta.mensaje)
+105:         except EntradaBloqueada:
+106:             evento = self.dlq.registrar(entrada.consulta.tenant_id)
+107:             return ResultadoFlujo(
+108:                 evento_dlq_id=evento.id,
+109:                 respuesta=ConsultaResponse(
+110:                     status="bloqueado",
+111:                     intencion="desconocida",
+112:                     mensaje="Solicitud bloqueada por la guarda de seguridad.",
+113:                     hitl_requerido=False,
+114:                     motivos=["entrada_bloqueada"],
+115:                     archivado_en_dlq=True,
+116:                 ),
+117:             )
+118:         if not self._servicios.configuracion.usar_mock:
+119:             return self._error("modo_real_pendiente_de_calibracion")
+120:         try:
+121:             with tracing_context(enabled=False):
+122:                 plan = self._servicios.agente(A1Interpretacion).run(entrada.consulta).plan
+123:                 resultado = self._grafo.invoke(
+124:                     {
+125:                         "tenant_id": entrada.consulta.tenant_id,
+126:                         "plan": plan,
+127:                         "parametros": entrada.parametros,
+128:                     },
+129:                     config={"callbacks": [], "recursion_limit": 12},
+130:                 )
+131:                 salida = resultado["salida"]
+132:                 return ResultadoFlujo.model_validate(salida.model_dump())
+133:         except (ErrorModelo, ErrorAgente, ValidationError, ValueError):
+134:             return self._error("ejecucion_no_disponible")
+135:         except Exception:
+136:             # Se conserva un fallo controlado; no se propagan trazas del backend al usuario.
+137:             return self._error("fallo_interno")
+
+src/core/hitl.py
+1: """Bandeja local aislada por tenant; ninguna resolución ejecuta negocio."""
+2: 
+3: import hashlib
+4: from threading import RLock
+5: 
+6: from src.core.decision import decide
+7: from src.schemas.base import Contrato, HashPedido
+8: from src.schemas.decision import SolicitudDecision
+9: from src.schemas.hitl import ResolucionRevision, ResultadoEncolado, Revision
+10: from src.schemas.hitl import Tenant as TipoTenant
+11: 
+12: 
+13: class _Acceso(Contrato):
+14:     """Valida claves sin reutilizar un tenant global o aceptar rutas de archivos."""
+15: 
+16:     tenant_id: TipoTenant
+17:     id: HashPedido | None = None
+18: 
+19: 
+20: class BandejaRevision:
+21:     """Almacenamiento en memoria y bloqueo por instancia; no persiste ni autentica."""
+22: 
+23:     def __init__(self) -> None:
+24:         self._registros: dict[tuple[str, str], Revision] = {}
+25:         self._lock = RLock()
+26: 
+27:     def encolar(self, tenant: str, solicitud: SolicitudDecision) -> ResultadoEncolado:
+28:         """Recalcula la decisión; no acepta un dict de decisión preautorizada."""
+29:         acceso = _Acceso(tenant_id=tenant)
+30:         solicitud = SolicitudDecision.model_validate(solicitud.model_dump())
+31:         decision = decide(solicitud)
+32:         if not decision.hitl_requerido:
+33:             raise ValueError("La solicitud no requiere revisión")
+34:         contenido_id = acceso.tenant_id + "|" + decision.hash_evidencia
+35:         id_ = hashlib.sha256(contenido_id.encode()).hexdigest()
+36:         clave = (acceso.tenant_id, id_)
+37:         with self._lock:
+38:             duplicado = clave in self._registros
+39:             if not duplicado:
+40:                 self._registros[clave] = Revision(
+41:                     id=id_, tenant_id=acceso.tenant_id, solicitud=solicitud, decision=decision,
+42:                     estado="escalada" if decision.destino == "escalar" else "pendiente")
+43:             return ResultadoEncolado(duplicado=duplicado,
+44:                                       revision=Revision.model_validate(self._registros[clave].model_dump()))
+45: 
+46:     def obtener(self, tenant: str, id_: str) -> Revision:
+47:         """Devuelve copia aislada; una clave ajena se comporta como inexistente."""
+48:         acceso = _Acceso(tenant_id=tenant, id=id_)
+49:         with self._lock:
+50:             registro = self._registros.get((acceso.tenant_id, id_))
+51:             if registro is None:
+52:                 raise ValueError("Revisión no encontrada")
+53:             return Revision.model_validate(registro.model_dump())
+54: 
+55:     def listar(self, tenant: str) -> list[Revision]:
+56:         """Lista solo revisiones del tenant explícito, en orden estable."""
+57:         acceso = _Acceso(tenant_id=tenant)
+58:         with self._lock:
+59:             return [Revision.model_validate(r.model_dump()) for (t, _), r in
+60:                     sorted(self._registros.items()) if t == acceso.tenant_id]
+61: 
+62:     def resolver(self, tenant: str, id_: str, resolucion: ResolucionRevision) -> Revision:
+63:         """Impide aprobaciones con bloqueos y conserva resolución final idempotente."""
+64:         resolucion = ResolucionRevision.model_validate(resolucion.model_dump())
+65:         with self._lock:
+66:             registro = self.obtener(tenant, id_)
+67:             if registro.resolucion is not None:
+68:                 if registro.resolucion == resolucion:
+69:                     return registro
+70:                 raise ValueError("La revisión ya tiene una resolución final")
+71:             # Se reevalúa la instantánea; una aprobación jamás borra sus bloqueos.
+72:             decision = decide(registro.solicitud)
+73:             if resolucion.accion == "aprobar_demo" and (
+74:                     decision.bloqueos or decision.destino == "escalar"):
+75:                 raise ValueError("Se requiere corregir evidencia antes de aprobar")
+76:             estado = {"aprobar_demo": "aprobada_demo", "rechazar": "rechazada",
+77:                       "solicitar_correccion": "correccion_solicitada"}[resolucion.accion]
+78:             actualizado = Revision.model_validate({**registro.model_dump(), "estado": estado,
+79:                                                    "resolucion": resolucion.model_dump()})
+80:             self._registros[(tenant, id_)] = actualizado
+81:             return Revision.model_validate(actualizado.model_dump())
+
+tests/test_academico.py
+1: """Pruebas locales de composición, pausa nativa y delegación real."""
+2: 
+3: import pytest
+4: from langchain_core.messages import ToolMessage
+5: from langchain_core.runnables import RunnableSequence
+6: from langgraph.types import Command
+7: from pydantic import ValidationError
+8: 
+9: from src.academic.deep_agents import ejecutar
+10: from src.academic.hitl import crear_grafo
+11: from src.academic.lcel import crear_pipeline
+12: from src.schemas.academico import SalidaAcademica
+13: 
+14: 
+15: def test_lcel_composicion_real():
+16:     pipeline = crear_pipeline()
+17:     assert isinstance(pipeline, RunnableSequence)
+18:     assert pipeline.invoke({}) == SalidaAcademica()
+19: 
+20: 
+21: @pytest.mark.parametrize("entrada", [{"mensaje": "no_admitido"}, {"escenario": "otro"}])
+22: def test_entrada_cerrada(entrada):
+23:     with pytest.raises(ValidationError):
+24:         crear_pipeline().invoke(entrada)
+25:     with pytest.raises(ValidationError):
+26:         ejecutar(entrada)
+27: 
+28: 
+29: @pytest.mark.parametrize("accion", ["aprobar", "rechazar", "corregir"])
+30: def test_hitl_interrupcion_y_reanudacion(accion):
+31:     grafo = crear_grafo()
+32:     config = {"configurable": {"thread_id": accion}}
+33:     pausa = grafo.invoke({"sintetico": True}, config)
+34:     assert pausa["__interrupt__"]
+35:     assert grafo.get_state(config).next == ("revision_humana",)
+36:     resultado = grafo.invoke(Command(resume={"accion": accion}), config)
+37:     assert resultado["resultado"] == accion
+38:     assert not grafo.get_state(config).next
+39: 
+40: 
+41: def test_hitl_decision_invalida():
+42:     grafo = crear_grafo()
+43:     config = {"configurable": {"thread_id": "invalida"}}
+44:     grafo.invoke({"sintetico": True}, config)
+45:     with pytest.raises(ValidationError):
+46:         grafo.invoke(Command(resume={"accion": "despachar"}), config)
+47: 
+48: 
+49: def test_deepagents_plan_y_delegacion():
+50:     auditoria = []
+51:     resultado = ejecutar({}, auditoria)
+52:     mensajes = resultado["messages"]
+53:     llamadas = [c for m in mensajes for c in getattr(m, "tool_calls", [])]
+54:     delegaciones = [c["args"]["subagent_type"] for c in llamadas if c["name"] == "task"]
+55:     assert delegaciones == ["DA-Catalogo", "DA-Revision"]
+56:     assert all(t["status"] == "completed" for t in resultado["todos"])
+57:     respuestas = [m for m in mensajes if isinstance(m, ToolMessage)]
+58:     assert len(respuestas) == 4
+59:     assert all(m.status != "error" for m in respuestas)
+60:     assert SalidaAcademica.model_validate_json(mensajes[-1].content) == SalidaAcademica()
+61:     for rol in ("DA-Catalogo", "DA-Revision"):
+62:         assert any(a["rol"] == rol and any(
+63:             h["nombre"] == "revisar_fixture_sintetico" and h["estado"] == "success"
+64:             for h in a["respuestas_herramientas"]) for a in auditoria)

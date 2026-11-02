@@ -1,0 +1,181 @@
+{
+  "estado": "detenido_sin_reintento",
+  "intentos_demo": 1,
+  "inicio_utc": "2026-10-31T14:39:46.481434+00:00",
+  "run_id_verificado": null,
+  "spans_verificados": [],
+  "optin_final_apagado": true,
+  "optin_previo_envio": {
+    "habilitada": true,
+    "externo": true,
+    "solo_sintetico": true
+  },
+  "resultado_comercial": "revision_humana",
+  "hitl_requerido": true,
+  "altas_aceptadas": 9,
+  "cierres_aceptados": 9,
+  "categoria_fallo": "http",
+  "diagnostico_http": [
+    {
+      "metodo": "POST",
+      "ruta": "/runs",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "crear_span"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/runs",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "crear_span"
+    },
+    {
+      "metodo": "PATCH",
+      "ruta": "/runs/{run_id}",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "cerrar_span"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/runs",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "crear_span"
+    },
+    {
+      "metodo": "PATCH",
+      "ruta": "/runs/{run_id}",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "cerrar_span"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/runs",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "crear_span"
+    },
+    {
+      "metodo": "PATCH",
+      "ruta": "/runs/{run_id}",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "cerrar_span"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/runs",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "crear_span"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/runs",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "crear_span"
+    },
+    {
+      "metodo": "PATCH",
+      "ruta": "/runs/{run_id}",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "cerrar_span"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/runs",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "crear_span"
+    },
+    {
+      "metodo": "PATCH",
+      "ruta": "/runs/{run_id}",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "cerrar_span"
+    },
+    {
+      "metodo": "PATCH",
+      "ruta": "/runs/{run_id}",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "cerrar_span"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/runs",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "crear_span"
+    },
+    {
+      "metodo": "PATCH",
+      "ruta": "/runs/{run_id}",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "cerrar_span"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/runs",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "crear_span"
+    },
+    {
+      "metodo": "PATCH",
+      "ruta": "/runs/{run_id}",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "cerrar_span"
+    },
+    {
+      "metodo": "PATCH",
+      "ruta": "/runs/{run_id}",
+      "estado": 202,
+      "categoria": "exito",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "cerrar_span"
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/runs/{run_id}",
+      "estado": 403,
+      "categoria": "permisos",
+      "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+      "etapa": "verificar_run"
+    }
+  ],
+  "primer_fallo": {
+    "metodo": "GET",
+    "ruta": "/runs/{run_id}",
+    "estado": 403,
+    "categoria": "permisos",
+    "correlacion": "9e56aa80-aaa3-40a9-a566-665f7d3e5337",
+    "etapa": "verificar_run"
+  },
+  "fin_utc": "2026-10-31T14:40:03.160413+00:00"
+}

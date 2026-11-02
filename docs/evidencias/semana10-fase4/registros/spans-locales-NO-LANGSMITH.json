@@ -1,0 +1,293 @@
+{
+  "timestamp_utc": "2026-10-31T13:15:57.128016+00:00",
+  "modo": "captura_local_sin_envio",
+  "response": {
+    "version_contrato": "1.0-demo",
+    "naturaleza": "demostracion_sintetica",
+    "status": "revision_humana",
+    "intencion": "stock",
+    "mensaje": "Resultado de demostración; consulta fuentes y evidencia antes de operar.",
+    "hitl_requerido": true,
+    "motivos": [
+      "stock_insuficiente",
+      "stock_insuficiente:CPU-AMD-5500"
+    ],
+    "fuentes": [
+      "data/catalogo.json"
+    ],
+    "genera_proforma": false,
+    "aprobado_tecnicamente": false,
+    "archivado_en_dlq": false,
+    "cotizacion": null,
+    "tecnico": null,
+    "stock": {
+      "disponible": false,
+      "hitl_requerido": true,
+      "faltantes": [
+        {
+          "sku": "CPU-AMD-5500",
+          "solicitado": 1,
+          "disponible": 0,
+          "motivo": "stock_insuficiente"
+        }
+      ],
+      "fuente": "data/catalogo.json"
+    },
+    "pago": null,
+    "pedido": null
+  },
+  "eventos": [
+    {
+      "operacion": "create",
+      "id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "name": "consulta",
+      "run_type": "chain",
+      "inputs": {},
+      "project_name": "veltri-semana10-demo",
+      "start_time": "2026-10-31 13:15:58.448376+00:00",
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "parent_run_id": null,
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "extra": {
+        "metadata": {
+          "synthetic": true,
+          "model_mode": "mock",
+          "scenario": "stock_demo"
+        }
+      }
+    },
+    {
+      "operacion": "create",
+      "id": "44aebdda-5e11-4de8-a7a0-89dae6ce551c",
+      "name": "seguridad",
+      "run_type": "chain",
+      "inputs": {},
+      "project_name": "veltri-semana10-demo",
+      "start_time": "2026-10-31 13:15:58.448549+00:00",
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "parent_run_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558448549Z44aebdda-5e11-4de8-a7a0-89dae6ce551c",
+      "extra": {
+        "metadata": {
+          "synthetic": true,
+          "model_mode": "mock",
+          "scenario": "stock_demo"
+        }
+      }
+    },
+    {
+      "operacion": "update",
+      "id": "44aebdda-5e11-4de8-a7a0-89dae6ce551c",
+      "end_time": "2026-10-31 13:15:58.449104+00:00",
+      "outputs": {},
+      "error": null,
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558448549Z44aebdda-5e11-4de8-a7a0-89dae6ce551c"
+    },
+    {
+      "operacion": "create",
+      "id": "fe0cdf94-43b8-43ef-8fee-ff688988281f",
+      "name": "A1.plan_mock",
+      "run_type": "chain",
+      "inputs": {},
+      "project_name": "veltri-semana10-demo",
+      "start_time": "2026-10-31 13:15:58.449309+00:00",
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "parent_run_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558449309Zfe0cdf94-43b8-43ef-8fee-ff688988281f",
+      "extra": {
+        "metadata": {
+          "synthetic": true,
+          "model_mode": "mock",
+          "scenario": "stock_demo"
+        }
+      }
+    },
+    {
+      "operacion": "update",
+      "id": "fe0cdf94-43b8-43ef-8fee-ff688988281f",
+      "end_time": "2026-10-31 13:15:58.449354+00:00",
+      "outputs": {},
+      "error": null,
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558449309Zfe0cdf94-43b8-43ef-8fee-ff688988281f"
+    },
+    {
+      "operacion": "create",
+      "id": "8a0a0f6f-f510-460c-8b5c-30b7fdfb592f",
+      "name": "validar_plan",
+      "run_type": "chain",
+      "inputs": {},
+      "project_name": "veltri-semana10-demo",
+      "start_time": "2026-10-31 13:15:58.459321+00:00",
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "parent_run_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558459321Z8a0a0f6f-f510-460c-8b5c-30b7fdfb592f",
+      "extra": {
+        "metadata": {
+          "synthetic": true,
+          "model_mode": "mock",
+          "scenario": "stock_demo"
+        }
+      }
+    },
+    {
+      "operacion": "update",
+      "id": "8a0a0f6f-f510-460c-8b5c-30b7fdfb592f",
+      "end_time": "2026-10-31 13:15:58.459360+00:00",
+      "outputs": {},
+      "error": null,
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558459321Z8a0a0f6f-f510-460c-8b5c-30b7fdfb592f"
+    },
+    {
+      "operacion": "create",
+      "id": "7920370b-9279-4c38-82d8-b81bfe14840a",
+      "name": "dominio",
+      "run_type": "chain",
+      "inputs": {},
+      "project_name": "veltri-semana10-demo",
+      "start_time": "2026-10-31 13:15:58.460381+00:00",
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "parent_run_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558460381Z7920370b-9279-4c38-82d8-b81bfe14840a",
+      "extra": {
+        "metadata": {
+          "synthetic": true,
+          "model_mode": "mock",
+          "scenario": "stock_demo"
+        }
+      }
+    },
+    {
+      "operacion": "create",
+      "id": "7064ba36-8363-4c08-8e7e-f7630f656d1a",
+      "name": "A5.plan_mock",
+      "run_type": "chain",
+      "inputs": {},
+      "project_name": "veltri-semana10-demo",
+      "start_time": "2026-10-31 13:15:58.460601+00:00",
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "parent_run_id": "7920370b-9279-4c38-82d8-b81bfe14840a",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558460381Z7920370b-9279-4c38-82d8-b81bfe14840a.20261031T131558460601Z7064ba36-8363-4c08-8e7e-f7630f656d1a",
+      "extra": {
+        "metadata": {
+          "synthetic": true,
+          "model_mode": "mock",
+          "scenario": "stock_demo"
+        }
+      }
+    },
+    {
+      "operacion": "update",
+      "id": "7064ba36-8363-4c08-8e7e-f7630f656d1a",
+      "end_time": "2026-10-31 13:15:58.460636+00:00",
+      "outputs": {},
+      "error": null,
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558460381Z7920370b-9279-4c38-82d8-b81bfe14840a.20261031T131558460601Z7064ba36-8363-4c08-8e7e-f7630f656d1a"
+    },
+    {
+      "operacion": "create",
+      "id": "200e725d-cbad-4e4a-a56b-c9da6f4dbdb5",
+      "name": "comprobar_stock",
+      "run_type": "chain",
+      "inputs": {},
+      "project_name": "veltri-semana10-demo",
+      "start_time": "2026-10-31 13:15:58.460651+00:00",
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "parent_run_id": "7920370b-9279-4c38-82d8-b81bfe14840a",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558460381Z7920370b-9279-4c38-82d8-b81bfe14840a.20261031T131558460651Z200e725d-cbad-4e4a-a56b-c9da6f4dbdb5",
+      "extra": {
+        "metadata": {
+          "synthetic": true,
+          "model_mode": "mock",
+          "scenario": "stock_demo"
+        }
+      }
+    },
+    {
+      "operacion": "update",
+      "id": "200e725d-cbad-4e4a-a56b-c9da6f4dbdb5",
+      "end_time": "2026-10-31 13:15:58.460707+00:00",
+      "outputs": {},
+      "error": null,
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558460381Z7920370b-9279-4c38-82d8-b81bfe14840a.20261031T131558460651Z200e725d-cbad-4e4a-a56b-c9da6f4dbdb5"
+    },
+    {
+      "operacion": "update",
+      "id": "7920370b-9279-4c38-82d8-b81bfe14840a",
+      "end_time": "2026-10-31 13:15:58.462564+00:00",
+      "outputs": {},
+      "error": null,
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558460381Z7920370b-9279-4c38-82d8-b81bfe14840a"
+    },
+    {
+      "operacion": "create",
+      "id": "cc815269-f27e-4148-95cd-e35ad1bdb7e8",
+      "name": "decidir",
+      "run_type": "chain",
+      "inputs": {},
+      "project_name": "veltri-semana10-demo",
+      "start_time": "2026-10-31 13:15:58.463517+00:00",
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "parent_run_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558463517Zcc815269-f27e-4148-95cd-e35ad1bdb7e8",
+      "extra": {
+        "metadata": {
+          "synthetic": true,
+          "model_mode": "mock",
+          "scenario": "stock_demo"
+        }
+      }
+    },
+    {
+      "operacion": "update",
+      "id": "cc815269-f27e-4148-95cd-e35ad1bdb7e8",
+      "end_time": "2026-10-31 13:15:58.464386+00:00",
+      "outputs": {},
+      "error": null,
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558463517Zcc815269-f27e-4148-95cd-e35ad1bdb7e8"
+    },
+    {
+      "operacion": "create",
+      "id": "09d5d5a5-512e-4348-aef7-64293a54e350",
+      "name": "responder",
+      "run_type": "chain",
+      "inputs": {},
+      "project_name": "veltri-semana10-demo",
+      "start_time": "2026-10-31 13:15:58.465172+00:00",
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "parent_run_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558465172Z09d5d5a5-512e-4348-aef7-64293a54e350",
+      "extra": {
+        "metadata": {
+          "synthetic": true,
+          "model_mode": "mock",
+          "scenario": "stock_demo"
+        }
+      }
+    },
+    {
+      "operacion": "update",
+      "id": "09d5d5a5-512e-4348-aef7-64293a54e350",
+      "end_time": "2026-10-31 13:15:58.465401+00:00",
+      "outputs": {},
+      "error": null,
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0.20261031T131558465172Z09d5d5a5-512e-4348-aef7-64293a54e350"
+    },
+    {
+      "operacion": "update",
+      "id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "end_time": "2026-10-31 13:15:58.466019+00:00",
+      "outputs": {},
+      "error": null,
+      "trace_id": "3cdefdfc-e22d-45ad-a7c8-212142a1f7d0",
+      "dotted_order": "20261031T131558448376Z3cdefdfc-e22d-45ad-a7c8-212142a1f7d0"
+    }
+  ]
+}

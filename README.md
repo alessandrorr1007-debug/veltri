@@ -10,7 +10,8 @@ interfaz web local en frontend/ con consola comercial, motor de memoria conversa
 catálogo visual interactivo de hardware con 84 componentes sintéticos verificados.
 El endpoint POST /consulta expone el orquestador bajo el contrato único ConsultaResponse,
 GET /catalogo provee el inventario clasificado y sirve la interfaz web estáticamente en la raíz sin dependencias CDN ni emojis.
-Solo queda pendiente la demo final y verificación de preflight para entrega.
+Semana 10 incluye LCEL, HITL nativo y Deep Agents académicos reales en `src/academic/`, separados del flujo comercial. El Word actual tiene 17 páginas y el expediente conserva 464 pruebas aprobadas. Siguen pendientes capturas auténticas y la acreditación visual de LangSmith.
+Consulta [el índice de documentación](docs/README.md) para distinguir estado actual y registros históricos.
 La fábrica permite MockLLM y un conector real configurado; la verificación no llama a la red.
 
 ## Arquitectura y agentes A1 a A8
@@ -49,19 +50,20 @@ revisión humana obligatoria (HITL). Las probabilidades o confianza alta del LLM
 autorización. Los siete casos dorados (`evals/casos_dorados.json`) están integrados y verificados
 al 100% de extremo a extremo en pruebas de flujo (`tests/test_flujo.py`) y de API (`tests/test_api.py`),
 además de contar con botones de prueba inmediata en la interfaz web:
-- **CP-1:** Oficina básica con presupuesto holgado (aprobado automáticamente).
-- **CP-2:** Gaming gama media AM5 con tarjeta dedicada (aprobado automáticamente).
-- **CP-3:** Incompatibilidad técnica de socket LGA1700 vs placa AM5 (rechazado / HITL técnico).
-- **CP-4:** Stock insuficiente de procesador crítico (derivado a HITL de inventario).
-- **CP-5:** Presupuesto insuficiente para la gama solicitada (derivado a HITL comercial).
-- **CP-6:** Conciliación de pago bancario válido con código de operación (aprobado).
-- **CP-7:** Pago discordante por monto inferior al total de cotización (derivado a HITL financiero).
+- **CP-1:** Cotización gaming sintética dentro del presupuesto.
+- **CP-2:** Inyección de prompt bloqueada y registrada en DLQ.
+- **CP-3:** Ryzen 5 5500 sin stock; revisión y alternativas.
+- **CP-4:** Presupuesto insuficiente para la configuración solicitada.
+- **CP-5:** Pago discrepante; revisión humana, sin conciliación bancaria real.
+- **CP-6:** Borradores idempotentes mediante SHA-256.
+- **CP-7:** Armador determinista por rangos de presupuesto.
+
 
 ## Instalación en Windows
-Python 3.12 o superior (verificado con 3.14.4) y Git:
+Perfil de instalación reproducido: **CPython 3.14, Windows x64** y Git. No se certifican aquí otros intérpretes o plataformas:
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python -m pip install -r requirements-fase9.txt
+.\.venv\Scripts\python -m pip install -r requirements-dev.txt
 .\.venv\Scripts\Activate.ps1
 python scripts/verificar.py
 git init
@@ -70,14 +72,17 @@ uvicorn src.api.main:app --reload
 ```
 La aplicación web queda disponible localmente en `http://localhost:8000`.
 Si PowerShell impide activar el entorno, usar directamente `.\.venv\Scripts\python`.
-`requirements-dev.txt` conserva la lista completa de la plantilla; la verificación actual usa
-pytest, ruff, Pydantic, ChromaDB, filelock, dotenv, google-genai, langgraph, langsmith, fastapi, httpx y uvicorn.
+`requirements.txt` fija las dependencias directas y transitivas de la aplicación, LCEL, LangGraph, Deep Agents y LangSmith.
+`requirements-dev.txt` añade pruebas, Ruff y las bibliotecas del generador Word.
+`requirements-academico.txt` es únicamente un alias compatible con instrucciones académicas anteriores.
+Los siete manifiestos por fase se retiraron después de instalar estos requisitos desde cero sin red y aprobar las 464 pruebas.
+Los resultados y las instrucciones de recuperación están en [el informe de limpieza](docs/mantenimiento/limpieza-20261102.md).
 Las pruebas de lógica usan MockLLM o transporte simulado, garantizando ejecución sin conexión a red ni gasto de cuota.
 El hook instalado protege commits contra ediciones de archivos críticos, no impide editar archivos en local.
 
 ## Estructura
 `data/`: catálogo, relaciones y políticas; `docs/`: documentación de arquitectura, datos, herramientas, esquemas, interfaz y guion;
-`tests/`: pruebas unitarias e integradas (386 pruebas); `scripts/`: verificadores y protección;
+`tests/`: pruebas unitarias e integradas (464 pruebas); `scripts/`: verificadores y protección;
 `.agents/`: guías instaladas; `claude/`: referencia conservada;
 `src/`: núcleo, herramientas, contratos tipados, conocimiento RAG, agentes A1-A8, orquestador LangGraph y API FastAPI;
 `frontend/`: interfaz web local SPA (HTML, CSS y JS sin dependencias externas ni CDN);
@@ -93,6 +98,10 @@ Precios, stock, fichas y políticas de ejemplo NO son datos reales de la tienda.
 Las decisiones propuestas en data/politicas.md requieren aprobación. No usar
 este catálogo para vender o prometer compatibilidad de modelos comerciales.
 
+## Historial de implementación
+
+Las secciones siguientes describen cada fase en su momento; no sustituyen el estado actual ni las instrucciones de instalación anteriores.
+
 ## Avance FASE 2
 Herramientas deterministas en src/tools/ y pruebas en tests/test_herramientas.py:
 catálogo, stock, compatibilidad, cotización, armado por presupuesto, comparación
@@ -107,7 +116,7 @@ Documentación en docs/esquemas.md y JSON Schema en docs/contratos/. La validaci
 rechaza tipos incorrectos, campos extra, totales incoherentes y revisión ocultada.
 Al cerrar fase 3 no había endpoints, generación con LLM ni agentes. Regenerar contratos con
 `python scripts/exportar_esquemas.py`. Dependencias mínimas actuales en
-requirements-fase3.txt; las listas de fases anteriores se conservan.
+requirements-dev.txt; los manifiestos antiguos de fases fueron consolidados y respaldados.
 
 ## Avance FASE 4
 Ingesta y recuperación local en ChromaDB con tenant obligatorio y vectores léxicos

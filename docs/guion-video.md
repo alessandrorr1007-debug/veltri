@@ -15,6 +15,27 @@ Una fila por fase. Se completa con la skill `documentar-para-video`.
 | 8 | API FastAPI /consulta, contrato ConsultaResponse y sin CDN | python -m pytest tests/test_api.py -q | Exponemos el orquestador mediante POST /consulta garantizando que toda respuesta sea tipada y sin CDN externa; después sigue la interfaz web | 1 min |
 | 9 | Interfaz web local: Consola Comercial, HITL y Trazas (sin CDN ni emojis) | uvicorn src.api.main:app --reload | Mostramos la interfaz web operativa en Soles: cotiza en vivo, visualiza la compuerta HITL con aprobación/rechazo y traza los pasos del grafo; sigue la verificación de entrega | 1 min |
 | 10 | Motor Comercial Inteligente: Memoria Conversacional, Extremos y Catálogo Visual | python -m pytest tests/test_consulta_comercial.py -q | Atendemos preguntas naturales de catálogo distinguiendo extremos (más cara vs. más barata), recordando el contexto de la charla sin recargar y explorando piezas interactivamente; entrega final validada | 1 min |
+| Semana 10, Fase 3 | Opt-in apagado, payload local seguro, árbol observado y pruebas | python scripts/demo_observabilidad.py; python scripts/verificar.py | Instrumentamos una demo sintética sin enviar trazas externas; conservamos el negocio y esperamos autorización para verificar el panel real | 1 min |
 
 
 
+
+| Semana 10, Fase 4 — intento LangSmith | Preflight y registro del único intento | Abrir docs/evidencias/semana10-fase4/resultado-langsmith.md | Validamos privacidad; un cierre recibió HTTP 400 y detuvimos sin repetir. Monitoreo apagado, requisito 3 pendiente | 30 s |
+
+| Semana 10, Fase 4.1 | Comparación de payloads y suite real | python scripts/verificar.py | Conservamos contexto al cerrar spans; 420 pruebas pasan offline y la causa remota sigue sin confirmar | 30 s |
+| Semana 10, Fase 4.2 | Diagnóstico HTTP seguro y estados simulados | python scripts/verificar.py | Conservamos el primer error sin cuerpos ni secretos; el segundo envío sigue pendiente de autorización | 30 s |
+
+| Semana 10, Fase 4.3 | Lanzador, diagnóstico HTTP y resultado observado | Abrir docs/evidencias/semana10-fase43/resultado.md | Una ejecución autorizada, sin reintentos; distinguimos persistencia remota de una respuesta 202 | 45 s |
+
+| Semana 10, auditoría final | Matriz, grafo y paquetes reales | Abrir docs/auditoria-final-semana10.md | A1–A8 no son Deep Agents; mostramos tres capas y LangSmith transversal sin ocultar pendientes | 1 min |
+
+| Semana 10, demos académicas | LCEL, interrupt/resume y delegación real | python scripts/demo_academica.py | Ejecutamos tres demos locales con MockLLM; la traza remota requiere verificación visual | 90 s |
+
+| Semana 10, Fase 6 | Word de 16 páginas, figuras, tablas y límites de evidencia | Abrir docs/entrega-semana10/Veltri_Semana10_Informe_Academico.docx | Documentamos las cinco actividades; LangSmith y capturas permanecen pendientes de acreditar | 60 s |
+
+
+## Mantenimiento del repositorio — 2 de noviembre de 2026
+
+Se inventarió el repositorio y se conservaron las evidencias de Semana 10.
+La instalación se consolidó y comprobó sin red en un entorno nuevo.
+Mostrar `docs/mantenimiento/limpieza-20261102.md`, los dos requirements principales y los resultados antes/después; la acreditación LangSmith y las capturas siguen pendientes.

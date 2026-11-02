@@ -1,0 +1,262 @@
+{
+  "nodes": [
+    {
+      "id": "__start__",
+      "type": "runnable",
+      "data": {
+        "id": [
+          "langgraph",
+          "_internal",
+          "_runnable",
+          "RunnableCallable"
+        ],
+        "name": "__start__"
+      }
+    },
+    {
+      "id": "validar_plan",
+      "type": "runnable",
+      "data": {
+        "id": [
+          "langgraph",
+          "_internal",
+          "_runnable",
+          "RunnableCallable"
+        ],
+        "name": "validar_plan"
+      }
+    },
+    {
+      "id": "decidir",
+      "type": "runnable",
+      "data": {
+        "id": [
+          "langgraph",
+          "_internal",
+          "_runnable",
+          "RunnableCallable"
+        ],
+        "name": "decidir"
+      }
+    },
+    {
+      "id": "responder",
+      "type": "runnable",
+      "data": {
+        "id": [
+          "langgraph",
+          "_internal",
+          "_runnable",
+          "RunnableCallable"
+        ],
+        "name": "responder"
+      }
+    },
+    {
+      "id": "recuperar",
+      "type": "runnable",
+      "data": {
+        "id": [
+          "langgraph",
+          "_internal",
+          "_runnable",
+          "RunnableCallable"
+        ],
+        "name": "recuperar"
+      }
+    },
+    {
+      "id": "a2_armado",
+      "type": "runnable",
+      "data": {
+        "id": [
+          "langgraph",
+          "_internal",
+          "_runnable",
+          "RunnableCallable"
+        ],
+        "name": "a2_armado"
+      }
+    },
+    {
+      "id": "a3_cotizacion",
+      "type": "runnable",
+      "data": {
+        "id": [
+          "langgraph",
+          "_internal",
+          "_runnable",
+          "RunnableCallable"
+        ],
+        "name": "a3_cotizacion"
+      }
+    },
+    {
+      "id": "a4_compatibilidad",
+      "type": "runnable",
+      "data": {
+        "id": [
+          "langgraph",
+          "_internal",
+          "_runnable",
+          "RunnableCallable"
+        ],
+        "name": "a4_compatibilidad"
+      }
+    },
+    {
+      "id": "a5_inventario",
+      "type": "runnable",
+      "data": {
+        "id": [
+          "langgraph",
+          "_internal",
+          "_runnable",
+          "RunnableCallable"
+        ],
+        "name": "a5_inventario"
+      }
+    },
+    {
+      "id": "a6_pagos",
+      "type": "runnable",
+      "data": {
+        "id": [
+          "langgraph",
+          "_internal",
+          "_runnable",
+          "RunnableCallable"
+        ],
+        "name": "a6_pagos"
+      }
+    },
+    {
+      "id": "a7_pedidos",
+      "type": "runnable",
+      "data": {
+        "id": [
+          "langgraph",
+          "_internal",
+          "_runnable",
+          "RunnableCallable"
+        ],
+        "name": "a7_pedidos"
+      }
+    },
+    {
+      "id": "a8_seguimiento",
+      "type": "runnable",
+      "data": {
+        "id": [
+          "langgraph",
+          "_internal",
+          "_runnable",
+          "RunnableCallable"
+        ],
+        "name": "a8_seguimiento"
+      }
+    },
+    {
+      "id": "__end__"
+    }
+  ],
+  "edges": [
+    {
+      "source": "__start__",
+      "target": "validar_plan"
+    },
+    {
+      "source": "a2_armado",
+      "target": "decidir"
+    },
+    {
+      "source": "a3_cotizacion",
+      "target": "decidir"
+    },
+    {
+      "source": "a4_compatibilidad",
+      "target": "decidir"
+    },
+    {
+      "source": "a5_inventario",
+      "target": "decidir"
+    },
+    {
+      "source": "a6_pagos",
+      "target": "decidir"
+    },
+    {
+      "source": "a7_pedidos",
+      "target": "decidir"
+    },
+    {
+      "source": "a8_seguimiento",
+      "target": "decidir"
+    },
+    {
+      "source": "decidir",
+      "target": "responder"
+    },
+    {
+      "source": "recuperar",
+      "target": "decidir"
+    },
+    {
+      "source": "validar_plan",
+      "target": "a2_armado",
+      "data": "armar",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "a3_cotizacion",
+      "data": "cotizar",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "a4_compatibilidad",
+      "data": "compatibilidad",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "a5_inventario",
+      "data": "stock",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "a6_pagos",
+      "data": "pago",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "a7_pedidos",
+      "data": "pedido",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "a8_seguimiento",
+      "data": "seguimiento",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "decidir",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "recuperar",
+      "data": "informacion",
+      "conditional": true
+    },
+    {
+      "source": "responder",
+      "target": "__end__"
+    }
+  ]
+}

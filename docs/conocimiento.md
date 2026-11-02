@@ -85,7 +85,7 @@ revalidar con Catalogo y las herramientas antes de cualquier cotización.
 
 ## Ejecución en Windows
 ```powershell
-.\.venv\Scripts\python -m pip install -r requirements-fase4.txt
+.\.venv\Scripts\python -m pip install -r requirements-dev.txt
 .\.venv\Scripts\Activate.ps1
 python -m src.knowledge.ingesta --tenant veltri_tecnologic_pe
 python -m pytest tests/test_conocimiento.py -q

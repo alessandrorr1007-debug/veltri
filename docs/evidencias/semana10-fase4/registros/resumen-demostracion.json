@@ -1,0 +1,22 @@
+{
+  "timestamp_utc": "2026-10-31T13:15:57.128016+00:00",
+  "api_http_200": 4,
+  "consulta_stock": "revision_humana",
+  "hitl": true,
+  "modelo": "MockLLM",
+  "spans_locales": 9,
+  "agentes_observados_demo_local": [
+    "A1",
+    "A5"
+  ],
+  "api_y_driver_respuesta_identica": true,
+  "estado_hitl_antes": "pendiente",
+  "estado_hitl_despues": "correccion_solicitada",
+  "checkpointer": false,
+  "optin_off_eventos": 0,
+  "envios_langsmith": 0,
+  "capturas_png_obtenidas": 0,
+  "fuentes_comerciales_sin_cambios": true,
+  "pruebas": "419 aprobadas, 0 fallos, 0 errores, 0 omitidas, 2 advertencias",
+  "ocho_agentes": "Se reutiliza evidencia de 24 casos de Fase 3 preservando su fecha original."
+}

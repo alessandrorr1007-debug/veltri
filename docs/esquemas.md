@@ -86,7 +86,7 @@ from src.tools.cotizacion import cotizar
 ```
 
 ```powershell
-.\.venv\Scripts\python -m pip install -r requirements-fase3.txt
+.\.venv\Scripts\python -m pip install -r requirements-dev.txt
 .\.venv\Scripts\Activate.ps1
 python scripts/exportar_esquemas.py
 python -m pytest tests/test_esquemas.py -q

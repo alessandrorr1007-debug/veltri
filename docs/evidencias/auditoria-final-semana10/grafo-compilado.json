@@ -1,0 +1,131 @@
+{
+  "nodes": [
+    "__start__",
+    "validar_plan",
+    "decidir",
+    "responder",
+    "recuperar",
+    "a2_armado",
+    "a3_cotizacion",
+    "a4_compatibilidad",
+    "a5_inventario",
+    "a6_pagos",
+    "a7_pedidos",
+    "a8_seguimiento",
+    "__end__"
+  ],
+  "edges": [
+    {
+      "source": "__start__",
+      "target": "validar_plan",
+      "conditional": false
+    },
+    {
+      "source": "a2_armado",
+      "target": "decidir",
+      "conditional": false
+    },
+    {
+      "source": "a3_cotizacion",
+      "target": "decidir",
+      "conditional": false
+    },
+    {
+      "source": "a4_compatibilidad",
+      "target": "decidir",
+      "conditional": false
+    },
+    {
+      "source": "a5_inventario",
+      "target": "decidir",
+      "conditional": false
+    },
+    {
+      "source": "a6_pagos",
+      "target": "decidir",
+      "conditional": false
+    },
+    {
+      "source": "a7_pedidos",
+      "target": "decidir",
+      "conditional": false
+    },
+    {
+      "source": "a8_seguimiento",
+      "target": "decidir",
+      "conditional": false
+    },
+    {
+      "source": "decidir",
+      "target": "responder",
+      "conditional": false
+    },
+    {
+      "source": "recuperar",
+      "target": "decidir",
+      "conditional": false
+    },
+    {
+      "source": "validar_plan",
+      "target": "a2_armado",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "a3_cotizacion",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "a4_compatibilidad",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "a5_inventario",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "a6_pagos",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "a7_pedidos",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "a8_seguimiento",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "decidir",
+      "conditional": true
+    },
+    {
+      "source": "validar_plan",
+      "target": "recuperar",
+      "conditional": true
+    },
+    {
+      "source": "responder",
+      "target": "__end__",
+      "conditional": false
+    }
+  ],
+  "runnable": true,
+  "mro": [
+    "langgraph.graph.state.CompiledStateGraph",
+    "langgraph.pregel.main.Pregel",
+    "langgraph.pregel.protocol.PregelProtocol",
+    "langchain_core.runnables.base.Runnable",
+    "abc.ABC",
+    "typing.Generic",
+    "builtins.object"
+  ],
+  "checkpointer": false,
+  "model_calls_in_audit": 0
+}

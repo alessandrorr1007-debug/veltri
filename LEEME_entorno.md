@@ -1,3 +1,5 @@
+> Guía histórica de preparación de la plantilla. Veltri ya está instalado: no vuelva a copiar `claude/plantilla/` sobre el proyecto. Para instalar o reproducir el estado actual, consulte [README.md](README.md) y [docs/README.md](docs/README.md).
+
 # Entorno de Veltri Tecnologic
 
 Este paquete prepara el desarrollo; no contiene el sistema terminado.

@@ -1,0 +1,12 @@
+{
+  "commit": "591670b84185edaf0b93608e5eb91f59b5bc82c9",
+  "started_utc": "2026-10-31T21:27:01.897973+00:00",
+  "duration_seconds": 89.081,
+  "exit_code": 0,
+  "tracked_files_changed": [
+    ".agents/rules/estructura-y-comandos.md",
+    "docs/guion-video.md"
+  ],
+  "test_suite_unmodified": true,
+  "guard": "loopback-only; external Python TCP/DNS/UDP blocked; no real credentials; no enabled tracing"
+}

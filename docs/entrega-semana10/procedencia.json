@@ -1,0 +1,14 @@
+{
+  "fecha": "2026-10-31",
+  "documento": "Veltri_Semana10_Informe_Academico.docx",
+  "langsmith_acreditado": false,
+  "capturas_autenticas_incorporadas": 0,
+  "figuras_derivadas": 6,
+  "fuentes": {
+    "docs\\evidencias\\semana10-entrega-final\\ejecuciones.json": "10c827ac40bbc2cb216e1824d606d58dfe8f57b292bea0c488da9b63ad3e6f6e",
+    "docs\\evidencias\\semana10-entrega-final\\verificar.log": "b067d30a239d7a46732de134dc39985a5a53feedcfe479b758f3eed01d40b677",
+    "docs\\evidencias\\semana10-entrega-final\\grafo-comercial.json": "02437152f30bd6c50c41a04b294ebfdfc7fa9bb814e7e285d80119b82f75d06e",
+    "docs\\bpmn_to_be.bpmn": "63873a0e6a150c7f0258975ed0dda831f1bd578173805131227c6b49e6550a83",
+    "docs\\evidencias\\semana10-fase43\\ejecucion-unica.json": "fe7b393af9416d90b101fcb829f46472cf021c6ea89eb36003a2bff489943b0c"
+  }
+}

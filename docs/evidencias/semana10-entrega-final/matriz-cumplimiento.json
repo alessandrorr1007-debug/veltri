@@ -1,0 +1,52 @@
+[
+  {
+    "requisito": 1,
+    "estado": "Implementado y ejecutado localmente",
+    "evidencias": [
+      "src/academic/lcel.py:14",
+      "ejecuciones.json"
+    ],
+    "pendiente": "Capturas PNG del código y salida",
+    "fecha": "2026-10-31"
+  },
+  {
+    "requisito": 2,
+    "estado": "Demostrado localmente; compatibilidad BPMN parcial",
+    "evidencias": [
+      "src/graph/workflow.py:28",
+      "src/academic/hitl.py:30",
+      "ejecuciones.json"
+    ],
+    "pendiente": "Capturas auténticas; diferencias comerciales permanecen",
+    "fecha": "2026-10-31"
+  },
+  {
+    "requisito": 3,
+    "estado": "No acreditado",
+    "evidencias": [
+      "../semana10-fase43/ejecucion-unica.json"
+    ],
+    "pendiente": "Panel autenticado: run_id, duración, árbol, inputs/outputs",
+    "fecha": "2026-10-31"
+  },
+  {
+    "requisito": 4,
+    "estado": "Framework real ejecutado con MockLLM programado",
+    "evidencias": [
+      "src/academic/deep_agents.py",
+      "ejecuciones.json"
+    ],
+    "pendiente": "Capturas; no afirmar autonomía o memoria persistente",
+    "fecha": "2026-10-31"
+  },
+  {
+    "requisito": 5,
+    "estado": "Documentado con implementaciones reales",
+    "evidencias": [
+      "ecosistema.mmd",
+      "README.md"
+    ],
+    "pendiente": "Capturar gráfico; LangSmith transversal pendiente de verificar",
+    "fecha": "2026-10-31"
+  }
+]

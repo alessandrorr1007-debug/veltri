@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1650" height="650" viewBox="0 0 1650 650">
+<rect width="1650" height="650" fill="white"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#64748b"/></marker></defs>
+<path d="M825,72 L825,108" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M310,282 L825,378" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M515,282 L825,378" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M720,282 L825,378" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M925,282 L825,378" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M1130,282 L825,378" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M1335,282 L825,378" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M1540,282 L825,378" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M825,422 L825,458" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M105,282 L825,378" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M825,152 L310,238" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<path d="M825,152 L515,238" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<path d="M825,152 L720,238" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<path d="M825,152 L925,238" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<path d="M825,152 L1130,238" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<path d="M825,152 L1335,238" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<path d="M825,152 L1540,238" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<path d="M825,152 L825,378" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<path d="M825,152 L105,238" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+<path d="M825,502 L825,538" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="731" y="28" width="188" height="44" rx="5" fill="#f1f5f9" stroke="#64748b"/>
+<text x="825" y="55" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">__start__</text>
+<rect x="731" y="108" width="188" height="44" rx="5" fill="#e0f2fe" stroke="#64748b"/>
+<text x="825" y="135" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">validar_plan</text>
+<rect x="731" y="378" width="188" height="44" rx="5" fill="#e0f2fe" stroke="#64748b"/>
+<text x="825" y="405" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">decidir</text>
+<rect x="731" y="458" width="188" height="44" rx="5" fill="#e0f2fe" stroke="#64748b"/>
+<text x="825" y="485" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">responder</text>
+<rect x="731" y="538" width="188" height="44" rx="5" fill="#f1f5f9" stroke="#64748b"/>
+<text x="825" y="565" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">__end__</text>
+<rect x="11" y="238" width="188" height="44" rx="5" fill="#f1f5f9" stroke="#64748b"/>
+<text x="105" y="265" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">recuperar</text>
+<rect x="216" y="238" width="188" height="44" rx="5" fill="#f1f5f9" stroke="#64748b"/>
+<text x="310" y="265" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">a2_armado</text>
+<rect x="421" y="238" width="188" height="44" rx="5" fill="#f1f5f9" stroke="#64748b"/>
+<text x="515" y="265" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">a3_cotizacion</text>
+<rect x="626" y="238" width="188" height="44" rx="5" fill="#f1f5f9" stroke="#64748b"/>
+<text x="720" y="265" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">a4_compatibilidad</text>
+<rect x="831" y="238" width="188" height="44" rx="5" fill="#e0f2fe" stroke="#64748b"/>
+<text x="925" y="265" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">a5_inventario</text>
+<rect x="1036" y="238" width="188" height="44" rx="5" fill="#f1f5f9" stroke="#64748b"/>
+<text x="1130" y="265" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">a6_pagos</text>
+<rect x="1241" y="238" width="188" height="44" rx="5" fill="#f1f5f9" stroke="#64748b"/>
+<text x="1335" y="265" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">a7_pedidos</text>
+<rect x="1446" y="238" width="188" height="44" rx="5" fill="#f1f5f9" stroke="#64748b"/>
+<text x="1540" y="265" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#0f172a">a8_seguimiento</text>
+<text x="30" y="615" font-family="Arial,sans-serif" font-size="15" fill="#334155">StateGraph extraído del objeto compilado · azul: nodos observados en consulta de stock con MockLLM.</text>
+<text x="30" y="639" font-family="Arial,sans-serif" font-size="13" fill="#475569">Líneas discontinuas: rutas condicionales. A1 y seguridad preceden al grafo. Figura generada localmente; no es captura de LangSmith.</text></svg>

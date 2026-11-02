@@ -81,7 +81,7 @@ separados. El tenant también debe venir de identidad autorizada en la futura AP
 Ninguna revisión se indexa en RAG. No hay notificaciones ni mensajes externos.
 
 ## Ejecución y pruebas
-Sin nuevas dependencias; se usa requirements-fase4.txt.
+Sin nuevas dependencias; se usa requirements-dev.txt.
 ```powershell
 .\.venv\Scripts\Activate.ps1
 python -m pytest tests/test_decision_hitl.py -q
