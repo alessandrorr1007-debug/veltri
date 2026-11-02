@@ -15,6 +15,7 @@ from src.config import Configuracion
 from src.core.criterios import clasificar
 from src.core.decision import decide
 from src.core.hitl import BandejaRevision
+from src.core.observabilidad import observar
 from src.graph.state import EstadoFlujo
 from src.knowledge.almacen import Almacen
 from src.schemas.agentes import (
@@ -65,6 +66,7 @@ def limitacion(estado: EstadoFlujo, motivo: str, fuentes=None) -> SolicitudDecis
     )
 
 
+@observar("validar_plan")
 def validar_plan(estado: EstadoFlujo) -> dict[str, Any]:
     """Deriva ruta solo de enums validados y verifica parámetros antes de efectos."""
     if clasificar(estado.plan.p, False) != "ejecutar":
@@ -87,6 +89,7 @@ def validar_plan(estado: EstadoFlujo) -> dict[str, Any]:
     return {"ruta": "decidir", "solicitud_decision": limitacion(estado, motivo)}
 
 
+@observar("dominio")
 def dominio(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
     """Invoca un único dominio con parámetros del llamador, nunca del modelo."""
     params = estado.parametros
@@ -168,6 +171,7 @@ def dominio(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
     return {**extras, "payload": payload, "solicitud_decision": solicitud}
 
 
+@observar("recuperar")
 def recuperar(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
     """Temas enumerados a contexto citado; ningún fragmento se ejecuta o se envía al LLM."""
     if servicios.almacen is None:
@@ -197,6 +201,7 @@ def recuperar(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
     return {"citas": citas, "solicitud_decision": solicitud}
 
 
+@observar("decidir")
 def evaluar(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
     """Aplica invariantes y registra revisión o escalado sin aprobar negocio."""
     decision = decide(estado.solicitud_decision)
@@ -208,6 +213,7 @@ def evaluar(estado: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
     return {"decision": decision, "revision_id": revision_id}
 
 
+@observar("responder")
 def responder(estado: EstadoFlujo) -> dict[str, Any]:
     """Proyecta resultados a ConsultaResponse; no redacta hechos con el modelo."""
     decision = estado.decision

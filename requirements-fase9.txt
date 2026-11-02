@@ -1,2 +1,0 @@
--r requirements-fase8.txt
-uvicorn==0.54.0

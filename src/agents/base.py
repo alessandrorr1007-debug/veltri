@@ -7,6 +7,7 @@ from pydantic import BaseModel, ValidationError
 
 from src.config import Configuracion
 from src.core.llm import get_llm
+from src.core.observabilidad import NOMBRES, span
 from src.core.seguridad import EntradaBloqueada, validar_entrada_modelo
 from src.schemas.agentes import Accion, PlanModelo, SalidaAgente
 
@@ -41,7 +42,8 @@ class BaseAgent:
     def _plan(self, datos: dict[str, Any]) -> PlanModelo:
         try:
             validar_entrada_modelo(json.dumps(datos, ensure_ascii=False))
-            plan = self._llm.generar(self.prompt, datos, PlanModelo)
+            with span(f"{self.id}.plan_mock"):
+                plan = self._llm.generar(self.prompt, datos, PlanModelo)
         except EntradaBloqueada:
             raise ErrorAgente("entrada_bloqueada") from None
         if self.accion is not None and plan.accion != self.accion:
@@ -51,7 +53,9 @@ class BaseAgent:
     def _ejecutar(self, herramienta: Callable[..., T], *args: Any, **kwargs: Any) -> T:
         """Mantiene errores de parámetros fuera de las salidas públicas del agente."""
         try:
-            return herramienta(*args, **kwargs)
+            nombre = getattr(herramienta, "__name__", "herramienta")
+            with span(nombre if nombre in NOMBRES else "herramienta"):
+                return herramienta(*args, **kwargs)
         except (ValueError, ValidationError):
             raise ErrorAgente("parametros_negocio_invalidos") from None
 

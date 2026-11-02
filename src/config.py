@@ -12,6 +12,32 @@ from src.schemas.base import Contrato
 RAIZ = Path(__file__).resolve().parent.parent
 
 
+class ConfiguracionObservabilidad(Contrato):
+    """Opt-in independiente; nunca se deriva de una petición HTTP."""
+
+    habilitada: bool = False
+    permitir_envio_externo: bool = False
+    proyecto: str = "veltri-semana10-demo"
+    endpoint: str = ""
+    clave: SecretStr = Field(default_factory=lambda: SecretStr(""), repr=False, exclude=True)
+
+
+def cargar_observabilidad(
+    ruta: Path = RAIZ / ".env", entorno: Mapping[str, str] | None = None
+) -> ConfiguracionObservabilidad:
+    """Valores inválidos cierran el opt-in; sin usar flags globales del SDK."""
+    valores = dict(dotenv_values(ruta, interpolate=False)) if ruta.is_file() else {}
+    valores.update(os.environ if entorno is None else entorno)
+    return ConfiguracionObservabilidad(
+        habilitada=valores.get("VELTRI_TRACING_ENABLED", "0") == "1"
+        and valores.get("VELTRI_TRACING_SYNTHETIC_ONLY", "1") == "1",
+        permitir_envio_externo=valores.get("VELTRI_TRACING_ALLOW_EXTERNAL", "0") == "1",
+        proyecto=valores.get("LANGSMITH_PROJECT", "veltri-semana10-demo") or "",
+        endpoint=valores.get("LANGSMITH_ENDPOINT", "") or "",
+        clave=SecretStr(valores.get("LANGSMITH_API_KEY", "") or ""),
+    )
+
+
 class Configuracion(Contrato):
     """Sin modelo fijo ni activación de red por defecto."""
 

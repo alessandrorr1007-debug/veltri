@@ -14,6 +14,7 @@ from src.config import Configuracion, cargar_configuracion
 from src.core.dlq import ColaBloqueos
 from src.core.hitl import BandejaRevision
 from src.core.llm import ErrorModelo
+from src.core.observabilidad import observar, span
 from src.core.seguridad import EntradaBloqueada, validar_entrada_modelo
 from src.graph.nodes import Servicios, dominio, evaluar, recuperar, responder, validar_plan
 from src.graph.state import EstadoFlujo
@@ -89,6 +90,7 @@ class Orquestador:
             )
         )
 
+    @observar("consulta")
     def consultar(self, entrada: SolicitudFlujo | dict[str, Any]) -> ResultadoFlujo:
         """Seguridad y A1 fuera del estado; contexto de trazas desactivado incluso por entorno."""
         try:
@@ -98,7 +100,8 @@ class Orquestador:
         except (ValidationError, ValueError, TypeError):
             return self._error("entrada_invalida")
         try:
-            validar_entrada_modelo(entrada.consulta.mensaje)
+            with span("seguridad"):
+                validar_entrada_modelo(entrada.consulta.mensaje)
         except EntradaBloqueada:
             evento = self.dlq.registrar(entrada.consulta.tenant_id)
             return ResultadoFlujo(

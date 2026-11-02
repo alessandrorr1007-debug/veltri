@@ -1,2 +1,0 @@
--r requirements-fase1.txt
-pydantic==2.14.1
