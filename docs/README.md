@@ -1,26 +1,29 @@
 # Documentación de Veltri
 
-## Estado actual y ejecución
+## Ejecutar y mantener
 
-La instalación vigente está en [README principal](../README.md): `requirements.txt` para aplicación y módulos académicos, `requirements-dev.txt` para pruebas y generación Word. `requirements-academico.txt` es un alias compatible, sin versiones independientes.
+Instalación y comandos: [README principal](../README.md). No copiar plantillas sobre el proyecto actual.
 
-- Aplicación: `src/api/`, `frontend/`; agentes: `src/agents/`; herramientas: `src/tools/`.
-- Orquestación: `src/graph/`; contratos: `src/schemas/`; configuración: `src/config.py`.
-- Demostraciones académicas: `src/academic/`, `scripts/demo_academica.py`.
-- Verificación: `tests/`, `scripts/verificar.py`.
-- [Arquitectura](arquitectura.md), [agentes](agentes.md), [grafo](grafo.md), [observabilidad](observabilidad.md).
+- [Arquitectura](arquitectura.md), [agentes A1–A8](agentes.md) y [grafo](grafo.md).
+- [API](api.md) e [interfaz](interfaz.md).
+- [Datos sintéticos](datos.md), [herramientas](herramientas.md) y [contratos](esquemas.md).
+- [RAG](conocimiento.md), [decisión e HITL](decision_hitl.md).
+- [Observabilidad y seguridad LangSmith](observabilidad.md).
+- `agentes/`: contratos visuales por agente; `contratos/`: JSON Schema exportables.
 
-## Entrega Semana 10
+## Presentar Semana 10
 
-- [Informe Word de 17 páginas](entrega-semana10/Veltri_Semana10_Informe_Academico.docx) y [generador](entrega-semana10/generar_informe.py).
-- [Auditoría académica](auditoria-final-semana10.md), [expediente](evidencias/), [resumen JSON](evidencias-semana10.json).
-- Los BPMN originales y todos los registros académicos se conservan.
-- Pendientes académicos: capturas auténticas y acreditación visual de una traza LangSmith verificada. HTTP 202 no acredita una traza completa.
+- [Word corregido de 17 páginas](entrega-semana10/Veltri_Semana10_Informe_Academico.docx), [generador](entrega-semana10/generar_informe.py) y [alcance](entrega-semana10/README.md).
+- [Ejecuciones originales](evidencias/semana10-entrega-final/ejecuciones.json), [pruebas](evidencias/semana10-entrega-final/verificar.log) e [inventario de capturas](evidencias/semana10-entrega-final/inventario-13.json).
+- [BPMN TO-BE original](bpmn_to_be.bpmn) y [BPMN AS-IS](bpmn_as_is.bpmn), comparación del proceso previo.
+- [Segundo intento LangSmith](evidencias/semana10-fase43/resultado.md) y [registro de un solo uso](evidencias/semana10-fase43/ejecucion-unica.json).
+- `evidencias/semana10-fase4/`: resultados originales del primer intento remoto, API, ocho agentes y revisión local; se retiraron los índices provisionales.
+- `entrega-semana10/qa/langgraph-corregido/`: revisión visual del Word vigente.
 
-## Lectura histórica
+El grafo comercial tiene **11 nodos operativos, 13 vértices y 20 aristas**. El Word y su generador contienen la corrección. Las instantáneas originales conservan afirmaciones y referencias históricas; no sustituyen esta documentación. Los documentos históricos retirados pueden recuperarse desde el respaldo de mantenimiento.
 
-Los documentos titulados por fases, `LEEME_entorno.md`, los informes de auditoría anteriores y las instantáneas del expediente describen estados históricos. Sus afirmaciones de implementación y comandos se interpretan en su fecha; para instalar ahora se usa el README principal. Las menciones antiguas a ausencia de Deep Agents no describen `src/academic/deep_agents.py` actual. `claude/` es la plantilla de referencia conservada; no debe copiarse sobre el proyecto actual automáticamente.
+Siguen pendientes las capturas auténticas y acreditar visualmente la traza LangSmith. HTTP 202 no acredita un árbol remoto completo. No realizar otro envío para localizarla.
 
 ## Mantenimiento
 
-[Informe de limpieza del 2 de noviembre de 2026](mantenimiento/limpieza-20261102.md) e [inventario clasificado](mantenimiento/inventario-20261102.json).
+[Depuración y recuperación](mantenimiento.md). Inventarios extensos, plantillas y guiones retirados permanecen fuera del repositorio.

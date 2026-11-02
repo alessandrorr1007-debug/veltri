@@ -1,9 +1,9 @@
-# Orquestador LangGraph — FASE 7
+# Orquestador LangGraph
 
 Integración local de los ocho agentes (A1 a A8) mediante un grafo acotado (StateGraph)
-con filtro de seguridad previo, rutas tipadas, cola DLQ y compuerta HITL. No hay API
-ni interfaz de usuario en esta fase; las peticiones se procesan localmente mediante la
-fachada `Orquestador`.
+con filtro de seguridad previo, rutas tipadas, cola DLQ y compuerta HITL. La API FastAPI y la interfaz llaman al sistema mediante la fachada `Orquestador`.
+El grafo comercial tiene 11 nodos operativos, 13 vértices con START/END y 20 aristas;
+el Word corregido incluye los grados de cada vértice.
 
 ## Arquitectura del flujo
 

@@ -1,9 +1,9 @@
-# Herramientas deterministas — FASE 2
+# Herramientas deterministas
 
 Módulos Python puros en src/tools/, sin SDK, LLM, red, agentes ni endpoints.
-Se conservan los JSON de la fase 1 y los archivos protegidos sin cambios.
-Los resultados son diccionarios internos, previos a la fase de esquemas Pydantic;
-no son el contrato ConsultaResponse ni modifican sus campos futuros.
+Leen los JSON sintéticos de data/ y respetan los archivos protegidos.
+Devuelven diccionarios internos que los contratos Pydantic validan;
+no constituyen por sí solos la respuesta pública ConsultaResponse.
 
 ## Entradas y salidas
 - catalogo.Catalogo: carga una instantánea de data/; obtener/listar devuelven
@@ -52,13 +52,13 @@ como código, ni se asignan porcentajes de cuello de botella o FPS.
 Los datos deben cumplir el contrato de fase 1: el loader comprueba identidad,
 moneda, precio y stock; las pruebas de integridad verifican el resto del contrato.
 Una ficha corrupta puede producir excepción: nunca se convierte en aprobación.
-No se implementan probabilidades, capa de decisión, compuerta de aprobación humana,
-MockLLM ni banco simulado: las pruebas llaman funciones deterministas directamente.
-Los flags HITL describen bloqueos; no constituyen la futura cola de supervisión.
+Estas herramientas no implementan probabilidades ni autorizaciones; sus pruebas
+llaman funciones deterministas. La decisión y la bandeja están en src/core/.
+Los flags HITL describen bloqueos, no una aprobación comercial.
 
 CP-3, CP-4, CP-5 y CP-6 tienen comprobaciones parciales de herramientas. CP-7
 comprueba límites y búsqueda, pero presupuestos insuficientes no generan PCs.
-CP-1 no puede aprobarse con evidencia sintética; CP-2 requiere la futura seguridad.
+CP-1 no puede aprobarse con evidencia sintética; CP-2 se cubre en la seguridad y las pruebas de flujo/API, no en estas herramientas.
 No se afirma que los siete casos end-to-end estén implementados o aprobados.
 
 ## Reproducir

@@ -34,7 +34,7 @@ sockets: mapa de plataformas a chipsets y tipos RAM admisibles; LGA1700 puede
 usar DDR4 o DDR5 según placa, nunca ambas por defecto.
 relaciones_cpu_placa: pares de SKUs existentes, estado requiere_verificacion y
 motivo; cubren todos los pares de igual socket, sin certificar soporte de BIOS.
-ram, refrigeracion y montaje: restricciones declarativas; su validación se implementó en FASE 2.
+ram, refrigeracion y montaje: restricciones declarativas; su validación está en src/tools/.
 SSD requiere interfaz M2-NVME-PCIE; generación no implica velocidad garantizada.
 potencia: reserva de 100 W y margen de 25% propuestos, fórmula con redondeo hacia
 arriba y verificación de conectores; no garantiza transitorios ni calidad de fuente.
@@ -46,6 +46,5 @@ porcentajes de cuello de botella. Ninguna relación representa una medición rea
 ## Verificación y alcance
 python scripts/verificar.py ejecuta ruff, pytest y escaneo de secretos.
 Las pruebas de datos comprueban rango de SKUs, valores, categorías, referencias,
-plataformas, campos técnicos y el agotado CP-3. CP-1 a CP-7 siguen siendo escenarios
-futuros, no pruebas funcionales integradas del sistema. Las herramientas de FASE 2
-se documentan en docs/herramientas.md; aún no hay agentes.
+plataformas, campos técnicos y el agotado CP-3. Las pruebas integradas están en tests/test_flujo.py y tests/test_api.py;
+las herramientas se documentan en docs/herramientas.md.

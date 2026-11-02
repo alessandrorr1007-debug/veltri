@@ -1,7 +1,7 @@
-# Decisión y revisión humana — FASE 5
+# Decisión y revisión humana
 
-Compuerta determinista sobre evidencia tipada, sin agentes, LLM, grafo, API ni
-interfaz. No cambia ConsultaResponse 1.0-demo ni los JSON de datos. Umbrales y
+Compuerta determinista sobre evidencia tipada, integrada con el grafo y la API.
+La compuerta no invoca al modelo. No cambia ConsultaResponse 1.0-demo ni los JSON de datos. Umbrales y
 línea base protegidos permanecen intactos. Los nuevos contratos están en
 src/schemas/decision.py y src/schemas/hitl.py, exportados en docs/contratos/.
 
@@ -77,7 +77,7 @@ Propuestas de funcionamiento local:
   asignación de responsables, SLA, persistencia y auditoría durable quedan pendientes.
 
 No es una cola de producción: se pierde al reiniciar y no coordina procesos
-separados. El tenant también debe venir de identidad autorizada en la futura API.
+separados. El tenant también debe venir de identidad autorizada en la API de producción.
 Ninguna revisión se indexa en RAG. No hay notificaciones ni mensajes externos.
 
 ## Ejecución y pruebas
@@ -92,6 +92,4 @@ python scripts/verificar.py
 Pruebas cubren fronteras de los umbrales, puntajes inválidos, evidencia del dominio
 correcto, bloqueo con p alta o baja, stock agotado CP-3, presupuesto CP-4, pago
 CP-5, fichas sintéticas y borradores. También aislamiento, idempotencia, copias,
-concurrencia, resoluciones finales y prohibición de aprobar bloqueos. CP-1 a CP-7
-siguen sin constituir flujos end-to-end. No hay grafo para probar el filtro de CP-2;
-seguridad conversacional y DLQ quedan pendientes de integración.
+concurrencia, resoluciones finales y prohibición de aprobar bloqueos. Las pruebas de flujo/API complementan esta evaluación de la compuerta e incluyen seguridad y DLQ. El HITL nativo de `src/academic/hitl.py` es una demo separada de esta bandeja comercial.

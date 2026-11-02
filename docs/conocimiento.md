@@ -1,6 +1,6 @@
-# Conocimiento recuperable — FASE 4
+# Conocimiento recuperable
 
-Capa de ingesta y recuperación local del futuro RAG. No genera respuestas con LLM,
+Capa de ingesta y recuperación local del RAG local. No genera respuestas con LLM,
 no implementa agentes ni sustituye las herramientas deterministas. Todos los datos
 son sintéticos: ninguna cita autoriza una venta ni confirma precios o stock reales.
 
@@ -32,8 +32,7 @@ filtran documentos tanto por tenant como por snapshot activo. No hay caché glob
 ni tenant mutable por defecto. Se prueba acceso alternado desde otra instancia.
 
 Esto es aislamiento local por contexto, NO autenticación: quien controla el
-filesystem o selecciona un tenant ajeno en el código puede acceder a él. El futuro
-backend deberá obtener el tenant de identidad autorizada, nunca del texto del
+filesystem o selecciona un tenant ajeno en el código puede acceder a él. El backend de producción deberá obtener el tenant de identidad autorizada, nunca del texto del
 cliente. No se habilita una API ni se anuncia seguridad multiusuario productiva.
 
 ## Ingesta y actualización
@@ -60,8 +59,7 @@ revisados. No usarla para sanear documentos de clientes. No se implementa un
 clasificador PII ni se afirma una garantía exhaustiva de anonimización.
 
 Los fragmentos son datos no confiables, nunca instrucciones. El filtro anti prompt
-injection previo al grafo, su cola DLQ y las pruebas funcionales de CP-2 siguen
-pendientes porque no hay grafo ni entrada conversacional ejecutable en esta fase.
+injection y la DLQ pertenecen al orquestador; las pruebas de flujo/API verifican CP-2.
 La ingesta no ejecuta texto, herramientas, enlaces ni instrucciones del corpus.
 No exponer excepciones internas de Chroma como respuestas a usuarios.
 

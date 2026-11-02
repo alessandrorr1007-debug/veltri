@@ -1,4 +1,4 @@
-# Documentación de la Interfaz Web (FASE 9)
+# Documentación de la Interfaz Web
 
 La interfaz web de **Veltri Tecnologic** es una aplicación de página única (SPA) ligera,
 robusta y desacoplada, servida estáticamente por FastAPI en la raíz (`/`) y diseñada para

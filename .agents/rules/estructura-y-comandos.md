@@ -3,12 +3,11 @@
 Actualizar esta regla cuando aparezcan módulos o comandos nuevos.
 
 ## Archivos y carpetas existentes (FASES 1, 2, 3, 4, 5, 6, 7, 8 y 9)
-- AGENTS.md apunta a GEMINI.md; LEEME_entorno.md guía la instalación.
+- AGENTS.md apunta a GEMINI.md; README.md contiene la instalación vigente.
 - .agents/workflows/, .agents/skills/ y .agents/rules/: guías instaladas.
-- claude/: paquete original conservado como referencia.
 - scripts/: verificar.py, proteger.py, escanear_secretos.py, instalar_hooks.py.
 - data/: catalogo.json, compatibilidad.json y politicas.md (ejemplos sintéticos).
-- docs/: arquitectura.md, datos.md, herramientas.md, esquemas.md, guion-video.md,
+- docs/: arquitectura.md, datos.md, herramientas.md, esquemas.md,
   conocimiento.md, decision_hitl.md, agentes.md, grafo.md, api.md, interfaz.md, agentes/ y contratos/ con 35 JSON Schema.
 - evals/: casos_dorados.json y linea_base.json (protegido).
 - src/core/: llm.py (fábrica real/mock), observabilidad.py (spans sintéticos opt-in), umbrales.py (protegido),
@@ -32,14 +31,14 @@ Actualizar esta regla cuando aparezcan módulos o comandos nuevos.
 - requirements.txt: dependencias de ejecución y académicas, con versiones directas y transitivas fijadas para el perfil Windows x64/CPython 3.14 verificado.
 - requirements-dev.txt: incluye requirements.txt y añade pytest, Ruff, httpx y herramientas del generador Word.
 - requirements-academico.txt: alias de compatibilidad hacia requirements.txt; no es otra lista de versiones.
-- docs/README.md: índice vigente; docs/mantenimiento/limpieza-20261102.md: auditoría y recuperación de residuos.
+- docs/README.md: índice vigente; docs/mantenimiento.md: resumen de depuración y recuperación externa.
 
 
 ## Comandos disponibles
 - docs/entrega-semana10/: informe Word, figuras documentales, procedencia y QA de la Fase 6. generar_informe.py usa el runtime documental y las evidencias guardadas, sin red.
 - python scripts/demo_academica.py: LCEL, HITL nativo y Deep Agents reales con MockLLM; exporta evidencia local sin trazas.
 - python -m pip install -r requirements-dev.txt: instalación completa verificada; requirements-academico.txt conserva compatibilidad con las guías académicas.
-- python scripts/langsmith_segundo_intento.py --enviar-autorizado --rotacion-confirmada: una demo externa SOLO bajo autorización humana nueva, registro de un solo uso; guía docs/lanzador-langsmith-fase43.md.
+- python scripts/langsmith_segundo_intento.py --enviar-autorizado --rotacion-confirmada: una demo externa SOLO bajo autorización humana nueva, registro de un solo uso; guía unificada docs/observabilidad.md; registro consumido, no ejecutar de nuevo.
 - python scripts/demo_observabilidad.py: demo sintética fija, captura local sin envío por defecto; guía en docs/observabilidad.md.
 - python scripts/verificar.py: ruff + pytest + escaneo de secretos.
 - python scripts/escanear_secretos.py: escaneo de secretos.

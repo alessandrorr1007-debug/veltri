@@ -48,7 +48,7 @@ flowchart TD
 Stock agotado, pago discordante, incompatibilidad de socket y exceso de presupuesto exigen
 revisión humana obligatoria (HITL). Las probabilidades o confianza alta del LLM nunca conceden
 autorización. Los siete casos dorados (`evals/casos_dorados.json`) están integrados y verificados
-al 100% de extremo a extremo en pruebas de flujo (`tests/test_flujo.py`) y de API (`tests/test_api.py`),
+mediante pruebas de flujo (`tests/test_flujo.py`) y de API (`tests/test_api.py`); esto no acredita cumplimiento comercial completo,
 además de contar con botones de prueba inmediata en la interfaz web:
 - **CP-1:** Cotización gaming sintética dentro del presupuesto.
 - **CP-2:** Inyección de prompt bloqueada y registrada en DLQ.
@@ -76,14 +76,14 @@ Si PowerShell impide activar el entorno, usar directamente `.\.venv\Scripts\pyth
 `requirements-dev.txt` añade pruebas, Ruff y las bibliotecas del generador Word.
 `requirements-academico.txt` es únicamente un alias compatible con instrucciones académicas anteriores.
 Los siete manifiestos por fase se retiraron después de instalar estos requisitos desde cero sin red y aprobar las 464 pruebas.
-Los resultados y las instrucciones de recuperación están en [el informe de limpieza](docs/mantenimiento/limpieza-20261102.md).
+Los resultados y las instrucciones de recuperación están en [el resumen de mantenimiento](docs/mantenimiento.md).
 Las pruebas de lógica usan MockLLM o transporte simulado, garantizando ejecución sin conexión a red ni gasto de cuota.
 El hook instalado protege commits contra ediciones de archivos críticos, no impide editar archivos en local.
 
 ## Estructura
-`data/`: catálogo, relaciones y políticas; `docs/`: documentación de arquitectura, datos, herramientas, esquemas, interfaz y guion;
+`data/`: catálogo, relaciones y políticas; `docs/`: documentación de arquitectura, datos, herramientas, esquemas, interfaz y entrega académica;
 `tests/`: pruebas unitarias e integradas (464 pruebas); `scripts/`: verificadores y protección;
-`.agents/`: guías instaladas; `claude/`: referencia conservada;
+`.agents/`: reglas, workflows y skills vigentes;
 `src/`: núcleo, herramientas, contratos tipados, conocimiento RAG, agentes A1-A8, orquestador LangGraph y API FastAPI;
 `frontend/`: interfaz web local SPA (HTML, CSS y JS sin dependencias externas ni CDN);
 `evals/`: casos dorados CP-1 a CP-7 y línea base.
@@ -97,79 +97,3 @@ humana ya realizada ni uso de otros asistentes no comprobado.
 Precios, stock, fichas y políticas de ejemplo NO son datos reales de la tienda.
 Las decisiones propuestas en data/politicas.md requieren aprobación. No usar
 este catálogo para vender o prometer compatibilidad de modelos comerciales.
-
-## Historial de implementación
-
-Las secciones siguientes describen cada fase en su momento; no sustituyen el estado actual ni las instrucciones de instalación anteriores.
-
-## Avance FASE 2
-Herramientas deterministas en src/tools/ y pruebas en tests/test_herramientas.py:
-catálogo, stock, compatibilidad, cotización, armado por presupuesto, comparación
-de importes y borradores idempotentes de demostración. Contratos y límites en
-docs/herramientas.md. En ese estado aún no había API ni agentes ejecutables. Las cotizaciones no se
-aprueban con fichas sintéticas; los pagos siguen no conciliados sin evidencia.
-No se añadieron dependencias: el entorno de verificación de fase 1 sigue vigente.
-
-## Avance FASE 3
-Contratos estrictos Pydantic, incluido ConsultaResponse 1.0-demo, en src/schemas/.
-Documentación en docs/esquemas.md y JSON Schema en docs/contratos/. La validación
-rechaza tipos incorrectos, campos extra, totales incoherentes y revisión ocultada.
-Al cerrar fase 3 no había endpoints, generación con LLM ni agentes. Regenerar contratos con
-`python scripts/exportar_esquemas.py`. Dependencias mínimas actuales en
-requirements-dev.txt; los manifiestos antiguos de fases fueron consolidados y respaldados.
-
-## Avance FASE 4
-Ingesta y recuperación local en ChromaDB con tenant obligatorio y vectores léxicos
-sin modelos. Se indexan únicamente las tres fuentes sintéticas de data/, con citas
-y hashes de versión. Detalles y límites en docs/conocimiento.md.
-```powershell
-python -m src.knowledge.ingesta --tenant veltri_tecnologic_pe
-```
-El índice chroma_db/ es local y está excluido de Git. La recuperación no autoriza
-ventas ni reemplaza el stock de las herramientas. Aún no hay RAG generativo.
-
-## Avance FASE 5
-Compuerta tipada y bandeja de revisión local en src/core/decision.py y
-src/core/hitl.py, con umbrales protegidos. Los bloqueos de negocio tienen
-prioridad sobre puntuaciones sintéticas; ninguna resolución ejecuta una venta.
-Contratos y límites en docs/decision_hitl.md. Sin nuevas dependencias.
-`python -m pytest tests/test_decision_hitl.py -q` verifica esta fase.
-La bandeja no autentica revisores ni persiste entre reinicios; no hay grafo ni API.
-
-## Avance FASE 6
-Ocho agentes independientes con BaseAgent, prompts y planes tipados. Configuración
-y fábrica única get_llm, MockLLM programado y conector Gemini con JSON Schema.
-A1 clasifica intención; A2 arma; A3 cotiza; A4 valida; A5 consulta stock; A6 compara
-pagos; A7 crea borradores; A8 consulta borradores del mismo tenant. No hay
-confirmaciones comerciales, grafo ni API. Documentación en docs/agentes.md y
-diagramas por agente en docs/agentes/. Los precios y stock siguen siendo ejemplos.
-
-## Avance FASE 7
-Orquestador LangGraph acotado en src/graph/ (state.py, nodes.py, workflow.py), seguridad
-previa y DLQ local en src/core/dlq.py, contratos de flujo en src/schemas/flujo.py y
-pruebas integradas en tests/test_flujo.py. A1 clasifica la intención fuera del grafo;
-el StateGraph conecta los siete agentes de dominio sin guardar texto libre en su estado,
-sin checkpointer y con trazas desactivadas. Los mensajes bloqueados registran un evento
-técnico mínimo en DLQ. Decisiones pendientes y limitaciones explícitas fuerzan revisión
-humana en la BandejaRevision del tenant sin aprobar negocio. Los casos dorados CP-1 a CP-7
-se validan de extremo a extremo con MockLLM. Sin API ni interfaz en esta fase.
-
-## Avance FASE 8
-API FastAPI en src/api/main.py y pruebas en tests/test_api.py. El endpoint POST /consulta
-recibe SolicitudAPI (formato plano o anidado) y responde estrictamente con el contrato
-ConsultaResponse 1.0-demo. Toda excepción HTTP o de validación (422, 404, 500) devuelve
-siempre un JSON estructurado tipado sin filtrar trazas ni datos privados. La aplicación
-desactiva documentación externa (docs_url=None, redoc_url=None) eliminando cualquier
-dependencia de CDN. Los siete casos dorados CP-1 a CP-7 se validan sobre el endpoint
-HTTP con TestClient sin conexión a red. Iniciar servidor con `uvicorn src.api.main:app --reload`.
-
-## Avance FASE 9
-Interfaz web local (SPA) en frontend/ con Consola Comercial, Supervisión Humana (HITL) y
-Trazas de Telemetría. Diseñada sin dependencias CDN, sin emojis (iconos SVG vectoriales locales)
-y con cumplimiento WCAG AA. Soporta botones de prueba inmediata para los casos dorados CP-1 a CP-7,
-proformas estructuradas en Soles (S/) y supervisión interactiva con aprobación/rechazo en la
-compuerta HITL. Documentación completa en docs/interfaz.md. Servir localmente con
-`uvicorn src.api.main:app --reload` y acceder en `http://localhost:8000`.
-
-
-

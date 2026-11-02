@@ -30,9 +30,3 @@ local con pypdfium2. Los archivos de `qa/` son material interno de revisión.
 - Verificar visualmente la traza ya existente de LangSmith: run_id, duración,
   árbol de spans, metadatos y entradas/salidas vacías; adjuntar sus capturas.
 - Validar los datos institucionales y de autoría individual antes de presentar.
-
-## Resumen para el video
-
-Reunimos código, diagramas y resultados verificables en un informe de cinco actividades.
-Separamos las demos académicas del flujo comercial y explicamos las diferencias con BPMN.
-La traza de LangSmith y las capturas auténticas quedan señaladas como evidencia pendiente.

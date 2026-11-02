@@ -1,8 +1,8 @@
-# Capa cognitiva y agentes — FASE 6
+# Capa cognitiva y agentes
 
 Ocho agentes independientes con contratos previos al código, BaseAgent y fábrica
-única get_llm. Los nombres y funciones fueron confirmados por el usuario. No hay
-grafo, API ni interfaz; los nodos en docs/agentes/ son integración futura.
+única get_llm. Los nombres y funciones fueron confirmados por el usuario. Están integrados en
+LangGraph y FastAPI; docs/agentes/ contiene sus contratos visuales.
 
 ## Responsabilidades
 D1: A1 interpreta intención; A2 arma por rango; A3 cotiza una selección.
@@ -36,7 +36,7 @@ Referencia: [salidas estructuradas de Gemini](https://ai.google.dev/gemini-api/d
 
 Dependencias directas nuevas: google-genai 2.31.0 para el conector y python-dotenv
 1.2.4 para leer .env (ya transitiva en el entorno). requirements-dev.txt instala actualmente el conjunto completo de la aplicación y las demostraciones académicas. pip ajustó dependencias transitivas compatibles; pip check debe
-seguir pasando. No se instalaron LangGraph ni LangChain para esta fase.
+seguir pasando. LangGraph y las bibliotecas académicas están incluidos en requirements.txt.
 
 ## Contratos y límites del modelo
 PlanModelo solo permite accion (enum), p y c entre 0 y 1. No admite precios,
@@ -92,8 +92,7 @@ claves o respuestas. Las salidas de agentes no se indexan en RAG.
 La guarda por patrones no detecta todas las inyecciones ni todos los formatos de
 PII; no sustituye controles de autenticación, políticas de permisos o validación
 de argumentos. El límite duro sigue siendo el contrato del plan y las herramientas
-sin privilegios de confirmación. No se implementa ni se declara una DLQ durable;
-CP-2 se prueba parcialmente como bloqueo previo, sin archivo en cola.
+sin privilegios de confirmación. La DLQ integrada es local, no durable; el bloqueo previo y su registro se verifican en las pruebas de flujo y API.
 
 ## Probar sin red ni cuota
 ```powershell
@@ -119,7 +118,4 @@ salida = agente.run(EntradaSeleccion(tenant_id="veltri_tecnologic_pe",
 # salida.resultado.stock.hitl_requerido es true y hay alternativas con stock.
 ```
 
-Los casos CP-1 a CP-7 no se modifican ni se declaran aprobados de extremo a extremo.
-La línea base continúa vacía y protegida. Hay pruebas de agente por caso válido,
-límite y fallo; grafo, preguntas para recopilar parámetros, composición de respuestas,
-RAG generativo, calibración y autorización real quedan para fases posteriores.
+La integración con grafo, API y DLQ está en `src/graph/` y `src/api/`. Las pruebas de agentes no sustituyen las de flujo ni acreditan autorizaciones reales. La línea base sigue vacía y protegida.

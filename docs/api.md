@@ -1,4 +1,4 @@
-# API FastAPI — FASE 8
+# API FastAPI
 
 Punto de entrada HTTP de Veltri Tecnologic que expone el orquestador multiagente
 mediante el endpoint `POST /consulta`. Garantiza el cumplimiento estricto del invariante 7:
@@ -6,8 +6,8 @@ toda respuesta pública es un JSON estructurado con el contrato `ConsultaRespons
 
 ## Características y diseño
 
-1. **Endpoint único (`POST /consulta`)**:
-   - Recibe `SolicitudAPI` ([flujo.py](file:///d:/Proyectos/veltri-orquestador/src/schemas/flujo.py)),
+1. **Consulta (`POST /consulta`)**:
+   - Recibe `SolicitudAPI` ([flujo.py](../src/schemas/flujo.py)),
      admitiendo formato plano (`mensaje`, `canal`, `tenant_id` y `parametros` opcionales)
      o anidado con objeto `consulta`.
    - Transforma la petición a `SolicitudFlujo` y la pasa al `Orquestador`.

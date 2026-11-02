@@ -10,7 +10,7 @@ El video muestra el paso a paso del desarrollo hasta el código. Esta skill deja
 ## Al cerrar cada fase
 1. Resumen de **3 líneas en lenguaje simple**: qué se hizo, por qué y qué sigue. Debe poder leerse en voz alta.
 2. Actualiza `docs/arquitectura.md` (diagrama Mermaid) si cambió la arquitectura.
-3. Agrega una fila a `docs/guion-video.md`: fase, qué mostrar en pantalla, comando a ejecutar, qué decir y duración estimada.
+3. Mantén en `docs/README.md` las demostraciones vigentes. Crea un guion solo si el usuario pide un video; no acumules guiones históricos.
 4. Si la fase tiene interfaz, indica cuándo tomar capturas del antes y el después.
 5. Actualiza `.agents/rules/estructura-y-comandos.md` si apareció una carpeta o un comando nuevo.
 
@@ -22,5 +22,5 @@ Problema, arquitectura por capas, entorno agéntico (reglas, workflows, skills),
 
 ## Checklist final
 - [ ] Resumen de 3 líneas entregado.
-- [ ] Guion y diagrama al día.
+- [ ] Índice de demostraciones y diagrama al día.
 - [ ] README coherente con el código real.
