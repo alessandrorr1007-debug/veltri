@@ -12,6 +12,7 @@ __pycache__/
 .ruff_cache/
 
 # Datos generados
+/docs/contratos/
 chroma_db/
 *.log
 *.sqlite3

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -65,7 +66,10 @@ def test_gitignore_protege_env() -> None:
     assert ".env" in contenido
 
 
-def test_agents_md_apunta_a_gemini_md() -> None:
-    """AGENTS.md es solo un puntero: las reglas viven en GEMINI.md (una sola fuente)."""
-    assert "GEMINI.md" in (RAIZ / "AGENTS.md").read_text(encoding="utf-8")
-    assert (RAIZ / "GEMINI.md").is_file()
+def test_agents_md_es_la_fuente_unica_de_invariantes() -> None:
+    reglas = (RAIZ / "AGENTS.md").read_text(encoding="utf-8")
+    seccion = reglas.split("## Invariantes", 1)[1].split("## Desarrollo y entrega", 1)[0]
+    assert re.findall(r"^(\d+)\. \*\*", seccion, re.MULTILINE) == [
+        str(numero) for numero in range(1, 11)
+    ]
+    assert not (RAIZ / "GEMINI.md").exists()

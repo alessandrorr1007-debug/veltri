@@ -1,3 +1,0 @@
-# Alias de compatibilidad para guías y evidencias académicas existentes.
-# LCEL, LangGraph y Deep Agents ya forman parte del entorno principal.
--r requirements.txt

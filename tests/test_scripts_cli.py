@@ -1,6 +1,5 @@
 """Regresión de los puntos de entrada, no solo de sus componentes internos."""
 
-import hashlib
 import json
 import os
 import subprocess
@@ -26,10 +25,13 @@ def entorno_local() -> dict[str, str]:
 
 @pytest.mark.parametrize("modo", ["archivo_raiz", "archivo_otra_carpeta", "modulo"])
 def test_demo_cli_real_sin_alterar_evidencia(tmp_path, modo):
-    originales = [RAIZ / "docs/evidencias/semana10-entrega-final/ejecuciones.json",
-                  RAIZ / "docs/evidencias/semana10-fase43/ejecucion-unica.json",
-                  RAIZ / "docs/entrega-semana10/Veltri_Semana10_Informe_Academico.docx"]
-    antes = [hashlib.sha256(p.read_bytes()).hexdigest() for p in originales]
+    registro = RAIZ / "docs/evidencias/semana10-fase43/ejecucion-unica.json"
+    archivados = [
+        RAIZ / "docs/evidencias/semana10-entrega-final/ejecuciones.json",
+        RAIZ / "docs/entrega-semana10/Veltri_Semana10_Informe_Academico.docx",
+    ]
+    antes = registro.read_bytes()
+    estado_archivados = [p.read_bytes() if p.exists() else None for p in archivados]
     destino = tmp_path / "ejecucion"
     comando = [sys.executable]
     comando += (["-m", "scripts.demo_academica"] if modo == "modulo" else
@@ -49,7 +51,8 @@ def test_demo_cli_real_sin_alterar_evidencia(tmp_path, modo):
     grafo = json.loads((destino / "grafo-comercial.json").read_text(encoding="utf-8"))
     assert len(grafo["nodes"]) == 13
     assert len(grafo["edges"]) == 20
-    assert antes == [hashlib.sha256(p.read_bytes()).hexdigest() for p in originales]
+    assert registro.read_bytes() == antes
+    assert [p.read_bytes() if p.exists() else None for p in archivados] == estado_archivados
 
 
 def test_demo_no_sobrescribe_destino_existente(tmp_path):
@@ -60,11 +63,12 @@ def test_demo_no_sobrescribe_destino_existente(tmp_path):
     assert existente.read_text(encoding="utf-8") == "conservar"
 
 
-def test_demo_rechaza_directorio_original(monkeypatch, tmp_path):
+@pytest.mark.parametrize("carpeta", ["docs/evidencias", "docs/entrega-semana10"])
+def test_demo_rechaza_directorio_original(monkeypatch, tmp_path, carpeta):
     from scripts import demo_academica
 
     monkeypatch.setattr(demo_academica, "RAIZ", tmp_path)
-    destino = tmp_path / "docs/evidencias/nueva"
+    destino = tmp_path / carpeta / "nueva"
     with pytest.raises(ValueError, match="protegidas"):
         ejecutar_demo(destino)
     assert not destino.exists()

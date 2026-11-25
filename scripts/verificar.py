@@ -20,7 +20,7 @@ def comprobar_estructura(raiz: Path = RAIZ) -> int:
     """Compila sin escribir pyc ni ejecutar módulos y comprueba imports internos."""
     archivos = [
         p
-        for carpeta in ("src", "scripts", "tests", "evals", "docs/entrega-semana10")
+        for carpeta in ("src", "scripts", "tests", "evals")
         for p in (raiz / carpeta).rglob("*.py")
         if "__pycache__" not in p.parts
     ]
@@ -56,8 +56,9 @@ def comprobar_estructura(raiz: Path = RAIZ) -> int:
         "data/politicas.md",
         "docs/bpmn_as_is.bpmn",
         "docs/bpmn_to_be.bpmn",
-        "docs/entrega-semana10/generar_informe.py",
-        "docs/entrega-semana10/Veltri_Semana10_Informe_Academico.docx",
+        "AGENTS.md",
+        "docs/arquitectura.md",
+        "docs/agentes/deep-agents-semana11.md",
         "docs/evidencias/semana10-fase43/ejecucion-unica.json",
     ):
         if not (raiz / nombre).is_file():

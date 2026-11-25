@@ -14,8 +14,9 @@ def copiar_referencias(raiz: Path) -> None:
         "data/politicas.md",
         "docs/bpmn_as_is.bpmn",
         "docs/bpmn_to_be.bpmn",
-        "docs/entrega-semana10/generar_informe.py",
-        "docs/entrega-semana10/Veltri_Semana10_Informe_Academico.docx",
+        "AGENTS.md",
+        "docs/arquitectura.md",
+        "docs/agentes/deep-agents-semana11.md",
         "docs/evidencias/semana10-fase43/ejecucion-unica.json",
     ):
         ruta = raiz / nombre

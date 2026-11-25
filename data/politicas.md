@@ -1,7 +1,7 @@
 # Políticas de demostración — FASE 1
 
 No son políticas vigentes de Veltri ni autorización para cobrar, reservar o despachar.
-Fuente de reglas obligatorias: GEMINI.md y evals/casos_dorados.json. Las propuestas
+Fuente de reglas obligatorias: AGENTS.md y evals/casos_dorados.json. Las propuestas
 requieren aprobación de la tienda antes de uso real.
 
 ## Reglas definidas en los documentos
