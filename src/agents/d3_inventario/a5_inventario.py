@@ -2,6 +2,7 @@
 
 from src.agents.base import BaseAgent
 from src.agents.prompts import prompt_plan
+from src.core.autonomia import presupuesto_actual
 from src.schemas.agentes import EntradaSeleccion, ResultadoInventario, SalidaAgente
 from src.tools.catalogo import Catalogo
 from src.tools.inventario import alternativas, comprobar_stock
@@ -28,7 +29,13 @@ class A5Inventario(BaseAgent):
         entrada = self._entrada(entrada, EntradaSeleccion)
         plan = self._plan({"tarea": "stock"})
         stock = self._ejecutar(comprobar_stock, catalogo, entrada.seleccion)
-        sugerencias = {f["sku"]: alternativas(catalogo, f["sku"]) for f in stock["faltantes"]}
+        sugerencias = {}
+        presupuesto = presupuesto_actual.get()
+        for faltante in stock["faltantes"]:
+            if presupuesto is not None:
+                presupuesto.herramienta()
+            sku = faltante["sku"]
+            sugerencias[sku] = alternativas(catalogo, sku)
         resultado = ResultadoInventario.model_validate(
             {"stock": stock, "alternativas": sugerencias}
         )

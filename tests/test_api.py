@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 
 from src.api.main import crear_app
 from src.config import Configuracion
+from src.core.autonomia import LimitesAutonomia
 from src.graph.workflow import Orquestador
 from src.schemas.consulta import ConsultaResponse
 
@@ -312,3 +313,17 @@ def test_sin_dependencias_cdn_en_fastapi():
     app = crear_app()
     assert app.docs_url is None
     assert app.redoc_url is None
+
+
+def test_limite_de_tokens_respeta_el_contrato_y_no_activa_el_fallback():
+    cliente = cliente_api("stock", limites=LimitesAutonomia(tokens=1))
+    respuesta = cliente.post("/consulta", json={
+        "mensaje": "¿Hay stock?",
+        "canal": "web",
+        "tenant_id": "veltri",
+    })
+    assert respuesta.status_code == 200
+    datos = ConsultaResponse.model_validate(respuesta.json())
+    assert datos.status == "revision_humana"
+    assert "limite_tokens" in datos.motivos
+    assert datos.hitl_requerido and not datos.genera_proforma

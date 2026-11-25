@@ -33,6 +33,14 @@ def test_lectura_debe_contener_evidencia():
     assert verificar_lectura("1\t" + CANONICO, CANONICO) == CANONICO
     with pytest.raises(ValueError, match="lectura_academica_no_coincide"):
         verificar_lectura("archivo vacío", CANONICO)
+    with pytest.raises(ValueError, match="lectura_academica_no_coincide"):
+        verificar_lectura("1\t" + CANONICO + "\n2\tCambia el resultado", CANONICO)
+
+
+def test_rechaza_claves_duplicadas_en_evidencia():
+    adulterado = '{"efecto_comercial":true,' + CANONICO[1:]
+    with pytest.raises(ValueError, match="evidencia_academica_invalida"):
+        evidencia_canonica(adulterado)
 
 
 def test_estado_retiene_archivo_virtual():

@@ -36,8 +36,7 @@ def test_cuatro_pilares_en_framework_real(monkeypatch):
         if self._rol == "DA-Revision":
             for mensaje in messages:
                 if isinstance(mensaje, HumanMessage):
-                    _, datos = mensaje.text.split("\n", 1)
-                    datos_revision.append(json.loads(datos)["datos_no_confiables"])
+                    datos_revision.append(json.loads(mensaje.text)["datos_no_confiables"])
             assert all(
                 '"datos_no_confiables":' not in mensaje.text
                 for mensaje in messages if isinstance(mensaje, SystemMessage)
@@ -58,8 +57,8 @@ def test_cuatro_pilares_en_framework_real(monkeypatch):
     assert [c["args"]["subagent_type"] for c in delegaciones] == ["DA-Catalogo", "DA-Revision"]
     hallazgo = evidencia_canonica(llamadas[2]["args"]["content"])
     assert llamadas[2]["args"]["file_path"] == RUTA_HALLAZGOS
-    _, datos_delegados = delegaciones[1]["args"]["description"].split("\n", 1)
-    assert json.loads(datos_delegados) == {"datos_no_confiables": json.loads(hallazgo)}
+    datos_delegados = json.loads(delegaciones[1]["args"]["description"])
+    assert datos_delegados == {"datos_no_confiables": json.loads(hallazgo)}
     assert datos_revision and all(datos == json.loads(hallazgo) for datos in datos_revision)
     assert verificar_archivo(resultado["files"], hallazgo) == hallazgo
     assert all(t["status"] == "completed" for t in resultado["todos"])

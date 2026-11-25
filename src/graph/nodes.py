@@ -12,6 +12,7 @@ from src.agents.d4_pedidos.a6_pagos import A6Pagos
 from src.agents.d4_pedidos.a7_pedidos import A7Pedidos
 from src.agents.d4_pedidos.a8_seguimiento import A8Seguimiento
 from src.config import Configuracion
+from src.core.autonomia import presupuesto_actual
 from src.core.criterios import clasificar
 from src.core.decision import decide
 from src.core.hitl import BandejaRevision
@@ -205,6 +206,9 @@ def recuperar(state: EstadoFlujo, servicios: Servicios) -> dict[str, Any]:
         "compatibilidad": ("socket ram refrigeracion", "data/compatibilidad.json"),
     }
     consulta, fuente = consultas[tema]
+    presupuesto = presupuesto_actual.get()
+    if presupuesto is not None:
+        presupuesto.herramienta()
     resultados = servicios.almacen.buscar(estado.tenant_id, consulta, limite=3, fuente=fuente)
     if not resultados:
         return {"solicitud_decision": limitacion(estado, "conocimiento_no_disponible")}

@@ -127,8 +127,53 @@ Comandos de instalación y servidor están en el README principal; `python scrip
 
 ## Extensión académica de semana 11 (fase 2)
 
-La demostración `src/academic/deep_agents_semana11.py` conserva los roles académicos existentes. El coordinador planifica, delega a Catálogo, escribe y lee `/hallazgos.json` en el estado virtual y entrega el hallazgo a Revisión para contrastarlo. El flujo no modifica la API ni el grafo comercial. Véase el [diagrama y las pruebas de integración](agentes/deep-agents-semana11.md). El estado dura una ejecución y el modelo sigue siendo simulado.
+La demostración `src/academic/deep_agents_semana11.py` conserva los roles académicos existentes. El coordinador planifica, delega a Catálogo, escribe y lee `/hallazgos.json` en el estado virtual y entrega el hallazgo a Revisión para contrastarlo. La demo se ejecuta al margen de la API comercial. Véase el [diagrama y las pruebas de integración](agentes/deep-agents-semana11.md). El estado dura una ejecución y el modelo sigue siendo simulado.
 
+
+## Controles de autonomía
+
+`LimitesAutonomia` valida una configuración inmutable por perfil. Los llamadores de confianza
+pueden pasar `limites=` a `Orquestador` o `ejecutar_semana11`. El mensaje, los argumentos de
+herramienta y el estado del grafo carecen de acceso a esta configuración.
+
+| Límite | Comercial | Académico |
+|---|---:|---:|
+| Pasos operativos totales | 4 | 32 |
+| Llamadas al modelo | 2 | 14 |
+| Despachos de herramientas | 91 | 12 |
+| Niveles de delegación | 0 | 1 |
+| Plazo de ejecución | 10 s | 10 s |
+| Presupuesto de tokens | 8.192 | 32.000 |
+| Salida máxima por llamada | 128 | 128 |
+
+El DAG comercial usa como máximo cuatro nodos y un plan de A1 más un plan de dominio.
+El techo de herramientas permite una consulta de stock y hasta 90 búsquedas de alternativas,
+el máximo de elementos del contrato de selección. La demo normal usa 21 pasos, 12 llamadas
+al modelo y 9 herramientas. Sus límites dejan margen sin habilitar un tercer especialista.
+Los 128 tokens de salida cubren planes JSON breves o llamadas programadas. Ambos grafos retienen
+el tope nativo de recursión. El contador común mide nodos comerciales y pasos académicos de
+modelo o herramienta, incluidos los de los especialistas.
+
+El presupuesto se comparte por ejecución y reserva entrada y salida antes de cada inferencia.
+MockLLM calcula unidades simuladas a partir de bytes UTF-8 de mensajes y fixtures. Gemini carga
+el uso informado, incluidos tokens adicionales si están disponibles, y conserva una estimación
+conservadora cuando faltan métricas. El conector aplica el máximo de salida, limita el timeout
+al tiempo restante y desactiva reintentos. El proveedor conserva el control del cómputo en curso.
+El plazo local se comprueba en cada frontera operativa y durante la búsqueda de armado. Acota
+la espera por el bloqueo de Chroma. El tiempo observado puede superar el plazo si una llamada
+síncrona o nativa ya iniciada tarda en devolver el control.
+
+El adaptador académico restringe herramientas por rol antes del despacho y valida el destino,
+la descripción delegada y la ruta virtual. Solo admite los dos especialistas, una vez cada uno,
+y `/hallazgos.json`. Los resultados se revalidan antes de reutilizarlos. Una interrupción
+académica devuelve evidencia, plan y memoria parciales validados durante la ejecución.
+La fachada comercial conserva la última salida tipada del grafo y deriva el corte a la bandeja
+del tenant sin nuevas llamadas al modelo ni a herramientas de negocio.
+
+Los contadores y motivos cerrados de las últimas 256 ejecuciones se conservan en memoria
+y pueden registrarse en el logger local `veltri.recursos`. Incluyen tiempo y revisión, sin
+prompts, identificadores, datos personales ni resultados de negocio. Son métricas para
+análisis posterior; no constituyen medición de costo de un proveedor.
 
 ## Observabilidad segura
 

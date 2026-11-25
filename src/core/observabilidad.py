@@ -1,11 +1,15 @@
 """Spans mínimos para una demo sintética de confianza; sin capturar argumentos."""
 
+import logging
 import os
+from collections import deque
 from contextlib import contextmanager
 from contextvars import ContextVar
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from functools import wraps
+from threading import Lock
 from typing import Any, Iterator
 from uuid import UUID, uuid4
 
@@ -158,3 +162,20 @@ def observar(nombre: str):
                 return funcion(*args, **kwargs)
         return ejecutar
     return decorar
+
+
+_recursos_recientes: deque[tuple[str, dict]] = deque(maxlen=256)
+_lock_recursos = Lock()
+
+
+def registrar_recursos(ambito: str, metricas: dict) -> None:
+    """Guarda contadores locales acotados; no pasa por el cliente de trazas."""
+    with _lock_recursos:
+        _recursos_recientes.append((ambito, deepcopy(metricas)))
+    logging.getLogger("veltri.recursos").info("%s %s", ambito, metricas)
+
+
+def recursos_recientes() -> list[tuple[str, dict]]:
+    """Copia de la ventana local de métricas, sin identificadores de usuario."""
+    with _lock_recursos:
+        return deepcopy(list(_recursos_recientes))

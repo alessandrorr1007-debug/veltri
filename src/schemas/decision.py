@@ -4,6 +4,7 @@ from typing import Annotated, Literal, Self
 
 from pydantic import Field, model_validator
 
+from src.core.autonomia import MotivoParada
 from src.core.criterios import Destino, clasificar
 from src.schemas.base import Contrato, Falso, Fuente, HashPedido, Motivo
 from src.schemas.resultados import (
@@ -87,7 +88,7 @@ class EvidenciaLimitacion(Contrato):
                 "borrador_no_encontrado",
                 "seguimiento_solo_demo",
                 "conocimiento_no_disponible",
-            ]
+            ] | MotivoParada
         ],
         Field(min_length=1),
     ]

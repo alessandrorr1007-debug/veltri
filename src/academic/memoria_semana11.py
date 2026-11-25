@@ -21,10 +21,17 @@ def texto_mensaje(contenido: object) -> str:
     raise ValueError("contenido_academico_invalido")
 
 
+def _sin_duplicados(pares):
+    resultado = dict(pares)
+    if len(resultado) != len(pares):
+        raise ValueError("campos_duplicados")
+    return resultado
+
+
 def evidencia_canonica(contenido: object) -> str:
     """Valida el contrato cerrado; impide guardar datos o efectos comerciales."""
     try:
-        datos = json.loads(texto_mensaje(contenido))
+        datos = json.loads(texto_mensaje(contenido), object_pairs_hook=_sin_duplicados)
     except (ValueError, TypeError):
         raise ValueError("evidencia_academica_invalida") from None
     if (
@@ -41,7 +48,8 @@ def evidencia_canonica(contenido: object) -> str:
 def verificar_lectura(contenido: object, esperado: str) -> str:
     """Comprueba que la herramienta devolvió el artefacto esperado, no solo un éxito."""
     canonico = evidencia_canonica(esperado)
-    if canonico not in texto_mensaje(contenido):
+    lectura = texto_mensaje(contenido).strip()
+    if lectura not in (canonico, "1\t" + canonico):
         raise ValueError("lectura_academica_no_coincide")
     return canonico
 

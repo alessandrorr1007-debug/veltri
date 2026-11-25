@@ -10,8 +10,9 @@ from typing import Any
 import chromadb
 from chromadb.config import Settings
 from chromadb.errors import NotFoundError
-from filelock import FileLock
+from filelock import FileLock, Timeout
 
+from src.core.autonomia import presupuesto_actual
 from src.knowledge.documentos import FUENTES, Fragmento
 from src.knowledge.vectorizacion import (
     VERSION_VECTOR,
@@ -111,7 +112,18 @@ class Almacen:
         terminos = tokens(consulta)
         claves_exactas = {"catalogo:" + t.upper() for t in terminos
                          if re.fullmatch(r"(?:cpu|mb|gpu|ram|ssd|psu|case|cool)-[a-z0-9-]+", t)}
-        with self._bloqueo(tenant):
+        presupuesto = presupuesto_actual.get()
+        bloqueo = self._bloqueo(tenant)
+        plazo = min(bloqueo.timeout, presupuesto.segundos_restantes()) if presupuesto else -1
+        try:
+            adquirido = bloqueo.acquire(timeout=plazo if presupuesto else None)
+        except Timeout:
+            if presupuesto is not None:
+                presupuesto.segundos_restantes()
+            raise
+        with adquirido:
+            if presupuesto is not None:
+                presupuesto.segundos_restantes()
             coleccion = self._coleccion(tenant)
             if coleccion is None:
                 return []

@@ -78,7 +78,7 @@ def test_cp2_bloqueo_previo_sin_grafo_modelo_o_datos_personales(mensaje, monkeyp
     def prohibido(*args, **kwargs):
         raise AssertionError("No debe entrar al grafo ni al modelo")
 
-    monkeypatch.setattr(orquestador._grafo, "invoke", prohibido)
+    monkeypatch.setattr(orquestador._grafo, "stream", prohibido)
     monkeypatch.setattr(BaseAgent, "_plan", prohibido)
     salida = orquestador.consultar(entrada(mensaje=mensaje))
     assert salida.respuesta.status == "bloqueado" and salida.respuesta.archivado_en_dlq
@@ -311,7 +311,7 @@ def test_errores_no_repiten_excepciones_o_entradas(monkeypatch, capsys):
     def fallar(*args, **kwargs):
         raise RuntimeError("dato privado sintético")
 
-    monkeypatch.setattr(orquestador._grafo, "invoke", fallar)
+    monkeypatch.setattr(orquestador._grafo, "stream", fallar)
     salida = orquestador.consultar(entrada())
     assert salida.respuesta.status == "error"
     assert "dato privado sintético" not in salida.model_dump_json()

@@ -81,7 +81,7 @@ def test_prompts_comerciales(agente, herramienta, limite, hitl):
 
 
 @pytest.mark.parametrize(("prompt", "rol", "proceso", "parada"), [
-    (PROMPT_COORDINADOR, "DA-CoordinadorAcademico", "guarda y relee", "40 pasos"),
+    (PROMPT_COORDINADOR, "DA-CoordinadorAcademico", "guarda y relee", "presupuesto de ejecución"),
     (PROMPT_CATALOGO, "DA-Catalogo", "tres campos", "Una consulta"),
     (PROMPT_REVISION, "DA-Revision", "Contrasta los tres campos", "discrepa"),
 ])

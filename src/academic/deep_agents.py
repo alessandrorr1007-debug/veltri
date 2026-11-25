@@ -9,6 +9,7 @@ from langchain_core.tools import tool
 from pydantic import PrivateAttr
 
 from src.config import Configuracion
+from src.core.autonomia import presupuesto_actual
 from src.core.llm import Modelo, get_llm
 from src.schemas.academico import EntradaAcademica, PasoMock
 from src.tools.evidencia_academica import revisar_fixture_sintetico
@@ -44,7 +45,13 @@ class AdaptadorMock(BaseChatModel):
             raise ValueError("herramienta_academica_fallida")
         self._auditoria.append({"rol": self._rol, "respuestas_herramientas": [
             {"nombre": m.name, "estado": m.status} for m in herramientas]})
-        paso = self._mock.generar("fixture académico", {}, PasoMock)
+        datos = {}
+        if presupuesto_actual.get() is not None:
+            datos = {"mensajes": [
+                m.model_dump(include={"type", "content", "tool_calls", "name"}, mode="json")
+                for m in messages
+            ]}
+        paso = self._mock.generar("fixture académico", datos, PasoMock)
         llamadas = []
         if paso.herramienta:
             if paso.herramienta not in self._permitidas:

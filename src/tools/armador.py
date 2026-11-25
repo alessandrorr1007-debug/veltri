@@ -4,6 +4,7 @@ from bisect import bisect_left, bisect_right
 from itertools import product
 from typing import Any
 
+from src.core.autonomia import presupuesto_actual
 from src.tools.catalogo import Catalogo, entero
 from src.tools.cotizacion import cotizar
 from src.tools.hardware import potencia_requerida
@@ -30,7 +31,10 @@ def armar(catalogo: Catalogo, minimo_centimos: int = 0,
     potencia = reglas["potencia"]
     pares = {(r["cpu_sku"], r["placa_sku"]) for r in reglas["relaciones_cpu_placa"]}
     # Cada soporte válido se ordena por precio para consultar el rango con bisect.
+    presupuesto = presupuesto_actual.get()
     for cpu, placa, gpu in product(grupos["cpu"], grupos["placa"], grupos["gpu"]):
+        if presupuesto is not None:
+            presupuesto.segundos_restantes()
         c, b, g = (p["especificaciones"] for p in (cpu, placa, gpu))
         if c["socket"] != b["socket"] or (cpu["sku"], placa["sku"]) not in pares:
             continue

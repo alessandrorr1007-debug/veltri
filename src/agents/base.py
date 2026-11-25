@@ -6,6 +6,7 @@ from typing import Any, Callable, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from src.config import Configuracion
+from src.core.autonomia import presupuesto_actual
 from src.core.llm import get_llm
 from src.core.observabilidad import NOMBRES, span
 from src.core.seguridad import EntradaBloqueada, validar_entrada_modelo
@@ -53,6 +54,9 @@ class BaseAgent:
 
     def _ejecutar(self, herramienta: Callable[..., T], *args: Any, **kwargs: Any) -> T:
         """Mantiene errores de parámetros fuera de las salidas públicas del agente."""
+        presupuesto = presupuesto_actual.get()
+        if presupuesto is not None:
+            presupuesto.herramienta()
         try:
             nombre = getattr(herramienta, "__name__", "herramienta")
             with span(nombre if nombre in NOMBRES else "herramienta"):

@@ -282,7 +282,7 @@ def test_inyeccion_no_invoca_modelo_ni_grafo(monkeypatch):
         pytest.fail("No debe invocar modelo ni grafo")
 
     monkeypatch.setattr(BaseAgent, "_plan", prohibido)
-    monkeypatch.setattr(orq._grafo, "invoke", prohibido)
+    monkeypatch.setattr(orq._grafo, "stream", prohibido)
     captura = CapturaLocal()
     with obs.sesion_sintetica(ConfiguracionObservabilidad(habilitada=True), cliente_local=captura):
         salida = orq.consultar(

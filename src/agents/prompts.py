@@ -25,8 +25,8 @@ def prompt_plan(
         herramientas="El modelo no invoca herramientas. " + herramientas,
         proceso=proceso,
         limites=limites + " No inventes cifras, evidencia ni estados; no autorices operaciones.",
-        parada="Emite un solo plan. Evita reintentos, pasos extra y texto explicativo.",
-        hitl=bloqueo + " La compuerta aplica la revisión; p y c no autorizan.",
+        parada="Emite un solo plan, sin reintentos ni prosa.",
+        hitl=bloqueo + " Deriva a la compuerta; p y c no autorizan.",
         salida="Solo JSON PlanModelo con accion, p y c. " + opciones
         + " p y c son estimaciones no calibradas en [0,1].",
     )

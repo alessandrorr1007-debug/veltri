@@ -32,8 +32,10 @@ Los tres roles usan la [estructura de doce bloques](../arquitectura.md#arquitect
 El adaptador de semana 11 restringe las herramientas que puede emitir cada rol. El coordinador
 envía el hallazgo de memoria como un objeto JSON `datos_no_confiables` separado de la instrucción,
 y el resultado final se valida como `SalidaAcademica`. El estado virtual dura una ejecución.
-El grafo conserva un límite de recursión de 40 pasos. Las respuestas programadas comprueban la
-integración del framework y los controles del adaptador. La comprensión del modelo y el costo en
+Los [controles de autonomía](../arquitectura.md#controles-de-autonomía) comparten el presupuesto
+entre el coordinador y los especialistas. La demo emite contadores locales y, si se interrumpe,
+devuelve un motivo y la evidencia parcial validada. Las respuestas programadas comprueban la
+integración del framework y los controles de despacho. La comprensión del modelo y el costo en
 tokens requieren evaluación posterior.
 
 ## Validación local
@@ -42,7 +44,7 @@ Con el entorno virtual activado y las dependencias fijadas de Veltri:
 
 ```sh
 python -m pytest -q tests/test_memoria_semana11.py tests/test_deep_agents_semana11.py
-python -m pytest -q tests/test_prompts_semana11.py tests/test_llm.py
+python -m pytest -q tests/test_prompts_semana11.py tests/test_llm.py tests/test_autonomia_semana11.py
 python -m src.academic.deep_agents_semana11
 python scripts/verificar.py
 ```

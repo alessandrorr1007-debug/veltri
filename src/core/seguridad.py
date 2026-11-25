@@ -24,6 +24,9 @@ def validar_entrada_modelo(texto: str) -> None:
         r"ignora.{0,40}(instrucciones|reglas)",
         r"reveal.{0,40}(prompt|keys)",
         r"revela.{0,40}(prompt|claves)",
+        r"\b(reinicia|desactiva|elude|ignora).{0,32}"
+        r"(limites? de (ejecucion|autonomia|tokens)|presupuesto de tokens)",
+        r"\b(reset|disable|bypass|ignore).{0,32}(token budget|execution limits?)",
     )
     if any(re.search(p, normal, re.DOTALL) for p in patrones):
         raise EntradaBloqueada("instruccion_sospechosa")
