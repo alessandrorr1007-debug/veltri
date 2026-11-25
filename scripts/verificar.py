@@ -10,7 +10,9 @@ from __future__ import annotations
 import ast
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 BASE = Path(__file__).resolve().parent.parent
 RAIZ = BASE / "plantilla" if (BASE / "plantilla").is_dir() else BASE
@@ -81,19 +83,47 @@ def _ejecutar(nombre: str, comando: list[str]) -> tuple[str, str]:
     return nombre, "OK" if resultado.returncode == 0 else "FALLA"
 
 
+def _ejecutar_pytest(py: str) -> tuple[str, str]:
+    """La suite integral exige evidencia de ejecución sin casos omitidos."""
+    with TemporaryDirectory() as temporal:
+        informe = Path(temporal) / "pytest.xml"
+        nombre, estado = _ejecutar(
+            "pytest",
+            [py, "-m", "pytest", "-q", "-o", "xfail_strict=true", "--junitxml", str(informe)],
+        )
+        if estado != "OK":
+            return nombre, estado
+        try:
+            casos = list(ET.parse(informe).iter("testcase"))
+        except (OSError, ET.ParseError):
+            casos = []
+        trazabilidad_ejecutada = any(
+            caso.get("classname") == "tests.test_trazabilidad_sdd"
+            and caso.get("name") == "test_matriz_cubre_requisitos_componentes_y_pruebas"
+            for caso in casos
+        )
+        if not trazabilidad_ejecutada or any(
+            caso.find("skipped") is not None for caso in casos
+        ):
+            print("La suite exige ejecutar la comprobación SDD y ninguna prueba omitida.")
+            return nombre, "FALLA"
+        return nombre, estado
+
+
 def main() -> int:
     py = sys.executable
     pasos = [
         ("dependencias", [py, "-m", "pip", "check"]),
         ("ruff", [py, "-m", "ruff", "check", "."]),
-        ("pytest", [py, "-m", "pytest", "-q"]),
-        ("secretos", [py, str(Path(__file__).with_name("escanear_secretos.py"))]),
     ]
     if "--mypy" in sys.argv:
         pasos.insert(1, ("mypy", [py, "-m", "mypy", "src"]))
 
     resultados = [("estructura", "OK" if comprobar_estructura() == 0 else "FALLA")]
     resultados.extend(_ejecutar(nombre, comando) for nombre, comando in pasos)
+    resultados.append(_ejecutar_pytest(py))
+    escaner = Path(__file__).with_name("escanear_secretos.py")
+    resultados.append(_ejecutar("secretos", [py, str(escaner)]))
 
     print("\n" + "=" * 40)
     print("RESUMEN DE VERIFICACIÓN")

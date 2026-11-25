@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from scripts.verificar import comprobar_estructura
 
 
@@ -50,3 +52,26 @@ def test_estructura_valida_no_importa_modulos(tmp_path):
 
 def test_referencia_critica_ausente(tmp_path):
     assert comprobar_estructura(tmp_path) == 1
+
+
+@pytest.mark.parametrize("trazabilidad_ejecutada", [True, False])
+def test_pytest_rechaza_resultado_omitido(monkeypatch, trazabilidad_ejecutada):
+    from scripts import verificar
+
+    def pytest_simulado(nombre, comando):
+        informe = Path(comando[-1])
+        traza = (
+            '<testcase classname="tests.test_trazabilidad_sdd" '
+            'name="test_matriz_cubre_requisitos_componentes_y_pruebas"/>'
+            if trazabilidad_ejecutada else ""
+        )
+        omision = '<skipped/>' if trazabilidad_ejecutada else ""
+        informe.write_text(
+            f'<testsuites><testsuite>{traza}<testcase name="criterio">{omision}</testcase>'
+            '</testsuite></testsuites>',
+            encoding="utf-8",
+        )
+        return nombre, "OK"
+
+    monkeypatch.setattr(verificar, "_ejecutar", pytest_simulado)
+    assert verificar._ejecutar_pytest("python") == ("pytest", "FALLA")
