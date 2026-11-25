@@ -189,3 +189,27 @@ def test_modulo_local_publica_resultados_reutilizables_en_json():
     resultado = json.loads(proceso.stdout)
     assert resultado["moneda"] == "PEN"
     assert D(resultado["empresarial"]["base"]["van_pen"]).quantize(D(".01")) == D("3276.09")
+
+
+def test_costos_multiempresa_compartidos_escalonados_y_sensibilidad():
+    from src.economia import PERFIL, calcular_multiempresa, informe_multiempresa
+
+    perfil = json.loads(PERFIL.read_text(encoding="utf-8"))
+    informe = informe_multiempresa(perfil)
+    assert informe["moneda"] == "PEN"
+    escalas = informe["escalas"]
+    assert list(escalas) == [1, 5, 10, 20]
+    base = {n: escenarios["base"] for n, escenarios in escalas.items()}
+    assert base[1]["inversion_incremental_pen"] == 4650
+    assert base[5]["inversion_incremental_pen"] == 6450
+    assert base[20]["tramos_adicionales"] == 3
+    assert base[20]["inversion_incremental_pen"] == 14100
+    assert base[5]["tco"]["asis"]["total_36_pen"] == base[1]["tco"]["asis"]["total_36_pen"] * 5
+    assert base[5]["roi_36_pct"] != base[1]["roi_36_pct"] * 5
+    for n, escenarios in escalas.items():
+        assert escenarios["volumen_menor"]["van_pen"] < base[n]["van_pen"]
+        assert escenarios["mas_revision"]["van_pen"] < base[n]["van_pen"]
+        assert escenarios["mas_soporte"]["van_pen"] < base[n]["van_pen"]
+        assert base[n]["equilibrio_van_por_empresa"] * n >= base[n]["equilibrio_van_consultas_mes"]
+    with pytest.raises(ValueError):
+        calcular_multiempresa(perfil, 0)

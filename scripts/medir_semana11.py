@@ -11,7 +11,7 @@ import sys
 from collections import defaultdict
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
-from math import ceil
+from math import ceil, lcm
 from pathlib import Path
 from statistics import median
 from tempfile import TemporaryDirectory
@@ -81,12 +81,12 @@ def _arranque() -> dict:
 def _comercial() -> dict:
     from fastapi.testclient import TestClient
 
-    from src.api.main import app
+    from src.api.main import crear_app
     from src.core.observabilidad import recursos_recientes
     from src.schemas.consulta import ConsultaResponse
 
     tenants = tuple(TENANTS)
-    with TestClient(app) as cliente:
+    with TestClient(crear_app()) as cliente:
         def consultar(i):
             sku = ("CPU-AMD-5600", "CPU-AMD-5500")[i % 2]
             respuesta = cliente.post("/consulta", json={
@@ -274,7 +274,8 @@ def medir_despliegue() -> dict:
             inicio = perf_counter()
             with (Path(carpeta) / "servidor.log").open("wb") as log:
                 servidor = subprocess.Popen(
-                    [*inicio_cli, "iniciar", "--puerto", str(puerto)], stdout=log, stderr=log,
+                    [*inicio_cli, "iniciar", "--demo-legada", "--puerto", str(puerto)],
+                    stdout=log, stderr=log,
                 )
                 try:
                     while not estado.is_file():
@@ -330,12 +331,105 @@ def medir_despliegue() -> dict:
 
 
 
+def medir_multiempresa(cantidad: int) -> dict:
+    """Mide una matriz aislada por proceso. Cada petición comprueba ámbito y valor."""
+    import resource
+
+    from fastapi.testclient import TestClient
+
+    from src.api.main import crear_app
+    from src.core.observabilidad import recursos_recientes
+    from src.knowledge.almacen import Almacen
+    from src.plataforma import Empresa, Plataforma, Producto
+    from src.tools.catalogo import Catalogo
+
+    inicio = perf_counter()
+    with TemporaryDirectory() as carpeta:
+        ruta = Path(carpeta)
+        servicio = Plataforma(ruta / "comercial.sqlite3", Almacen(ruta / "rag"))
+        sku = "CPU-AMD-5600"
+        producto = Catalogo().obtener(sku)
+        del producto["sku"]
+        tenants = [f"medicion_{i:02}" for i in range(cantidad)]
+        for i, tenant in enumerate(tenants):
+            servicio.guardar_empresa(tenant, Empresa(
+                nombre=f"Empresa sintética {i}", descripcion="Carga de medición",
+                logo="MS", color="#2563eb", servicios=["Venta de componentes"],
+                politicas=f"Políticas de cotización y stock. Etiqueta sintética local {i}.",
+            ), crear=True)
+            servicio.producto(tenant, sku, Producto.model_validate({
+                **producto, "precio_centimos": 47000 + i, "stock": i,
+            }))
+        clave = os.urandom(24).hex()
+        servicio.crear_usuario("medicion", clave)
+
+        with TestClient(crear_app(plataforma=servicio)) as client:
+            login = client.post("/plataforma/sesion", json={"usuario": "medicion", "clave": clave})
+            login.raise_for_status()
+            inicializacion = (perf_counter() - inicio) * 1000
+
+            def operar(i):
+                pos = i % cantidad
+                tenant = tenants[pos]
+                headers = {"X-Veltri-Tenant": tenant}
+                operacion = (i // cantidad) % 3
+                if operacion == 0:
+                    respuesta = client.get("/catalogo", headers=headers)
+                    respuesta.raise_for_status()
+                    ficha = respuesta.json()["categorias"]["cpu"][0]
+                    assert ficha["precio_centimos"] == 47000 + pos and ficha["stock"] == pos
+                    return
+                parametros = (
+                    {"tipo": "cotizar", "solicitud": {"seleccion": {sku: 1}}}
+                    if operacion == 1 else {"tipo": "informacion", "tema": "politicas"}
+                )
+                respuesta = client.post("/consulta", headers=headers, json={
+                    "tenant_id": tenant, "mensaje": "Consulta sintética",
+                    "canal": "web", "parametros": parametros,
+                })
+                respuesta.raise_for_status()
+                resultado = respuesta.json()
+                if operacion == 1:
+                    assert resultado["cotizacion"]["total_centimos"] == 47000 + pos
+                else:
+                    assert "data/politicas.md" in resultado["fuentes"]
+                    hits = servicio.almacen.buscar(tenant, "políticas", fuente="data/politicas.md")
+                    assert f"local {pos}." in hits[0]["texto"]
+
+            # Un recorrido frío por cada tenant antes de medir el estado estable.
+            frio = medir(lambda i: operar(i + 2 * cantidad), cantidad)
+            repeticiones = lcm(60, 3 * cantidad)
+            secuencial = medir(operar, repeticiones)
+            concurrente = medir(operar, repeticiones, 4)
+        with servicio.db() as db:
+            # No se incluyen archivos que solo existen mientras SQLite mantiene un descriptor.
+            assert db.execute("SELECT COUNT(*) FROM empresas").fetchone()[0] == cantidad
+        recursos = [datos for _, datos in recursos_recientes()]
+        assert all(not any(d["tokens"]["reales"].values()) for d in recursos)
+        archivos = [p.stat() for p in ruta.rglob("*") if p.is_file()]
+        return {
+            "tenants": cantidad, "trabajadores_concurrentes": 4,
+            "inicializacion_asgi_ms": round(inicializacion, 3), "primera_consulta": frio,
+            "secuencial": secuencial, "concurrente": concurrente,
+            "rss_pico_mib": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 3),
+            "disco_bytes": sum(f.st_size for f in archivos),
+            "disco_asignado_bytes": sum(f.st_blocks * 512 for f in archivos),
+            "trazas_recursos": len(recursos),
+            "modelos": sum(d["modelos"] for d in recursos),
+            "herramientas": sum(d["herramientas"] for d in recursos),
+            "tokens_simulados": sum(sum(d["tokens"]["simulados"].values()) for d in recursos),
+            "tokens_proveedor": 0, "violaciones_observadas": 0,
+        }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--arranque", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument(
         "--despliegue", action="store_true", help="Mide el servidor real y el ciclo local",
     )
+    parser.add_argument("--multiempresa", action="store_true", help="Mide 1, 5, 10 y 20 tenants")
+    parser.add_argument("--cantidad", type=int, choices=(1, 5, 10, 20), help=argparse.SUPPRESS)
     args = parser.parse_args()
     os.environ.update(USE_MOCK_LLM="1", VELTRI_TRACING_ENABLED="0",
                       VELTRI_TRACING_ALLOW_EXTERNAL="0", LANGSMITH_TRACING="false",
@@ -345,11 +439,23 @@ def main() -> int:
     if args.despliegue:
         print(json.dumps(medir_despliegue(), ensure_ascii=False, indent=2))
         return 0
+    if args.multiempresa:
+        escenarios = [
+            json.loads(subprocess.check_output(
+                [sys.executable, str(Path(__file__).resolve()), "--cantidad", str(n)],
+            )) for n in (1, 5, 10, 20)
+        ]
+        print(json.dumps({"entorno": platform.platform(), "cpu_logicas": os.cpu_count(),
+                          "python": platform.python_version(), "escenarios": escenarios},
+                         ensure_ascii=False, indent=2))
+        return 0
     with patch.object(socket.socket, "connect", _sin_red(socket.socket.connect)):
-        if args.arranque:
-            from src.api.main import app
+        if args.cantidad:
+            print(json.dumps(medir_multiempresa(args.cantidad), ensure_ascii=False))
+        elif args.arranque:
+            from src.api.main import crear_app
 
-            assert app.state.orquestador._servicios.configuracion.usar_mock
+            assert crear_app().state.orquestador._servicios.configuracion.usar_mock
         else:
             print(json.dumps(medir_local(), ensure_ascii=False, indent=2))
     return 0

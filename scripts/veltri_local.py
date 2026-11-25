@@ -60,11 +60,11 @@ def comprobar() -> None:
     _exigir_python()
     subprocess.run([sys.executable, "-m", "pip", "check"], check=True)
     os.environ.update(ENTORNO_LOCAL)
-    from src.api.main import app
+    from src.api.main import crear_app
     from src.config import cargar_observabilidad
 
     obs = cargar_observabilidad()
-    if not (app.state.orquestador._servicios.configuracion.usar_mock
+    if not (crear_app().state.orquestador._servicios.configuracion.usar_mock
             and not obs.habilitada and not obs.permitir_envio_externo
             and (RAIZ / "frontend/index.html").is_file()):
         raise ErrorLocal("Configuración o interfaz local no disponible.")
@@ -180,15 +180,24 @@ def proteger_http(app, puerto: int):
     return local
 
 
-def iniciar(datos: Path, puerto: int) -> None:
+def iniciar(datos: Path, puerto: int, demo_legada: bool = False) -> None:
     _exigir_python()
     os.environ.update(ENTORNO_LOCAL)
     sys.addaudithook(_proteger_red)
     with _exclusivo(datos), _escuchar(puerto) as escucha:
-        _servir(datos, puerto, escucha)
+        _servir(datos, puerto, escucha, demo_legada)
 
 
-def _servir(datos: Path, puerto: int, escucha: socket.socket) -> None:
+def _plataforma(datos: Path):
+    from src.knowledge.almacen import Almacen
+    from src.plataforma import Plataforma
+
+    directorio = datos / "plataforma"
+    directorio.mkdir(mode=0o700, parents=True, exist_ok=True)
+    return Plataforma(directorio / "comercial.sqlite3", Almacen(directorio / "rag"))
+
+
+def _servir(datos: Path, puerto: int, escucha: socket.socket, demo_legada: bool) -> None:
     import uvicorn
 
     from src.api.main import crear_app
@@ -202,10 +211,15 @@ def _servir(datos: Path, puerto: int, escucha: socket.socket) -> None:
     parada = datos / f".veltri.detener-{sesion}"
     ruta_estado.unlink(missing_ok=True)
 
-    almacen = Almacen(datos)
-    if not almacen.contar(TENANT):
-        almacen.reemplazar(TENANT, construir_documentos(TENANT))
-    app = crear_app(almacen=almacen, configuracion=Configuracion(usar_mock=True))
+    if demo_legada:
+        almacen = Almacen(datos)
+        if not almacen.contar(TENANT):
+            almacen.reemplazar(TENANT, construir_documentos(TENANT))
+        app = crear_app(almacen=almacen, configuracion=Configuracion(usar_mock=True))
+    else:
+        plataforma = _plataforma(datos)
+        plataforma.sembrar()
+        app = crear_app(plataforma=plataforma)
 
     class ServidorLocal(uvicorn.Server):
         async def startup(self, sockets=None):
@@ -296,7 +310,11 @@ def main() -> int:
     instalacion = comandos.add_parser("instalar")
     instalacion.add_argument("--venv", type=Path, default=RAIZ / ".venv")
     instalacion.add_argument("--desarrollo", action="store_true")
-    comandos.add_parser("iniciar").add_argument("--puerto", type=_puerto, default=PUERTO)
+    arranque = comandos.add_parser("iniciar")
+    arranque.add_argument("--puerto", type=_puerto, default=PUERTO)
+    arranque.add_argument("--demo-legada", action="store_true",
+                          help="Servidor aislado para fixtures históricos")
+    comandos.add_parser("administrador").add_argument("--usuario", required=True)
     comandos.add_parser("indexar").add_argument("--tenant", required=True)
     comandos.add_parser("estado")
     comandos.add_parser("detener")
@@ -308,7 +326,18 @@ def main() -> int:
             case "instalar":
                 instalar(args.venv.resolve(), args.desarrollo)
             case "iniciar":
-                iniciar(datos, args.puerto)
+                iniciar(datos, args.puerto, args.demo_legada)
+            case "administrador":
+                from getpass import getpass
+
+                os.environ.update(ENTORNO_LOCAL)
+                sys.addaudithook(_proteger_red)
+                clave = getpass("Contraseña local (12 caracteres como mínimo): ")
+                if clave != getpass("Repite la contraseña: "):
+                    raise ErrorLocal("Las contraseñas no coinciden.")
+                with _exclusivo(datos):
+                    _plataforma(datos).crear_usuario(args.usuario, clave)
+                print("Administrador general creado.")
             case "indexar":
                 indexar(datos, args.tenant)
             case "estado":

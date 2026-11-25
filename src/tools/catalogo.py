@@ -18,8 +18,11 @@ def entero(valor: int, nombre: str, minimo: int = 0) -> int:
 class Catalogo:
     """Instantánea local; consultar no modifica archivos ni reserva inventario."""
 
-    def __init__(self, ruta: Path = DATOS) -> None:
-        datos = json.loads((ruta / "catalogo.json").read_text(encoding="utf-8"))
+    def __init__(
+        self, ruta: Path = DATOS, *, productos: list[dict[str, Any]] | None = None,
+    ) -> None:
+        datos = (json.loads((ruta / "catalogo.json").read_text(encoding="utf-8"))
+                 if productos is None else {"moneda": "PEN", "productos": deepcopy(productos)})
         self.reglas = json.loads((ruta / "compatibilidad.json").read_text(encoding="utf-8"))
         self._productos = {}
         if datos["moneda"] != "PEN":

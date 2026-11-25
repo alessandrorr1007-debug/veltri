@@ -1008,3 +1008,65 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+[hidden] { display: none !important; }
+
+.brand-icon {
+  border-bottom: 4px solid var(--empresa-color, transparent);
+}
+
+.brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.empresa-barra {
+  border-bottom: 3px solid var(--empresa-secundario, transparent);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.panel-empresas {
+  margin-block: var(--space-4);
+  padding: var(--space-4);
+}
+
+.panel-empresas form,
+#gestion-empresa {
+  display: grid;
+  gap: var(--space-3);
+  margin-block: var(--space-3);
+}
+
+.panel-empresas form {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  align-items: end;
+}
+
+.panel-empresas label {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.panel-empresas :is(input, select, textarea, summary, button),
+#empresa-activa {
+  min-height: 40px;
+}
+
+.panel-empresas :is(input, select, textarea), #empresa-activa {
+  padding-inline: var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  width: 100%;
+}
+
+#gestion-empresa li {
+  overflow-wrap: anywhere;
+  margin-block: var(--space-2);
+}

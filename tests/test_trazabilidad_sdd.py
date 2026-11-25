@@ -24,6 +24,7 @@ REQUISITOS = frozenset("""
     HITL API CAT REC LOCAL SDD EVAL MEDICION ENTREGA
     LOCAL-INST LOCAL-CICLO LOCAL-DATOS LOCAL-RED
     ECO-COST ECO-FLUJO ECO-SENS ECO-REP
+    MULTI-ORG MULTI-AUTH MULTI-CAT MULTI-OPS MULTI-LOCAL MULTI-ECO
 """.split())
 ENCABEZADO = (
     "| ID | Requisito | Especificación de aceptación | Componente | Código | Pruebas | Resultado |"

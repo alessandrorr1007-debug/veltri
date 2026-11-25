@@ -293,12 +293,73 @@ def generar_informe(perfil: dict) -> dict:
     }
 
 
+def calcular_multiempresa(perfil: dict, empresas: int, **cambios) -> dict:
+    """Proyección homogénea y configurable del costo incremental de una plataforma."""
+    if type(empresas) is not int or empresas < 1:
+        raise ValueError("Se requiere un número positivo de empresas")
+    supuestos = Supuestos(**perfil["empresarial"]["supuestos"])
+    parametros = {
+        "plataforma_inicial": 4200, "plataforma_mensual": 180,
+        "empresa_inicial": 450, "empresa_mensual": 55,
+        "tramo_inicial": 300, "tramo_mensual": 45,
+        "factor_volumen": UNO, "proporcion_hitl": supuestos.proporcion_hitl,
+        "tasa": perfil["tasa_descuento_anual"],
+    }
+    if cambios.keys() - parametros.keys() or perfil["moneda"] != "PEN":
+        raise ValueError("Supuestos o moneda inválidos")
+    parametros.update(cambios)
+    parametros = {k: _decimal(v, k) for k, v in parametros.items()}
+    por_empresa = int(supuestos.consultas_mes * parametros["factor_volumen"])
+    trabajo = replace(supuestos, consultas_mes=por_empresa * empresas,
+                      proporcion_hitl=parametros["proporcion_hitl"])
+    bloques_adicionales = (empresas - 1) // 5
+    costos = [
+        replace(Costo(**partida), cantidad=_decimal(partida["cantidad"], "cantidad") * empresas)
+        for partida in perfil["empresarial"]["costos"] if partida["alcance"] != "tobe"
+    ]
+    cantidades = {"plataforma": 1, "empresa": empresas, "tramo": bloques_adicionales}
+    for grupo, cantidad in cantidades.items():
+        for periodo in ("inicial", "mensual"):
+            id_ = f"{grupo}_{periodo}"
+            costos.append(Costo(
+                id_, id_.replace("_", " "), "directo", "tobe", periodo, cantidad,
+                "asignacion", parametros[id_], "supuesto",
+                "Asignación académica ilustrativa; pendiente de cotización y revisión",
+            ))
+    salida = calcular(trabajo, costos, parametros["tasa"])
+    equilibrio = salida["equilibrio_van_consultas_mes"]
+    return {**salida, "empresas": empresas, "consultas_mes_por_empresa": por_empresa,
+            "realizable_mes_por_empresa_pen": salida["realizable_mes_pen"] / empresas,
+            "equilibrio_van_por_empresa": (equilibrio + empresas - 1) // empresas
+            if equilibrio is not None else None,
+            "tramos_adicionales": bloques_adicionales, "parametros": parametros}
+
+
+def informe_multiempresa(perfil: dict) -> dict:
+    """Proyecta cuatro escalas y sensibilidades independientes por escala."""
+    variaciones = {
+        "base": {}, "volumen_menor": {"factor_volumen": "0.75"},
+        "volumen_mayor": {"factor_volumen": "1.25"},
+        "mas_revision": {"proporcion_hitl": "0.45"},
+        "mas_soporte": {"plataforma_mensual": 240, "empresa_mensual": 75},
+        "mas_inversion": {"plataforma_inicial": 5200}, "mayor_descuento": {"tasa": "0.18"},
+    }
+    return {
+        "moneda": "PEN", "naturaleza": "proyeccion_hipotetica",
+        "supuestos_pendientes_revision": True,
+        "escalas": {n: {nombre: calcular_multiempresa(perfil, n, **cambio)
+                        for nombre, cambio in variaciones.items()} for n in (1, 5, 10, 20)},
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--supuestos", type=Path, default=PERFIL)
+    parser.add_argument("--multiempresa", action="store_true")
     args = parser.parse_args()
     try:
-        informe = generar_informe(json.loads(args.supuestos.read_text(encoding="utf-8")))
+        perfil = json.loads(args.supuestos.read_text(encoding="utf-8"))
+        informe = informe_multiempresa(perfil) if args.multiempresa else generar_informe(perfil)
     except (OSError, TypeError, KeyError, ValueError) as error:
         parser.error(f"Perfil económico inválido: {error}")
     print(json.dumps(informe, default=str, ensure_ascii=False, indent=2))

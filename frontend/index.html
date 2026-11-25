@@ -41,8 +41,9 @@
       </nav>
 
       <div class="header-controls">
-        <span class="tenant-badge" title="Tenant de demostración">
-          tenant: <strong>veltri</strong>
+        <span class="tenant-badge" >
+          <label for="empresa-activa">Empresa</label>
+          <select id="empresa-activa" disabled></select>
         </span>
         <button class="btn-icon" id="theme-toggle" aria-label="Cambiar a modo oscuro" title="Alternar tema claro/oscuro">
           <!-- Ícono inyectado por JS -->
@@ -53,6 +54,22 @@
 
   <!-- Contenedor Principal de Vistas -->
   <main class="main-content">
+    <form id="sesion-local" class="panel-card panel-empresas">
+      <h2>Acceso local</h2>
+      <label>Usuario <input name="usuario" autocomplete="username" required></label>
+      <label>Contraseña <input name="clave" type="password" autocomplete="current-password" required></label>
+      <button class="btn-primary">Ingresar</button>
+      <p role="status" id="estado-sesion"></p>
+    </form>
+    <div id="espacio-empresa" hidden>
+      <div class="empresa-barra">
+        <p id="descripcion-empresa"></p>
+        <button type="button" id="salir-local" class="btn-primary">Cerrar sesión</button>
+      </div>
+      <details id="panel-empresas" class="panel-card panel-empresas">
+        <summary>Historial y administración</summary>
+        <div id="gestion-empresa"></div>
+      </details>
     
     <!-- VISTA 1: Consola Comercial -->
     <section class="view-section active" id="view-console" role="tabpanel" aria-labelledby="tab-console">
@@ -160,6 +177,7 @@
       </div>
     </section>
 
+    </div>
   </main>
 
   <!-- Modal "Ver JSON" -->

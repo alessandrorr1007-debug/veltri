@@ -1,0 +1,157 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="VeltriMultiempresa" targetNamespace="https://veltri.local/bpmn">
+  <bpmn:process id="asis" name="AS-IS · Atención manual de cada empresa" isExecutable="false">
+    <bpmn:documentation>Prototipo académico, pendiente de revisión humana.</bpmn:documentation>
+    <bpmn:startEvent id="asis_0" name="Consulta recibida" />
+    <bpmn:userTask id="asis_1" name="Identificar empresa y necesidad" />
+    <bpmn:manualTask id="asis_2" name="Consultar catálogo, precio y stock propios" />
+    <bpmn:manualTask id="asis_3" name="Validar compatibilidad y preparar cotización" />
+    <bpmn:manualTask id="asis_4" name="Entregar cotización o explicar faltante" />
+    <bpmn:endEvent id="asis_5" name="Atención terminada" />
+    <bpmn:sequenceFlow id="asis_f0" sourceRef="asis_0" targetRef="asis_1" />
+    <bpmn:sequenceFlow id="asis_f1" sourceRef="asis_1" targetRef="asis_2" />
+    <bpmn:sequenceFlow id="asis_f2" sourceRef="asis_2" targetRef="asis_3" />
+    <bpmn:sequenceFlow id="asis_f3" sourceRef="asis_3" targetRef="asis_4" />
+    <bpmn:sequenceFlow id="asis_f4" sourceRef="asis_4" targetRef="asis_5" />
+  </bpmn:process>
+  <bpmn:process id="tobe" name="TO-BE · Atención en plataforma local" isExecutable="false">
+    <bpmn:documentation>Prototipo académico, pendiente de revisión humana.</bpmn:documentation>
+    <bpmn:startEvent id="tobe_0" name="Solicitud local" />
+    <bpmn:userTask id="tobe_1" name="Iniciar sesión y elegir empresa" />
+    <bpmn:serviceTask id="tobe_2" name="Validar sesión, rol y empresa activa" />
+    <bpmn:exclusiveGateway id="tobe_3" name="¿Autorizado?" />
+    <bpmn:serviceTask id="tobe_4" name="Ejecutar A1–A8 con datos de la empresa" />
+    <bpmn:exclusiveGateway id="tobe_5" name="¿Requiere revisión?" />
+    <bpmn:serviceTask id="tobe_6" name="Entregar resultado y guardar evento" />
+    <bpmn:endEvent id="tobe_7" name="Consulta terminada" />
+    <bpmn:endEvent id="tobe_8" name="Acceso denegado" />
+    <bpmn:userTask id="tobe_9" name="Revisar evidencia simulada" />
+    <bpmn:sequenceFlow id="tobe_f0" sourceRef="tobe_0" targetRef="tobe_1" />
+    <bpmn:sequenceFlow id="tobe_f1" sourceRef="tobe_1" targetRef="tobe_2" />
+    <bpmn:sequenceFlow id="tobe_f2" sourceRef="tobe_2" targetRef="tobe_3" />
+    <bpmn:sequenceFlow id="tobe_f3" sourceRef="tobe_3" targetRef="tobe_4" name="Sí" />
+    <bpmn:sequenceFlow id="tobe_f4" sourceRef="tobe_3" targetRef="tobe_8" name="No" />
+    <bpmn:sequenceFlow id="tobe_f5" sourceRef="tobe_4" targetRef="tobe_5" />
+    <bpmn:sequenceFlow id="tobe_f6" sourceRef="tobe_5" targetRef="tobe_6" name="No" />
+    <bpmn:sequenceFlow id="tobe_f7" sourceRef="tobe_5" targetRef="tobe_9" name="Sí" />
+    <bpmn:sequenceFlow id="tobe_f8" sourceRef="tobe_9" targetRef="tobe_6" />
+    <bpmn:sequenceFlow id="tobe_f9" sourceRef="tobe_6" targetRef="tobe_7" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="asis_diagrama">
+    <bpmndi:BPMNPlane id="asis_plano" bpmnElement="asis">
+      <bpmndi:BPMNShape id="asis_forma0" bpmnElement="asis_0">
+        <dc:Bounds x="70" y="148" width="46" height="46" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="asis_forma1" bpmnElement="asis_1">
+        <dc:Bounds x="240" y="135" width="132" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="asis_forma2" bpmnElement="asis_2">
+        <dc:Bounds x="410" y="135" width="132" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="asis_forma3" bpmnElement="asis_3">
+        <dc:Bounds x="580" y="135" width="132" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="asis_forma4" bpmnElement="asis_4">
+        <dc:Bounds x="750" y="135" width="132" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="asis_forma5" bpmnElement="asis_5">
+        <dc:Bounds x="920" y="148" width="46" height="46" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="asis_arista0" bpmnElement="asis_f0">
+        <di:waypoint x="116" y="171" />
+        <di:waypoint x="240" y="171" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="asis_arista1" bpmnElement="asis_f1">
+        <di:waypoint x="372" y="171" />
+        <di:waypoint x="410" y="171" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="asis_arista2" bpmnElement="asis_f2">
+        <di:waypoint x="542" y="171" />
+        <di:waypoint x="580" y="171" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="asis_arista3" bpmnElement="asis_f3">
+        <di:waypoint x="712" y="171" />
+        <di:waypoint x="750" y="171" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="asis_arista4" bpmnElement="asis_f4">
+        <di:waypoint x="882" y="171" />
+        <di:waypoint x="920" y="171" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmndi:BPMNDiagram id="tobe_diagrama">
+    <bpmndi:BPMNPlane id="tobe_plano" bpmnElement="tobe">
+      <bpmndi:BPMNShape id="tobe_forma0" bpmnElement="tobe_0">
+        <dc:Bounds x="70" y="148" width="46" height="46" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tobe_forma1" bpmnElement="tobe_1">
+        <dc:Bounds x="240" y="135" width="132" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tobe_forma2" bpmnElement="tobe_2">
+        <dc:Bounds x="410" y="135" width="132" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tobe_forma3" bpmnElement="tobe_3">
+        <dc:Bounds x="580" y="148" width="46" height="46" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tobe_forma4" bpmnElement="tobe_4">
+        <dc:Bounds x="750" y="135" width="132" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tobe_forma5" bpmnElement="tobe_5">
+        <dc:Bounds x="920" y="148" width="46" height="46" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tobe_forma6" bpmnElement="tobe_6">
+        <dc:Bounds x="1090" y="135" width="132" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tobe_forma7" bpmnElement="tobe_7">
+        <dc:Bounds x="1260" y="148" width="46" height="46" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tobe_forma8" bpmnElement="tobe_8">
+        <dc:Bounds x="580" y="294" width="46" height="46" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tobe_forma9" bpmnElement="tobe_9">
+        <dc:Bounds x="920" y="294" width="132" height="72" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="tobe_arista0" bpmnElement="tobe_f0">
+        <di:waypoint x="116" y="171" />
+        <di:waypoint x="240" y="171" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="tobe_arista1" bpmnElement="tobe_f1">
+        <di:waypoint x="372" y="171" />
+        <di:waypoint x="410" y="171" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="tobe_arista2" bpmnElement="tobe_f2">
+        <di:waypoint x="542" y="171" />
+        <di:waypoint x="580" y="171" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="tobe_arista3" bpmnElement="tobe_f3">
+        <di:waypoint x="626" y="171" />
+        <di:waypoint x="750" y="171" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="tobe_arista4" bpmnElement="tobe_f4">
+        <di:waypoint x="603" y="194" />
+        <di:waypoint x="603" y="294" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="tobe_arista5" bpmnElement="tobe_f5">
+        <di:waypoint x="882" y="171" />
+        <di:waypoint x="920" y="171" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="tobe_arista6" bpmnElement="tobe_f6">
+        <di:waypoint x="966" y="171" />
+        <di:waypoint x="1090" y="171" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="tobe_arista7" bpmnElement="tobe_f7">
+        <di:waypoint x="943" y="194" />
+        <di:waypoint x="986" y="294" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="tobe_arista8" bpmnElement="tobe_f8">
+        <di:waypoint x="1052" y="330" />
+        <di:waypoint x="1156" y="330" />
+        <di:waypoint x="1156" y="207" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="tobe_arista9" bpmnElement="tobe_f9">
+        <di:waypoint x="1222" y="171" />
+        <di:waypoint x="1260" y="171" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

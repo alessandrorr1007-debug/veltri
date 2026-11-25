@@ -61,10 +61,11 @@ def _puerto_libre():
 
 
 @contextmanager
-def _servidor(datos, puerto):
+def _servidor(datos, puerto, legado=True):
+    perfil = ["--demo-legada"] if legado else []
     with (datos.parent / "servidor.log").open("wb") as log:
         proceso = subprocess.Popen(
-            _comando(datos, "iniciar", "--puerto", str(puerto)),
+            _comando(datos, "iniciar", *perfil, "--puerto", str(puerto)),
             cwd=RAIZ, env=ENTORNO, stdout=log, stderr=subprocess.STDOUT,
         )
         try:
@@ -187,3 +188,16 @@ def test_comprobar_valida_dependencias_y_fuerza_perfil_local(tmp_path):
     assert resultado.returncode == 0, resultado.stderr
     assert "No broken requirements" in resultado.stdout
     assert "MockLLM activo y trazas externas desactivadas" in resultado.stdout
+
+
+def test_arranque_multiempresa_predeterminado_sin_catalogo_anonimo(tmp_path):
+    datos, puerto = tmp_path / "local", _puerto_libre()
+    with _servidor(datos, puerto, legado=False):
+        status, html = _peticion(puerto, "/")
+        assert status == 200 and b"empresa-activa" in html
+        cabeceras = {"X-Veltri-Tenant": "veltri"}
+        assert _peticion(puerto, "/catalogo", cabeceras=cabeceras)[0] == 401
+        assert _peticion(puerto, "/plataforma/empresas")[0] == 401
+    assert (datos / "plataforma/comercial.sqlite3").is_file()
+    with _servidor(datos, puerto, legado=False):
+        assert _peticion(puerto, "/catalogo")[0] == 401

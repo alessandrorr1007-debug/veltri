@@ -1,6 +1,6 @@
 # Reglas de desarrollo de Veltri Tecnologic
 
-Veltri es una demo de cotización de PCs en soles con LangGraph, FastAPI y una interfaz web local. La [arquitectura](docs/arquitectura.md) documenta los contratos, el flujo comercial y las demostraciones académicas.
+Veltri es una plataforma local de demostración multiempresa para cotizar PCs en soles con LangGraph, FastAPI y una interfaz web local. La [arquitectura](docs/arquitectura.md) documenta los contratos, el flujo comercial y las demostraciones académicas.
 
 ## Invariantes (no se rompen en ninguna tarea)
 
@@ -18,6 +18,7 @@ Veltri es una demo de cotización de PCs en soles con LangGraph, FastAPI y una i
 ## Operación local y alcance
 
 - Veltri funciona exclusivamente de manera local. No contrates ni aprovisiones servicios cloud, hosting, bases de datos externas ni APIs de pago. AWS en la semana 12 será únicamente una propuesta académica.
+- Valida sesión, empresa activa y permisos en el servidor antes de vincular servicios comerciales. Las peticiones, fuentes RAG y escrituras deben conservar el ámbito autorizado. Usa datos sintéticos en las demos.
 - Prioriza bajo consumo de CPU, RAM y almacenamiento. Usa MockLLM en pruebas y demostraciones sin costo y mantén desactivado el envío externo de trazas.
 - Trabaja exclusivamente en `main`. No generes guías para videos, documentos de progreso y archivos redundantes.
 

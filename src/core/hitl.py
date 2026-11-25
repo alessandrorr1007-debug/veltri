@@ -60,22 +60,24 @@ class BandejaRevision:
                     sorted(self._registros.items()) if t == acceso.tenant_id]
 
     def resolver(self, tenant: str, id_: str, resolucion: ResolucionRevision) -> Revision:
-        """Impide aprobaciones con bloqueos y conserva resolución final idempotente."""
-        resolucion = ResolucionRevision.model_validate(resolucion.model_dump())
+        """Actualiza la revisión en memoria con las reglas compartidas."""
         with self._lock:
-            registro = self.obtener(tenant, id_)
-            if registro.resolucion is not None:
-                if registro.resolucion == resolucion:
-                    return registro
-                raise ValueError("La revisión ya tiene una resolución final")
-            # Se reevalúa la instantánea; una aprobación jamás borra sus bloqueos.
-            decision = decide(registro.solicitud)
-            if resolucion.accion == "aprobar_demo" and (
-                    decision.bloqueos or decision.destino == "escalar"):
-                raise ValueError("Se requiere corregir evidencia antes de aprobar")
-            estado = {"aprobar_demo": "aprobada_demo", "rechazar": "rechazada",
-                      "solicitar_correccion": "correccion_solicitada"}[resolucion.accion]
-            actualizado = Revision.model_validate({**registro.model_dump(), "estado": estado,
-                                                   "resolucion": resolucion.model_dump()})
+            actualizado = resolver_revision(self.obtener(tenant, id_), resolucion)
             self._registros[(tenant, id_)] = actualizado
-            return Revision.model_validate(actualizado.model_dump())
+            return actualizado.model_copy(deep=True)
+
+
+def resolver_revision(registro: Revision, resolucion: ResolucionRevision) -> Revision:
+    """Impide aprobaciones con bloqueos y conserva resolución final idempotente."""
+    resolucion = ResolucionRevision.model_validate(resolucion.model_dump())
+    if registro.resolucion is not None:
+        if registro.resolucion == resolucion:
+            return registro
+        raise ValueError("La revisión ya tiene una resolución final")
+    decision = decide(registro.solicitud)
+    if resolucion.accion == "aprobar_demo" and (decision.bloqueos or decision.destino == "escalar"):
+        raise ValueError("Se requiere corregir evidencia antes de aprobar")
+    estado = {"aprobar_demo": "aprobada_demo", "rechazar": "rechazada",
+              "solicitar_correccion": "correccion_solicitada"}[resolucion.accion]
+    return Revision.model_validate({**registro.model_dump(), "estado": estado,
+                                    "resolucion": resolucion.model_dump()})

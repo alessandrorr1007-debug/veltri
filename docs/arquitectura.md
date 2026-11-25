@@ -257,6 +257,12 @@ Las brechas se registran debajo de la matriz con el alcance que aún falta acred
 | ECO-FLUJO | Valorar tiempo realizable y calcular retornos | Conserva flujos negativos, aplica ROI y VAN, interpola payback y contempla inversión cero | Flujos incrementales | `src/economia.py::roi`, `src/economia.py::van`, `src/economia.py::payback` | `tests/test_economia.py::test_beneficios_flujos_y_roi_no_cuentan_dos_veces_el_ahorro_laboral`, `tests/test_economia.py::test_van_descuenta_flujos_anuales_y_mantiene_inversion_inmediata`, `tests/test_economia.py::test_payback_usa_acumulacion_mensual_con_flujos_negativos_e_interpolacion`, `tests/test_economia.py::test_inversion_y_denominador_cero_no_generan_indicadores_falsos` | pytest |
 | ECO-SENS | Evaluar escenarios, quiebres y sensibilidad | Compara perfiles independientes, cambia siete supuestos y valida los vecinos del equilibrio discreto | Escenarios en PEN | `src/economia.py::sensibilidad`, `src/economia.py::punto_equilibrio`, `src/economia.py::generar_informe` | `tests/test_economia.py::test_escenarios_independientes_y_sensibilidad_no_fuerzan_viabilidad`, `tests/test_economia.py::test_equilibrio_discreto_van_y_operacion_con_validacion_de_vecinos` | pytest |
 | ECO-REP | Reproducir el análisis sin servicios externos | Rechaza tiempo, volumen o tasas inválidos. La CLI emite JSON con resultados en PEN | Perfil y CLI económica | `src/economia.py::Supuestos`, `src/economia.py::main` | `tests/test_economia.py::test_rechaza_unidades_y_entradas_invalidas`, `tests/test_economia.py::test_modulo_local_publica_resultados_reutilizables_en_json` | pytest |
+| MULTI-ORG | Administrar empresas | Alta, edición, inactivación y persistencia | SQLite | `src/plataforma.py::Plataforma.guardar_empresa` | `tests/test_plataforma.py::test_registro_edicion_y_persistencia` | pytest |
+| MULTI-AUTH | Resolver identidad y permisos | Rechaza sesión, rol, origen o tenant no autorizado | Autorización | `src/api/empresas.py::autorizar` | `tests/test_plataforma.py::test_sesion_permisos_y_tenant_no_falsificable` | pytest |
+| MULTI-CAT | Cotizar e indexar fuentes propias | Mismo SKU con precio y stock independientes, incluso bajo concurrencia y tras editar | Catálogo y Chroma | `src/plataforma.py::Plataforma.contexto` | `tests/test_plataforma.py::test_mismo_sku_cotizaciones_rag_y_solicitudes_concurrentes`, `tests/test_plataforma.py::test_dominios_restantes_con_catalogo_y_bandeja_autorizados` | pytest |
+| MULTI-OPS | Aislar borradores, historial y HITL | Idempotencia, persistencia y permisos de revisión por empresa | Operaciones | `src/plataforma.py::Operaciones` | `tests/test_plataforma.py::test_pedidos_y_revisiones_privados_y_persistentes` | pytest |
+| MULTI-LOCAL | Arrancar la plataforma protegida | Interfaz disponible y datos comerciales autenticados tras reiniciar | Launcher y carga | `scripts/veltri_local.py::_servir` | `tests/test_despliegue_local.py::test_arranque_multiempresa_predeterminado_sin_catalogo_anonimo` | pytest |
+| MULTI-ECO | Proyectar cuatro escalas | Separa costos compartidos, individuales e incrementales, y calcula retorno en PEN | Economía | `src/economia.py::calcular_multiempresa` | `tests/test_economia.py::test_costos_multiempresa_compartidos_escalonados_y_sensibilidad` | pytest |
 
 ### Brechas y discrepancias
 
@@ -762,6 +768,139 @@ y acumulados mensuales, sensibilidad y métricas de retorno. Los decimales se se
 como texto para conservar exactitud y los indicadores sin definición como `null`.
 El cálculo es local, usa la biblioteca estándar de Python y se mantiene fuera de la API
 y de los agentes comerciales.
+
+## Evolución multiempresa posterior a la semana 13
+
+Veltri comparte FastAPI, A1–A8, herramientas y MockLLM entre comercios del sector informático.
+El alcance incluye venta de computadoras, componentes y accesorios, y armado personalizado.
+Cada negocio administra sus datos y decisiones. Pagos, pedidos y revisiones siguen siendo simulaciones.
+
+### Constitución, especificaciones y plan para revisión
+
+La ampliación mantiene una instalación local y permite a cada negocio atender consultas con
+su catálogo y sus políticas. La administración general controla las altas y el estado de las
+empresas. Cada administrador gestiona su catálogo y sus miembros y cada operador revisa los
+casos asignados a su ámbito. La entrada de datos reales y la operación comercial quedan fuera
+del prototipo. Esta ampliación se documentó después de las dos iteraciones originales.
+Sus seis revisiones siguen pendientes. La constitución, las especificaciones y el plan
+actualizados también quedan disponibles para revisión humana.
+
+El archivo [BPMN multiempresa](bpmn_multiempresa.bpmn) contiene los dos modelos vigentes. El AS-IS representa
+la atención manual de cada empresa como hipótesis de trabajo. El TO-BE agrega autenticación,
+selección autorizada, consulta y revisión. Los BPMN [AS-IS original](bpmn_as_is.bpmn) y
+[TO-BE original](bpmn_to_be.bpmn) conservan el alcance histórico de una tienda.
+
+| Tarea | Diseño y condición de aceptación | Requisito |
+|---|---|---|
+| Particionar y sembrar | SQLite con claves por empresa. Veltri conserva sus fichas. Andina y Pacífico tienen surtidos, precios, stock y políticas sintéticos distintos. | MULTI-ORG, MULTI-CAT |
+| Resolver identidad y permisos | Cada petición valida cookie, rol y empresa activa, incluidos accesos retirados. | MULTI-AUTH |
+| Integrar el grafo | Servicios de catálogo, RAG, borradores y bandeja ligados al tenant. El grafo comparte código y tiene estado por solicitud. | MULTI-CAT, MULTI-OPS |
+| Integrar web y despliegue | Selector, administración, historial y limpieza de estado al cambiar. Launcher protegido de forma predeterminada. | MULTI-LOCAL |
+| Medir y proyectar | Carga acotada de 1, 5, 10 y 20 empresas y costos separados con supuestos declarados. | MULTI-LOCAL, MULTI-ECO |
+
+```mermaid
+flowchart LR
+  B[Navegador local] --> F[FastAPI en loopback]
+  F --> A[Sesión y autorización por operación]
+  A --> S[(SQLite empresas y operaciones)]
+  A --> G[LangGraph de la solicitud]
+  G --> D[A1 a A8 y herramientas deterministas]
+  D --> M[MockLLM]
+  D --> S
+  G --> R[(Chroma colección por tenant)]
+  S --> I[Corpus de la empresa y reglas de hardware comunes]
+  I --> R
+  G --> H[HITL y observabilidad local]
+  H --> S
+  P[Demo académica Deep Agents] --> M
+```
+
+| Perfil | Facultades |
+|---|---|
+| General | Crear, editar, activar y desactivar empresas. Acceder a empresas activas como gestor. |
+| Administrador de empresa | Editar configuración, catálogo, precio, stock y miembros de su empresa activa. |
+| Operador | Consultar catálogo, historial y métricas de su empresa y resolver revisiones simuladas. |
+| Cliente | Consultar catálogo y chat, crear borradores de demostración y consultar sus propios registros. |
+
+Las sesiones usan una cookie HttpOnly y SameSite Strict con expiración de ocho horas.
+SQLite guarda el hash del token y contraseñas derivadas con PBKDF2-HMAC-SHA256, sal individual
+y 600 000 iteraciones. El acceso limita a doce intentos fallidos por minuto y una
+derivación concurrente por proceso. El launcher comprueba Host y Origin y bloquea egreso no local de
+sockets Python. Las respuestas dinámicas impiden el almacenamiento en caché HTTP.
+Las fichas, políticas e identificadores deben usar datos sintéticos y públicos.
+Se guardan resultados tipados y hasta 100 eventos recientes se muestran en el historial junto
+con conteos acumulados. El texto de chat, correos, DNI y comprobantes quedan fuera del historial.
+La marca admite dos colores, iniciales o un PNG local de hasta 256 × 256 y 32 KiB.
+En el alta de productos se verifican las fichas para las categorías que entienden A2 y A4.
+Los pares CPU y placa nuevos siguen pendientes de validación cuando las reglas comunes
+de hardware carecen de evidencia.
+
+El selector indica el ámbito mediante `X-Veltri-Tenant` por petición. Esto permite operar
+varias pestañas sin que compartan un tenant activo mutable. El servidor verifica sesión,
+membresía, rol y estado, y exige consistencia con el contrato de consulta.
+El navegador aborta peticiones pendientes y limpia chat, contexto, catálogo, historial,
+propuesta y JSON al cambiar de empresa. Una operación ya concluida puede permanecer en el
+historial de la empresa de origen.
+
+Las revisiones de catálogo y políticas se sincronizan con Chroma antes de la siguiente consulta.
+La indexación lee los datos de SQLite y comparte las reglas sintéticas de hardware.
+Las citas retienen los nombres lógicos de fuentes originales. SQLite serializa las escrituras.
+El almacenamiento se ubica en `<datos>/plataforma/comercial.sqlite3` y
+`<datos>/plataforma/rag/`. El modo explícito `iniciar --demo-legada` sirve solo fixtures
+históricos desde otro espacio. Para respaldar los datos, copia el directorio con el servidor detenido.
+La frontera de seguridad presupone un sistema operativo local confiable.
+
+La propuesta AWS sigue siendo académica. API Gateway resolvería la identidad y AgentCore
+Runtime recibiría el ámbito autorizado. IAM restringiría los accesos. AgentCore Memory
+requeriría claves y permisos por empresa. El almacenamiento comercial y el índice
+necesitarían particiones autorizadas y CloudWatch métricas sin mensajes ni datos privados.
+SQLite local no se replica a AWS y no se aprovisionaron servicios.
+
+### Carga local reproducible
+
+`python scripts/medir_semana11.py --multiempresa` ejecuta un proceso por escenario en
+Linux x86-64, CPython 3.14.10, tres CPU lógicas visibles en Codex Cloud. Siembra un SKU
+y una política diferenciados por empresa. Una petición fría por empresa inicializa Chroma.
+Luego ejecuta 60 operaciones secuenciales y 60 con cuatro trabajadores por escenario,
+alternando catálogo, cotización y RAG por ASGI en memoria. Cada operación verifica datos
+del tenant. Se mide CPU del proceso, RSS pico de todo el proceso y bytes lógicos locales.
+El p95 usa el rango más próximo. El caso frío de una sola empresa tiene una observación.
+
+| Empresas | CPU concurrente s | RSS pico MiB | SQLite y Chroma MiB | ASGI secuencial p95 ms | ASGI concurrente p95 ms | Primera consulta p95 ms |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 0,928 | 161,17 | 0,88 | 29,08 | 195,24 | 150,03 |
+| 5 | 0,907 | 177,48 | 2,96 | 26,39 | 97,99 | 196,38 |
+| 10 | 0,947 | 194,46 | 5,59 | 26,66 | 117,05 | 187,57 |
+| 20 | 1,052 | 223,65 | 10,69 | 25,04 | 124,44 | 238,98 |
+
+Cero resultados fuera de ámbito observados y cero tokens de proveedor. Se contabilizaron
+47.039 a 54.620 unidades simuladas y 121 a 140 llamadas al modelo por proceso.
+Esta prueba mide una carga sintética corta, con una ficha por empresa, sin red HTTP
+ni carga de producción. No estima la capacidad de equipos ajenos ni la máxima
+cantidad de empresas. El arranque y la parada de Uvicorn se ejercitan aparte.
+
+### Proyección económica por escala
+
+`python -m src.economia --multiempresa` reutiliza los tiempos y el volumen hipotéticos de
+la semana 13 por empresa. El perfil económico original conserva sus propios resultados.
+El caso base asigna S/ 4.200 iniciales y S/ 180 mensuales a la plataforma, S/ 450 y S/ 55
+por empresa y S/ 300 y S/ 45 por cada bloque adicional de hasta cinco empresas.
+Son supuestos académicos pendientes de revisión. El trabajo humano se calcula por volumen
+y el ahorro realizable entra una vez en el flujo incremental. No se valorizan cobros,
+pedidos simulados ni un incremento de ventas.
+
+| Empresas | TCO AS-IS a 36 meses | TCO TO-BE a 36 meses | ROI a 36 meses | Payback meses | VAN al 12% | Equilibrio VAN consultas/mes por empresa |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | S/ 76.616,64 | S/ 53.023,92 | 67,98 % | 12,34 | S/ 6.207,58 | 156 |
+| 5 | S/ 383.083,20 | S/ 222.399,60 | 382,30 % | 2,48 | S/ 68.589,74 | 54 |
+| 10 | S/ 766.166,40 | S/ 436.039,20 | 496,79 % | 1,68 | S/ 144.970,45 | 43 |
+| 20 | S/ 1.532.332,80 | S/ 863.318,40 | 577,17 % | 1,30 | S/ 297.731,87 | 38 |
+
+El ahorro realizable del escenario base es S/ 611,71 al mes por empresa.
+Con 25 % menos volumen, el VAN baja a S/ 1.799,90 para una empresa y S/ 209.578,13 para
+veinte. Con 45 % de revisión humana baja a S/ 5.211,50 y S/ 277.810,12, respectivamente.
+El comando incluye sensibilidades de volumen, revisión, soporte, inversión y descuento.
+La proyección supone empresas homogéneas y comparte costos de plataforma.
 
 ## Archivo histórico de la semana 10
 

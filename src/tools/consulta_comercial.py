@@ -107,7 +107,7 @@ def detectar_categoria_o_serie(msg_norm: str, contexto: str | None = None) -> st
 
 
 def inferir_parametros_consulta(
-    mensaje: str,
+    mensaje: str, catalogo: Catalogo | None = None,
 ) -> tuple[str, ParametrosArmado | ParametrosSeleccion | None]:
     """Extrae parámetros de armado o stock cuando el usuario escribe en lenguaje natural."""
     msg_norm = normalizar_texto(mensaje)
@@ -149,6 +149,14 @@ def inferir_parametros_consulta(
         sku_detectado = "GPU-RTX4060"
     elif "6600" in msg_norm:
         sku_detectado = "GPU-RX6600"
+
+    if catalogo is not None:
+        if "precio" in msg_norm:
+            return "informacion", None
+        exactos = re.findall(r"\b[A-Z0-9]+(?:-[A-Z0-9]+)+\b", mensaje.upper())
+        sku_detectado = (exactos[0] if exactos else sku_detectado)
+        if sku_detectado and not any(p["sku"] == sku_detectado for p in catalogo.listar()):
+            sku_detectado = None
 
     if (es_stock or "quiero armar" in msg_norm) and sku_detectado:
         return "stock", ParametrosSeleccion(tipo="stock", seleccion={sku_detectado: 1})
@@ -338,6 +346,8 @@ def atender_consulta_comercial(
     canal: Canal = "web",
     contexto: str | None = None,
     orquestador: Any = None,
+    nombre_empresa: str = "Veltri Tecnologic",
+    politicas: str | None = None,
 ) -> ConsultaResponse:
     """Procesa consultas en lenguaje natural usando exclusivamente el catálogo y políticas."""
     # Invariante 5: Seguridad antes de cualquier procesamiento
@@ -356,7 +366,7 @@ def atender_consulta_comercial(
         )
 
     # Inferir parámetros estructurados si aplica
-    _, params = inferir_parametros_consulta(mensaje)
+    _, params = inferir_parametros_consulta(mensaje, catalogo if politicas is not None else None)
     if params is not None and orquestador is not None:
         sol_flujo = SolicitudFlujo(
             consulta=ConsultaRequest(mensaje=mensaje, canal=canal, tenant_id=tenant_id),
@@ -368,18 +378,6 @@ def atender_consulta_comercial(
     msg_norm = normalizar_texto(mensaje)
     extremo = detectar_extremo(msg_norm)
     cat_o_serie = detectar_categoria_o_serie(msg_norm, contexto)
-
-    # 1. Consultas sobre GPUs y tarjetas de video
-    if cat_o_serie in ("rtx", "radeon", "gpu"):
-        return responder_consulta_gpu(catalogo, cat_o_serie, extremo)
-
-    # 2. Consultas sobre procesadores
-    if cat_o_serie == "cpu":
-        return responder_consulta_cpu(catalogo, extremo)
-
-    # 3. Consultas sobre otras categorías de hardware
-    if cat_o_serie in ("fuente", "ram", "ssd", "placa", "gabinete", "refrigeracion"):
-        return responder_consulta_categoria_general(catalogo, cat_o_serie, extremo)
 
     # 4. Consultas sobre políticas, garantía, métodos de pago o envíos
     es_politica = any(
@@ -399,6 +397,44 @@ def atender_consulta_comercial(
             "horario",
         )
     )
+
+    if politicas is not None and not es_politica:
+        exactos = re.findall(r"\b[A-Z0-9]+(?:-[A-Z0-9]+)+\b", mensaje.upper())
+        if exactos or cat_o_serie:
+            categoria = "gpu" if cat_o_serie in ("rtx", "radeon") else cat_o_serie
+            productos = catalogo.listar(None if exactos else categoria)
+            if exactos:
+                productos = [p for p in productos if p["sku"] in exactos]
+            elif cat_o_serie in ("rtx", "radeon"):
+                prefijo = "GPU-RTX" if cat_o_serie == "rtx" else "GPU-RX"
+                productos = [p for p in productos if p["sku"].startswith(prefijo)]
+            productos.sort(key=lambda p: (p["stock"] == 0,
+                                         (-1 if extremo == "maximo" else 1)
+                                         * p["precio_centimos"]))
+            detalles = ", ".join(
+                f"{p['nombre']} ({p['sku']}) a {formatear_soles(p['precio_centimos'])}"
+                f" con {p['stock']} unidades" for p in productos[:3]
+            )
+            return ConsultaResponse(
+                status="completado", intencion="informacion", hitl_requerido=False,
+                fuentes=["data/catalogo.json"],
+                mensaje=detalles or "No hay coincidencias en el catálogo de esta empresa.",
+            )
+
+    # 1. Consultas sobre GPUs y tarjetas de video
+    if politicas is None and cat_o_serie in ("rtx", "radeon", "gpu"):
+        return responder_consulta_gpu(catalogo, cat_o_serie, extremo)
+
+    # 2. Consultas sobre procesadores
+    if politicas is None and cat_o_serie == "cpu":
+        return responder_consulta_cpu(catalogo, extremo)
+
+    # 3. Consultas sobre otras categorías de hardware
+    if politicas is None and cat_o_serie in (
+        "fuente", "ram", "ssd", "placa", "gabinete", "refrigeracion",
+    ):
+        return responder_consulta_categoria_general(catalogo, cat_o_serie, extremo)
+
     if es_politica:
         return ConsultaResponse(
             status="completado",
@@ -406,7 +442,7 @@ def atender_consulta_comercial(
             hitl_requerido=False,
             motivos=[],
             fuentes=["data/politicas.md"],
-            mensaje=(
+            mensaje=politicas or (
                 "En Veltri Tecnologic todos los componentes cuentan con 12 meses de garantía. "
                 "Los pagos se concilian contra cuentas autorizadas (transferencia o Yape) "
                 "con verificación exacta. Realizamos envíos a Lima Metropolitana y provincias "
@@ -422,7 +458,7 @@ def atender_consulta_comercial(
         motivos=[],
         fuentes=["data/catalogo.json", "data/politicas.md"],
         mensaje=(
-            "Bienvenido a Veltri Tecnologic. Puedes indicarme tu presupuesto en Soles (S/) para "
+            f"Bienvenido a {nombre_empresa}. Puedes indicarme tu presupuesto en Soles (S/) para "
             "armar una PC gamer, consultar disponibilidad de piezas de catálogo (RTX/Radeon, "
             "CPUs, fuentes, memorias), o consultar nuestras políticas de garantía y despacho."
         ),

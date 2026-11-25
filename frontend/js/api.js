@@ -6,12 +6,14 @@
 const Api = {
   endpoint: '/consulta',
 
-  async enviarConsulta(payload) {
+  async enviarConsulta(payload, signal) {
     try {
       const response = await fetch(this.endpoint, {
         method: 'POST',
+        signal,
         headers: {
           'Content-Type': 'application/json',
+          'X-Veltri-Tenant': payload.tenant_id,
         },
         body: JSON.stringify(payload),
       });
@@ -51,9 +53,9 @@ const Api = {
     })}`;
   },
 
-  async obtenerCatalogo() {
+  async obtenerCatalogo(tenant, signal) {
     try {
-      const response = await fetch('/catalogo');
+      const response = await fetch('/catalogo', { headers: { 'X-Veltri-Tenant': tenant }, signal });
       if (!response.ok) return null;
       return await response.json();
     } catch {

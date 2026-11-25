@@ -34,7 +34,9 @@ class Fragmento:
             validar_texto_publico(campo)
 
 
-def construir_documentos(tenant: str, ruta: Path = DATOS) -> list[Fragmento]:
+def construir_documentos(
+    tenant: str, ruta: Path = DATOS, *, fuentes: dict[str, str] | None = None,
+) -> list[Fragmento]:
     """Lee únicamente fuentes de datos públicas; tenant requerido por interfaz."""
     validar_tenant(tenant)
     fragmentos = []
@@ -46,12 +48,16 @@ def construir_documentos(tenant: str, ruta: Path = DATOS) -> list[Fragmento]:
         fragmentos.append(fragmento)
 
     for nombre in ("catalogo.json", "compatibilidad.json", "politicas.md"):
-        archivo = ruta / nombre
-        if archivo.is_symlink() or archivo.stat().st_size > 2_000_000:
-            raise ValueError("Las fuentes no pueden ser enlaces simbólicos")
-        texto = archivo.read_text(encoding="utf-8-sig")
+        if fuentes is not None and nombre in fuentes:
+            contenido = fuentes[nombre].encode()
+        else:
+            archivo = ruta / nombre
+            if archivo.is_symlink() or archivo.stat().st_size > 2_000_000:
+                raise ValueError("Las fuentes no pueden ser enlaces simbólicos")
+            contenido = archivo.read_bytes()
+        texto = contenido.decode("utf-8-sig")
         validar_texto_publico(texto, maximo=2_000_000)
-        hash_ = hashlib.sha256(archivo.read_bytes()).hexdigest()
+        hash_ = hashlib.sha256(contenido).hexdigest()
         if nombre == "politicas.md":
             seccion = "introduccion"
             for numero, bloque in enumerate(re.split(r"\n\s*\n", texto.strip()), 1):

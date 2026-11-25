@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const state = {
     theme: localStorage.getItem('veltri_theme') || 'light',
     activeTab: 'console',
-    tenant: 'veltri',
+    tenant: null,
+    peticiones: new AbortController(),
     lastResponse: null,
     contextoComercial: null,
     catalogo: null,
@@ -48,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupChat();
   setupCatalogo();
   setupModals();
+  setupEmpresas();
 
 
   // =========================================================================
@@ -107,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const texto = elements.chatInput.value.trim();
-      if (!texto) return;
+      if (!texto || !state.tenant) return;
 
       elements.chatInput.value = '';
       agregarMensajeChat('user', texto);
@@ -149,39 +151,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function procesarPeticion(payload) {
+    const signal = state.peticiones.signal;
     setLoading(true);
-
-    const respuesta = await Api.enviarConsulta(payload);
+    const respuesta = await Api.enviarConsulta(payload, signal);
+    if (signal.aborted) return;
     setLoading(false);
-
     state.lastResponse = respuesta.data;
     const datos = respuesta.data;
-
-    // Actualizar memoria conversacional para responder elipsis futuras
-    actualizarContextoComercial(payload.mensaje, datos);
-
-    // Personalizar mensaje de chat para respuesta clara y profesional
-    let mensajeChat = datos.mensaje;
-    if (datos.cotizacion && datos.cotizacion.total_centimos) {
-      mensajeChat = `¡Configuración armada con éxito! Se calculó una propuesta de hardware optimizada dentro del presupuesto por ${Api.formatearSoles(datos.cotizacion.total_centimos)} con stock disponible y compatibilidad técnica verificada. Puedes ver el desglose en la proforma a la derecha.`;
-    } else if (datos.stock && datos.stock.faltantes && datos.stock.faltantes.length > 0) {
-      const falt = datos.stock.faltantes[0];
-      mensajeChat = `El componente ${falt.sku} se encuentra sin stock disponible. El orquestador derivó el caso a la bandeja de supervisión y sugiere como alternativa el CPU-AMD-5600 disponible en almacén.`;
-    } else if (datos.pago && datos.pago.diferencia_centimos > 0) {
-      mensajeChat = `Se detectó una discrepancia en el comprobante: declarado ${Api.formatearSoles(datos.pago.pagado_centimos)} vs total de orden ${Api.formatearSoles(datos.pago.total_centimos)}. Caso retenido para verificación de pago.`;
-    } else if (datos.motivos && datos.motivos.includes('sin_configuracion_en_rango')) {
-      mensajeChat = 'Presupuesto insuficiente: no existe configuración en catálogo que cumpla con los requisitos dentro del monto indicado. Mínimo requerido: S/ 3,430.00.';
-    } else if (datos.status === 'bloqueado') {
-      mensajeChat = 'Tu solicitud ha sido bloqueada por la guarda de seguridad debido a patrones no permitidos (anti-inyección / datos privados).';
+    if (respuesta.ok && datos.status !== 'bloqueado') {
+      actualizarContextoComercial(payload.mensaje, datos);
     }
-
-    // Renderizar respuesta en el chat
-    agregarMensajeChat('bot', mensajeChat, datos);
+    agregarMensajeChat('bot', datos.mensaje, datos);
 
     // Actualizar proforma
     renderProforma(datos);
-
-
+    return datos;
   }
 
   function setLoading(cargando) {
@@ -207,10 +191,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let statusHtml = '';
     if (metadata && metadata.status) {
-      const statusNombre = (metadata.cotizacion && (!metadata.cotizacion.bloqueos || metadata.cotizacion.bloqueos.length === 0))
-        ? 'aprobado'
-        : metadata.status.replace('_', ' ');
-      statusHtml = `<span class="status-badge ${metadata.cotizacion ? 'completado' : metadata.status}">${statusNombre}</span>`;
+      const statusNombre = metadata.status.replace('_', ' ');
+      statusHtml = `<span class="status-badge ${metadata.status}">${statusNombre}</span>`;
     }
 
     msgDiv.innerHTML = `
@@ -254,48 +236,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Caso cotización válida o con pendientes (CP-1, CP-7)
     if (data.cotizacion) {
       const c = data.cotizacion;
-      const subtotalCent = c.subtotal_centimos || Math.round(c.total_centimos / 1.18);
-      const igvCent = c.igv_centimos || (c.total_centimos - subtotalCent);
-
-      // Si no hay faltantes ni bloqueos, la cotización está verificada y aprobada automáticamente
-      const esAprobadaAuto = (!c.bloqueos || c.bloqueos.length === 0) && (!c.stock || c.stock.disponible);
-
-      let bannerHtml = '';
-      if (esAprobadaAuto) {
-        bannerHtml = `
-          <div class="proforma-banner success">
-            ${Icons.checkCircle(20)}
-            <div>
-              <strong>Cotización Verificada y Aprobada Automáticamente</strong>
-              <p>Compatibilidad de socket, cálculo de TDP (${c.tecnico && c.tecnico.potencia_estimada_w ? c.tecnico.potencia_estimada_w + 'W' : 'óptimo'}) y disponibilidad de stock en almacén validados al 100% por el orquestador.</p>
-            </div>
+      const bannerHtml = `
+        <div class="proforma-banner warning">
+          ${Icons.alertTriangle(20)}
+          <div>
+            <strong>Propuesta pendiente de revisión técnica</strong>
+            <p>${escapeHtml(data.mensaje)}</p>
           </div>
-        `;
-      } else {
-        bannerHtml = `
-          <div class="proforma-banner warning">
-            ${Icons.alertTriangle(20)}
-            <div>
-              <strong>Propuesta pendiente de revisión técnica (HITL)</strong>
-              <p>Motivos: ${(c.bloqueos || data.motivos || []).join(', ')}.</p>
-            </div>
-          </div>
-        `;
-      }
-
-      // Notas técnicas amigables para el ensamblador (ej: actualización de BIOS)
-      const tieneBios = (data.motivos || []).includes('verificar_soporte_cpu_bios');
-      if (tieneBios) {
-        bannerHtml += `
-          <div class="proforma-banner info" style="margin-top: var(--space-2); border-left: 3px solid var(--color-primary-600); background: var(--bg-surface); padding: var(--space-3);">
-            <div style="display: flex; gap: var(--space-2); align-items: center;">
-              ${Icons.info(16)}
-              <span style="font-size: 0.8125rem; color: var(--text-muted);"><strong>Recomendación técnica para ensamblador:</strong> Placa madre requiere actualización de BIOS a versión reciente para procesadores Ryzen serie 5000.</span>
-            </div>
-          </div>
-        `;
-      }
-
+        </div>
+      `;
 
       const lineas = Array.isArray(c.lineas) ? c.lineas : [];
       let lineasHtml = lineas.length > 0 ? lineas.map((l) => `
@@ -305,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td class="tabular-nums" style="text-align: center;">${l.cantidad || 1}</td>
           <td class="tabular-nums" style="text-align: right;">${Api.formatearSoles(l.precio_unitario_centimos)}</td>
           <td class="tabular-nums" style="text-align: right;">${Api.formatearSoles(l.subtotal_centimos)}</td>
-          <td><span class="stock-tag ok">${Icons.check(12)} Disponible</span></td>
+          <td>${c.stock.faltantes.some((f) => f.sku === l.sku) ? 'Insuficiente' : 'Disponible'}</td>
         </tr>
       `).join('') : `
         <tr>
@@ -335,14 +284,6 @@ document.addEventListener('DOMContentLoaded', () => {
           </table>
         </div>
         <div class="proforma-totals">
-          <div class="total-row">
-            <span>Subtotal (sin IGV)</span>
-            <span class="tabular-nums">${Api.formatearSoles(subtotalCent)}</span>
-          </div>
-          <div class="total-row">
-            <span>IGV (18%)</span>
-            <span class="tabular-nums">${Api.formatearSoles(igvCent)}</span>
-          </div>
           <div class="total-row grand-total">
             <span>Total Estimado</span>
             <span class="tabular-nums">${Api.formatearSoles(c.total_centimos)}</span>
@@ -364,14 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>El SKU <code>${escapeHtml(faltante.sku)}</code> no cuenta con unidades inmediatas.</p>
           </div>
         </div>
-        <div class="proforma-totals" style="margin-top: var(--space-4);">
-          <div class="total-row">
-            <strong>Alternativa sugerida en catálogo:</strong>
-            <span class="badge" style="background: var(--color-primary-100); color: var(--color-primary-800); padding: 2px 8px; border-radius: 4px;">
-              CPU-AMD-5600 (En stock: 8 unid)
-            </span>
-          </div>
-        </div>
       `;
       return;
     }
@@ -384,16 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
           <div>
             <strong>Presupuesto insuficiente para la configuración solicitada</strong>
             <p>No existe configuración válida en catálogo que cumpla con los requisitos dentro del monto indicado.</p>
-          </div>
-        </div>
-        <div class="proforma-totals">
-          <div class="total-row">
-            <span>Presupuesto solicitado</span>
-            <span class="tabular-nums">S/ 1,200.00</span>
-          </div>
-          <div class="total-row grand-total">
-            <span>Mínimo real en catálogo</span>
-            <span class="tabular-nums">S/ 3,430.00</span>
           </div>
         </div>
       `;
@@ -527,6 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function cargarYRenderizarCatalogo() {
+    if (!state.tenant) return;
     if (!state.catalogo) {
       if (elements.catalogoGrid) {
         elements.catalogoGrid.innerHTML = `
@@ -535,7 +459,9 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         `;
       }
-      const data = await Api.obtenerCatalogo();
+      const signal = state.peticiones.signal;
+      const data = await Api.obtenerCatalogo(state.tenant, signal);
+      if (signal.aborted) return;
       if (data && data.categorias) {
         const todos = [];
         Object.entries(data.categorias).forEach(([cat, items]) => {
@@ -628,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="card-price-row">
             <span class="card-price">${Api.formatearSoles(item.precio_centimos)}</span>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Inc. IGV</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Precio sintético</span>
           </div>
           <button class="card-btn-query" data-sku="${escapeHtml(item.sku)}" aria-label="Consultar precio y stock de ${escapeHtml(item.sku)} en consola comercial">
             ${Icons.message(14)} Consultar en Chat
@@ -659,6 +585,356 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Utilidad de sanitización
+  function setupEmpresas() {
+    const formulario = document.getElementById('sesion-local');
+    const selector = document.getElementById('empresa-activa');
+    const espacio = document.getElementById('espacio-empresa');
+    const gestion = document.getElementById('gestion-empresa');
+    const panel = document.getElementById('panel-empresas');
+    const mensaje = document.getElementById('estado-sesion');
+    const titulo = document.querySelector('.brand-title');
+    const marca = document.querySelector('.brand-icon');
+    const logoOriginal = [...marca.childNodes];
+    const proformaOriginal = elements.proformaView.innerHTML;
+    let empresas = [];
+    let general = false;
+
+    async function api(ruta, method = 'GET', datos, tenant = state.tenant, signal) {
+      const cabeceras = { 'Content-Type': 'application/json' };
+      if (tenant) cabeceras['X-Veltri-Tenant'] = tenant;
+      const respuesta = await fetch('/plataforma' + ruta, {
+        method, headers: cabeceras, signal, body: datos ? JSON.stringify(datos) : undefined,
+      });
+      if (!respuesta.ok) throw new Error(`Operación rechazada (${respuesta.status}).`);
+      return respuesta.json();
+    }
+
+    function cambiarEmpresa(id) {
+      state.peticiones.abort();
+      state.peticiones = new AbortController();
+      const empresa = empresas.find((item) => item.id === id);
+      state.tenant = empresa?.activa ? id : null;
+      state.contextoComercial = null;
+      state.lastResponse = null;
+      state.catalogo = null;
+      state.catalogoQuery = '';
+      state.catFiltro = 'todas';
+      elements.catalogoSearch.value = '';
+      elements.catFilterBtns.forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.cat === 'todas');
+        btn.setAttribute('aria-pressed', String(btn.dataset.cat === 'todas'));
+      });
+      elements.catalogoGrid.replaceChildren();
+      elements.chatMessages.replaceChildren();
+      elements.chatInput.value = '';
+      elements.proformaView.innerHTML = proformaOriginal;
+      elements.btnViewJson.disabled = true;
+      elements.jsonContent.textContent = '';
+      elements.jsonModal.classList.remove('active');
+      setLoading(false);
+      document.querySelector('.nav-tabs').hidden = !state.tenant;
+      const vista = state.tenant ? state.activeTab : null;
+      elements.views.forEach((seccion) => {
+        seccion.classList.toggle('active', seccion.id === `view-${vista}`);
+      });
+      gestion.replaceChildren();
+      titulo.textContent = empresa?.nombre || 'Veltri Tecnologic';
+      document.getElementById('descripcion-empresa').textContent = empresa
+        ? [empresa.descripcion, ...empresa.servicios].join(' · ')
+        : 'Selecciona una empresa o registra una nueva.';
+      if (empresa?.logo_png) {
+        const img = document.createElement('img');
+        img.alt = '';
+        img.src = 'data:image/png;base64,' + empresa.logo_png;
+        marca.replaceChildren(img);
+      } else {
+        marca.replaceChildren(...(empresa ? [empresa.logo] : logoOriginal));
+      }
+      marca.style.setProperty('--empresa-color', empresa?.color || 'transparent');
+      espacio.style.setProperty('--empresa-secundario', empresa?.color_secundario || 'transparent');
+      if (state.tenant) {
+        agregarMensajeChat('bot', `Bienvenido a ${empresa.nombre}. Consulta precios, stock o políticas.`);
+        if (state.activeTab === 'catalogo') cargarYRenderizarCatalogo();
+      }
+      if (panel.open) cargarGestion();
+    }
+
+    async function cargarEmpresas(id, signal) {
+      const datos = await api('/empresas', 'GET', undefined, null, signal);
+      if (signal?.aborted) return;
+      empresas = datos.empresas;
+      general = datos.general;
+      selector.replaceChildren(new Option('Selecciona', ''));
+      empresas.forEach(({id, nombre, activa}) => {
+        selector.add(new Option(activa ? nombre : `${nombre} (inactiva)`, id));
+      });
+      selector.disabled = !empresas.length;
+      selector.value = id ?? empresas.find((empresa) => empresa.activa)?.id ?? '';
+      formulario.hidden = true;
+      espacio.hidden = false;
+      cambiarEmpresa(selector.value);
+    }
+
+    selector.addEventListener('change', () => cambiarEmpresa(selector.value));
+    panel.addEventListener('toggle', () => { if (panel.open) cargarGestion(); });
+    formulario.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const credenciales = Object.fromEntries(new FormData(formulario));
+      try {
+        await api('/sesion', 'POST', credenciales);
+        formulario.reset();
+        mensaje.textContent = '';
+        await cargarEmpresas();
+      } catch (error) {
+        mensaje.textContent = error.message;
+      }
+    });
+    document.getElementById('salir-local').addEventListener('click', async () => {
+      try {
+        await api('/sesion', 'DELETE');
+        cambiarEmpresa('');
+        location.reload();
+      } catch (error) {
+        document.getElementById('descripcion-empresa').textContent = error.message;
+      }
+    });
+
+    async function cargarGestion() {
+      const { signal } = state.peticiones;
+      const empresa = empresas.find((item) => item.id === selector.value);
+      const tenant = state.tenant;
+      const puedeGestionar = general || empresa?.rol === 'administrador';
+      gestion.replaceChildren();
+      if (general) editorEmpresa(null, 'Registrar empresa');
+      if (puedeGestionar && empresa) editorEmpresa(empresa, 'Configurar empresa');
+      if (!tenant) return;
+      editor('Registrar borrador de prueba', [
+        ['sku', 'SKU del catálogo', 'text'], ['cantidad', 'Cantidad', 'number', 1],
+      ], async ({sku, cantidad}) => {
+        if (!Number.isSafeInteger(Number(cantidad)) || Number(cantidad) < 1) {
+          throw new Error('Ingresa una cantidad entera positiva.');
+        }
+        const mensaje = 'Solicitar borrador de demostración';
+        document.getElementById('tab-console').click();
+        agregarMensajeChat('user', mensaje);
+        const datos = await procesarPeticion({
+          mensaje, canal: 'web', tenant_id: tenant,
+          parametros: { tipo: 'pedido', confirmar_borrador: true,
+            solicitud: { cliente: 'demo_cliente', canal: 'web', seleccion: {[sku.trim()]: Number(cantidad)} },
+          },
+        });
+        if (!signal.aborted && !datos?.pedido) throw new Error(datos?.mensaje || 'Borrador no disponible.');
+        if (!signal.aborted) cargarGestion();
+      });
+      try {
+        const [historial, catalogo, miembros] = await Promise.all([
+          api('/historial', 'GET', undefined, tenant, signal),
+          puedeGestionar ? Api.obtenerCatalogo(tenant, signal) : null,
+          puedeGestionar ? api('/miembros', 'GET', undefined, tenant, signal) : null,
+        ]);
+        if (signal.aborted) return;
+        if (catalogo) editorProductos(Object.values(catalogo.categorias).flat());
+        if (miembros) editorMiembros(miembros);
+        mostrarHistorial(historial, empresa.rol);
+      } catch (error) {
+        if (!signal.aborted) gestion.append(error.message);
+      }
+    }
+
+    function editor(nombre, campos, enviar) {
+      const form = document.createElement('form');
+      const detalle = document.createElement('details');
+      const titulo = document.createElement('summary');
+      titulo.textContent = nombre;
+      detalle.append(titulo, form);
+      const controles = {};
+      const status = document.createElement('p');
+      status.setAttribute('role', 'status');
+      campos.forEach(([clave, etiqueta, tipo, valor, opciones]) => {
+        const label = document.createElement('label');
+        label.textContent = etiqueta;
+        const input = document.createElement(tipo === 'textarea' || tipo === 'select' ? tipo : 'input');
+        if (tipo === 'select') opciones.forEach(([id, nombre]) => input.add(new Option(nombre, id)));
+        if (input instanceof HTMLInputElement) input.type = tipo;
+        input.name = clave;
+        input.required = !['checkbox', 'file'].includes(tipo);
+        if (tipo === 'file') input.accept = 'image/png';
+        if (tipo === 'checkbox') input.checked = valor;
+        else if (tipo !== 'file') input.value = valor ?? '';
+        label.append(input);
+        controles[clave] = input;
+        form.append(label);
+      });
+      const guardar = document.createElement('button');
+      guardar.className = 'btn-primary';
+      guardar.textContent = 'Guardar';
+      form.append(guardar, status);
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        guardar.disabled = true;
+        try {
+          await enviar(Object.fromEntries(new FormData(form)));
+          form.querySelectorAll('input[type=password]').forEach((input) => { input.value = ''; });
+          status.textContent = 'Guardado.';
+        } catch (error) {
+          status.textContent = error.message;
+        } finally {
+          guardar.disabled = false;
+        }
+      });
+      gestion.append(detalle);
+      return controles;
+    }
+
+    function editorEmpresa(empresa, titulo) {
+      const campos = empresa ? [] : [['id', 'Identificador', 'text']];
+      campos.push(
+        ['nombre', 'Nombre comercial', 'text', empresa?.nombre],
+        ['descripcion', 'Descripción', 'textarea', empresa?.descripcion],
+        ['logo', 'Iniciales de la marca', 'text', empresa?.logo],
+        ['logo_png', 'Logo PNG opcional (máx. 32 KiB y 256 × 256)', 'file'],
+        ['quitar_logo', 'Quitar logo PNG', 'checkbox', false],
+        ['color', 'Color principal', 'color', empresa?.color ?? '#2563eb'],
+        ['color_secundario', 'Color secundario', 'color', empresa?.color_secundario ?? '#475569'],
+        ['servicios', 'Servicios separados por coma', 'text', empresa?.servicios.join(', ')],
+        ['politicas', 'Políticas comerciales', 'textarea', empresa?.politicas],
+      );
+      if (general) campos.push(['activa', 'Empresa activa', 'checkbox', empresa?.activa ?? true]);
+      editor(titulo, campos, async ({id = empresa?.id, activa, servicios, logo_png, quitar_logo, ...resto}) => {
+        const signal = state.peticiones.signal;
+        let imagen = quitar_logo ? null : empresa?.logo_png ?? null;
+        if (logo_png.size) {
+          if (logo_png.size > 32768) throw new Error('El logo supera 32 KiB.');
+          const bytes = new Uint8Array(await logo_png.arrayBuffer());
+          imagen = btoa(String.fromCharCode(...bytes));
+        }
+        if (signal.aborted) return;
+        await api('/empresas/' + encodeURIComponent(id), empresa ? 'PUT' : 'POST', {
+          ...resto, logo_png: imagen, activa: general ? activa === 'on' : true,
+          servicios: servicios.split(',').map((s) => s.trim()).filter(Boolean),
+        }, id, signal);
+        if (!signal.aborted) await cargarEmpresas(id, signal);
+      });
+    }
+
+    function editorProductos(productos) {
+      const categorias = ['cpu', 'gpu', 'placa', 'ram', 'ssd', 'fuente', 'gabinete', 'refrigeracion'];
+      const controles = editor('Productos, precios e inventario', [
+        ['existente', 'Editar producto existente', 'select', '', [
+          ['', 'Nuevo'], ...productos.map((p) => [p.sku, p.sku]),
+        ]],
+        ['sku', 'SKU', 'text'], ['nombre', 'Nombre', 'text'],
+        ['categoria', 'Categoría', 'select', 'cpu', categorias.map((id) => [id, id])],
+        ['precio_centimos', 'Precio en céntimos', 'number'],
+        ['stock', 'Unidades en stock', 'number'],
+        ['especificaciones', 'Ficha técnica JSON', 'textarea', '{}'],
+      ], async ({existente, sku, precio_centimos, stock, especificaciones, ...datos}) => {
+        const signal = state.peticiones.signal;
+        await api('/productos/' + encodeURIComponent(sku), 'PUT', {
+          ...datos, precio_centimos: Number(precio_centimos), stock: Number(stock),
+          especificaciones: JSON.parse(especificaciones),
+        }, state.tenant, signal);
+        if (!signal.aborted) {
+          state.catalogo = null;
+          await cargarGestion();
+          if (state.activeTab === 'catalogo') cargarYRenderizarCatalogo();
+        }
+      });
+      const retirar = document.createElement('button');
+      retirar.type = 'button';
+      retirar.textContent = 'Retirar producto seleccionado';
+      retirar.disabled = true;
+      controles.existente.form.append(retirar);
+      controles.existente.required = false;
+      retirar.addEventListener('click', async () => {
+        const sku = controles.existente.value;
+        if (!sku || !window.confirm(`¿Retirar ${sku} del catálogo?`)) return;
+        const signal = state.peticiones.signal;
+        try {
+          await api('/productos/' + encodeURIComponent(sku), 'DELETE', undefined, state.tenant, signal);
+          if (!signal.aborted) {
+            state.catalogo = null;
+            cargarGestion();
+            if (state.activeTab === 'catalogo') cargarYRenderizarCatalogo();
+          }
+        } catch (error) {
+          if (!signal.aborted) controles.existente.form.querySelector('[role=status]').textContent = error.message;
+        }
+      });
+      controles.existente.addEventListener('change', () => {
+        const producto = productos.find((p) => p.sku === controles.existente.value);
+        retirar.disabled = !producto;
+        Object.keys(controles).filter((k) => k !== 'existente').forEach((k) => {
+          controles[k].value = k === 'especificaciones'
+            ? JSON.stringify(producto?.[k] || {}, null, 2) : producto?.[k] ?? (k === 'categoria' ? 'cpu' : '');
+        });
+      });
+    }
+
+    function editorMiembros(miembros) {
+      const roles = [['cliente', 'Cliente'], ['operador', 'Operador'], ['administrador', 'Administrador']];
+      editor('Crear usuario local', [
+        ['usuario', 'Usuario', 'text'], ['clave', 'Contraseña', 'password'],
+        ['rol', 'Perfil', 'select', 'cliente', roles],
+      ], async (datos) => {
+        await api('/miembros', 'POST', datos, state.tenant, state.peticiones.signal);
+      });
+      editor('Asignar o retirar un permiso', [
+        ['usuario', 'Usuario', 'text'],
+        ['rol', 'Perfil', 'select', 'cliente', [...roles, ['retirar', 'Retirar acceso']]],
+      ], async ({usuario, rol}) => {
+        await api('/miembros/' + encodeURIComponent(usuario), 'PUT', {
+          rol: rol === 'retirar' ? null : rol,
+        }, state.tenant, state.peticiones.signal);
+      });
+      const p = document.createElement('p');
+      p.textContent = miembros.map(({usuario, rol}) => `${usuario} (${rol})`).join(', ');
+      gestion.append(p);
+    }
+
+    function mostrarHistorial({historial, estadisticas}, rol) {
+      const encabezado = document.createElement('h3');
+      encabezado.textContent = 'Operaciones de la empresa';
+      const totales = document.createElement('p');
+      totales.textContent = Object.entries(estadisticas).map(([tipo, total]) => `${tipo}: ${total}`).join(' · ')
+        || 'Todavía no hay operaciones.';
+      const lista = document.createElement('ul');
+      historial.forEach(({tipo, id, datos}) => {
+        const fila = document.createElement('li');
+        fila.textContent = [
+          tipo, datos.intencion, datos.estado ?? datos.status,
+          datos.cotizacion ? Api.formatearSoles(datos.cotizacion.total_centimos) : '',
+          tipo === 'pedido' ? id : '',
+        ].filter(Boolean).join(' · ');
+        if (tipo === 'revision' && rol !== 'cliente' && !datos.resolucion) {
+          const acciones = {
+            rechazar: 'Rechazar revisión', solicitar_correccion: 'Solicitar corrección',
+            aprobar_demo: 'Aprobar simulación',
+          };
+          Object.entries(acciones).forEach(([accion, etiqueta]) => {
+            if (accion === 'aprobar_demo' && (datos.decision.bloqueos.length || datos.estado === 'escalada')) return;
+            const boton = document.createElement('button');
+            boton.textContent = etiqueta;
+            boton.addEventListener('click', async () => {
+              const signal = state.peticiones.signal;
+              try {
+                await api('/revisiones/' + id, 'POST', {accion}, state.tenant, signal);
+                if (!signal.aborted) cargarGestion();
+              } catch (error) {
+                if (!signal.aborted) fila.append(error.message);
+              }
+            });
+            fila.append(boton);
+          });
+        }
+        lista.append(fila);
+      });
+      gestion.append(encabezado, totales, lista);
+    }
+
+    cargarEmpresas().catch(() => { document.querySelector('.nav-tabs').hidden = true; });
+  }
+
   function escapeHtml(str) {
     if (typeof str !== 'string') return '';
     return str
