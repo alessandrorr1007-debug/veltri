@@ -1,4 +1,4 @@
-# Entorno verificado: CPython 3.14 / Windows x64. Sin actualizaciones de versiones.
+# Perfil fijado: CPython 3.14 / Windows y Linux x64.
 # Dependencias directas de aplicación y demostraciones académicas.
 chromadb==1.5.9
 deepagents==0.4.11
@@ -14,6 +14,7 @@ requests==2.34.2
 starlette==1.8.0
 urllib3==2.8.0
 uvicorn==0.54.0
+uvloop==0.23.0; sys_platform == "linux"
 
 # Dependencias transitivas fijadas para reproducir el entorno.
 aiohappyeyeballs==2.7.1

@@ -6,20 +6,29 @@ FastAPI sirve la interfaz local y expone POST /consulta y GET /catalogo. El sist
 
 ```mermaid
 flowchart TD
- UI[Interfaz local] --> API[FastAPI]
- API --> SEG[Guarda de seguridad]
+ B[Usuario y navegador] --> UI[Frontend estático]
+ UI --> API[FastAPI]
+ API --> SEG[Guardas locales, antiinyección y PII]
  SEG -->|bloqueo| DLQ[Cola local sin texto privado]
  SEG -->|válido| A1[A1 interpreta fuera del StateGraph]
- A1 --> V[validar_plan]
- V -->|una ruta tipada| D[Agentes A2 a A8 o recuperación RAG]
- V -->|sin dominio ejecutable| DEC[decidir]
+ A1 --> V["LangGraph · validar_plan y ruta tipada"]
+ V --> D[Agentes A2 a A8]
+ V --> RAG[Recuperación RAG por tenant]
+ V -->|sin dominio ejecutable| DEC[Decisión]
  D --> T[Herramientas deterministas]
+ A1 --> M["get_llm() · MockLLM"]
+ D --> M
+ RAG --> C[Chroma local · colección por tenant]
+ RAG --> DEC
  T --> DEC
- DEC -->|revisión requerida| B[Bandeja por tenant en memoria]
- DEC --> R[responder]
- B --> R
- R --> OUT[ConsultaResponse]
- OUT --> API
+ DEC -->|revisión requerida| HITL[Bandeja HITL por tenant]
+ DEC --> R[Responder]
+ HITL --> R
+ R --> API
+ O[Observabilidad local] -. contadores .-> V
+ DA[Deep Agents académico] --> M
+ DA --> VIRTUAL[Herramientas y memoria virtual]
+
 ```
 
 El dibujo es una vista de componentes. El StateGraph compilado tiene 11 nodos operativos, 13 vértices con START/END y 20 aristas. El grafo exacto puede inspeccionarse en `src/graph/workflow.py` y en el JSON de la [demo académica](#verificación-y-herramientas-de-mantenimiento); las rutas seleccionan un único dominio. A1 y la seguridad no cuentan como nodos del grafo.
@@ -240,6 +249,10 @@ Las brechas se registran debajo de la matriz con el alcance que aún falta acred
 | EVAL | Ejecutar la muestra de semana 11 | Cuarenta casos distribuidos 24/10/6. La comparación conserva criterios y rechaza retrocesos fuera de tolerancia | Evaluación determinista | `scripts/evaluar_semana11.py::evaluar`, `scripts/evaluar_semana11.py::comparar_resultados` | `tests/test_trazabilidad_sdd.py::test_matriz_de_40_casos_cubre_agentes_y_requisitos_vigentes`, `tests/test_trazabilidad_sdd.py::test_informe_de_evaluacion_identifica_fallo_y_omision`, `tests/test_trazabilidad_sdd.py::test_comparacion_rechaza_regresiones_por_categoria` | pytest |
 | MEDICION | Medir rendimiento de una carga local acotada | Reporta tamaño de muestra, p50 y p95 por rango, CPU, RSS, bytes y concurrencia | Benchmark local Linux | `scripts/medir_semana11.py::medir_local`, `scripts/medir_semana11.py::resumen` | `tests/test_trazabilidad_sdd.py::test_resumen_de_medicion_documenta_rango_p95_sin_interpolar` | pytest |
 | ENTREGA | Preparar dos iteraciones para revisión | Ambas iteraciones registran tres elementos pendientes de revisión humana y enlazan los requisitos siguientes | Cierre SDD y evidencias | `scripts/verificar.py::_ejecutar_pytest` | `tests/test_trazabilidad_sdd.py::test_entrega_contiene_dos_iteraciones_y_revision_humana_pendiente` | pytest |
+| LOCAL-INST | Instalar un entorno nativo verificable | Instala manifiestos fijados en venv 3.14, preserva directorios ajenos y verifica MockLLM y dependencias | CLI local | `scripts/veltri_local.py::instalar`, `scripts/veltri_local.py::comprobar` | `tests/test_despliegue_local.py::test_instalador_preserva_destino_ajeno`, `tests/test_despliegue_local.py::test_comprobar_valida_dependencias_y_fuerza_perfil_local` | pytest |
+| LOCAL-CICLO | Operar una instancia por directorio | Detecta puerto ocupado y proceso duplicado, responde en loopback y permite parada, liberación y reinicio | Supervisor Uvicorn | `scripts/veltri_local.py::iniciar`, `scripts/veltri_local.py::detener`, `scripts/veltri_local.py::estado_local` | `tests/test_despliegue_local.py::test_despliegue_rechaza_origen_ajeno_y_procesos_duplicados`, `tests/test_despliegue_local.py::test_despliegue_reinicia_y_conserva_indice_sin_conservar_borradores` | pytest |
+| LOCAL-DATOS | Preservar índice sin arrastrar datos de sesión | El tenant indexado conserva recuperación tras reinicio, uno ajeno no recupera su borrador y el borrador anterior se pierde | Chroma y registro en memoria | `scripts/veltri_local.py::indexar`, `src/knowledge/almacen.py::Almacen`, `src/tools/registro.py::RegistroPorTenant` | `tests/test_despliegue_local.py::test_despliegue_reinicia_y_conserva_indice_sin_conservar_borradores` | pytest |
+| LOCAL-RED | Restringir tráfico y validar concurrencia local | Host u origen ajeno recibe 403 tipado, DNS y egreso Python externo se deniegan y peticiones mixtas mantienen su intención | Guardas de despliegue | `scripts/veltri_local.py::proteger_http`, `scripts/veltri_local.py::_proteger_red` | `tests/test_despliegue_local.py::test_bloqueo_de_egreso_permite_loopback_y_rechaza_dns_externo`, `tests/test_despliegue_local.py::test_despliegue_rechaza_origen_ajeno_y_procesos_duplicados` | pytest |
 
 ### Brechas y discrepancias
 
@@ -396,9 +409,159 @@ evidencia de recursos para esta carga local.
 
 | Semana | Requisitos pendientes | Insumos disponibles |
 |---|---|---|
-| Semana 12 | Despliegue exclusivamente local, diagramas de arquitectura y componentes, instalación reproducible y propuesta académica de AWS sin aprovisionamiento. | Arquitectura vigente, comandos locales, dependencias fijadas y medición Linux. |
+| Semana 12 | Despliegue local, instalación reproducible, diagramas y propuesta académica de AWS. | Entregados en la [sección de despliegue](#despliegue-nativo-local-de-la-semana-12). La validación en Windows 10 y 11 de escritorio queda pendiente. |
 | Semana 13 | ROI, TCO, retorno y período de recuperación, VAN y análisis de sensibilidad. | Latencias, CPU, RSS, almacenamiento y contadores locales. Faltan supuestos de costos, volúmenes y flujos aprobados. |
 | Semana 14 | Revisión humana de ambas iteraciones SDD, validación final, demostración funcional y enlace del video de la aplicación. | Borradores retrospectivos, BPMN, matriz, demos y evidencia ejecutable de semana 11. |
+
+## Despliegue nativo local de la semana 12
+
+### Auditoría y plan SDD
+
+| Fase | Hallazgo y tarea | Criterio y vínculo |
+|---|---|---|
+| 1 · Auditoría | La API por defecto arrancaba sin el índice de la CLI de ingesta. `--reload` añade un supervisor y carece de un comando propio de estado. El middleware CORS genérico permitía orígenes amplios. `TENANT_ID` y `CHROMA_DIR` del ejemplo no configuraban el servidor. | Usar el perfil CPython 3.14 x64, fijar la dependencia transitiva `uvloop` ya instalada en Linux y reservar la configuración de producción para el lanzador. LOCAL-INST, LOCAL-RED. |
+| 2 · Instalación | Un único comando crea un venv y aplica el manifiesto fijado. El servidor navega en una sola URL y abre el índice persistente de Chroma. | Instalación limpia, `pip check`, interfaz y consultas RAG con datos recuperables tras el reinicio. LOCAL-INST, LOCAL-DATOS. |
+| 3 · Automatización | Un proceso Uvicorn en primer plano. Bloqueo exclusivo por directorio de datos y reserva real del socket. Estado escrito tras quedar disponible y solicitud de parada asociada a la sesión. | Puerto y directorio en conflicto se rechazan. Parada y reinicio liberan el socket y el bloqueo. LOCAL-CICLO. |
+| 4 · Arquitectura | Se documentan flujo, despliegue nativo y correspondencia teórica de AWS. | Mantener explícitas las fronteras y la revisión humana pendiente. ENTREGA. |
+| 5 · Verificación | Ejercitar HTTP real, navegador, persistencia, concurrencia, guardas y métricas comparables. | Pruebas locales, ejecución de Windows en CI y mediciones reproducibles separadas por método. LOCAL-CICLO, LOCAL-DATOS, LOCAL-RED, MEDICION. |
+
+El lanzador fija MockLLM y desactiva trazas y credenciales externas en el proceso. La
+instalación admite el manifiesto de ejecución o `--desarrollo` para pytest y Ruff.
+La instalación inicial usa el índice de paquetes configurado o un repositorio de ruedas
+local mediante las opciones estándar de pip. La aplicación ejecutada funciona sin paquetes
+descargados en tiempo de ejecución. La versión de código admite Python 3.12 o posterior
+según `AGENTS.md`. El perfil de instalación con ruedas fijadas se valida en CPython 3.14.
+
+### Arquitectura del proceso y datos
+
+```mermaid
+flowchart LR
+  subgraph equipo["Equipo local, cuenta del operador"]
+    B[Navegador] -->|HTTP 127.0.0.1:8765| S["Uvicorn · proceso único · asyncio"]
+    S --> G["Guardas Host, Origin y sitio"]
+    G --> F["FastAPI + frontend estático"]
+    F --> O["LangGraph + A1–A8 + MockLLM"]
+    O --> C["Chroma persistente por tenant"]
+    O --> E["Borradores, HITL, DLQ y métricas en RAM"]
+    CLI["CLI en terminal local"] -->|Bloqueo y estado por sesión| S
+    CLI -->|Ingesta explícita al detener| C
+    D["Catálogo, compatibilidad y políticas"] --> C
+    A["Demos LCEL / Deep Agents"] --> M["MockLLM y memoria académica virtual"]
+  end
+```
+
+El socket queda limitado a IPv4 loopback y no se aceptan cabeceras de proxy. El lanzador
+restringe Host, Origin y navegaciones entre sitios. El bloqueo de conexiones, DNS y envíos
+a destinos externos cubre los eventos de auditoría de sockets de Python. Las bibliotecas
+nativas quedan sujetas a la red del sistema. Chroma se abre con telemetría anónima apagada.
+La escucha en loopback y la partición por tenant acotan el acceso para la demo. La identidad
+del tenant procede del cliente y este perfil carece de autenticación de producción.
+
+`chroma_db/` conserva el índice y los snapshots según tenant. La primera ejecución
+indexa `veltri` si su colección está vacía, y las siguientes abren la misma colección.
+`indexar --tenant ID` usa el directorio configurado y exige detener el servidor que lo
+posee. Copiar o recuperar ese directorio debe hacerse con el servidor detenido. El catálogo
+fuente reside en `data/`. Borradores, bandeja HITL, DLQ, contadores y memoria académica tienen
+vida de proceso o ejecución. La UI conserva la preferencia de tema en el navegador.
+Los marcadores del lanzador son metadatos operativos. Tras una salida abrupta, el bloqueo
+del sistema se libera y el siguiente arranque descarta el estado previo.
+
+Los comandos definitivos están en el [README](../README.md). Para escoger otra escucha usa
+`iniciar --puerto 8877`. Al usar `--datos RUTA`, colócalo antes del subcomando y reutiliza
+la misma ruta con `iniciar`, `estado`, `detener` e `indexar`. Una solicitud de parada cambia
+`should_exit` en Uvicorn y aplica un plazo de apagado de 10 s para las tareas en curso.
+El cierre ordinario libera el puerto y limpia el estado. Una operación nativa bloqueada
+puede retrasar la entrega de control al bucle de eventos.
+
+### Compatibilidad y dimensionamiento
+
+| Perfil | Evidencia o estimación |
+|---|---|
+| Linux x64 | Instalación limpia con CPython 3.14.10 y pruebas reales. |
+| Windows x64 | Instalación y pruebas en el runner Windows de GitHub Actions. El resultado corresponde a su Windows Server. |
+| Windows 10 y 11 x64 | CPython 3.14 admite Windows 10 y posteriores. El perfil es compatible en principio y queda pendiente su validación en ambos escritorios. [Documentación de Python](https://docs.python.org/3.14/using/windows.html) |
+| Mínimo orientativo para equipo con navegador | 2 CPU lógicas, 4 GiB de RAM total y 3 GiB de disco libre para venv, índice y espacio de instalación. |
+| Recomendado para pruebas y consultas concurrentes | 4 CPU lógicas, 8 GiB de RAM total y 5 GiB libres. La cantidad de tenants y documentos determina el crecimiento del índice. |
+
+La instalación nativa evita un contenedor adicional. Docker queda como opción académica
+para aislar el entorno y combinar un volumen persistente con publicación en loopback.
+Su daemon, imágenes y, en Windows, el entorno de virtualización pueden aumentar los
+recursos necesarios. La entrega usa el perfil nativo y deja los recursos de Docker sin medir.
+
+### Mediciones y evidencia de operación
+
+Las mediciones se ejecutaron en Codex Linux x64, CPython 3.14.10, con tres CPU visibles,
+cuota de dos CPU y límite de 8 GiB. Se repitió el benchmark de semana 11 con cinco procesos
+de arranque por importación, 40 solicitudes por modalidad HTTP y RAG, 20 ejecuciones por
+agente y cinco recorridos académicos. En una medición distinta, el modo
+`--despliegue` midió otro escenario con un inicio de índice vacío y cinco reinicios del
+servidor real, seguido de 40 peticiones HTTP secuenciales y 40 con cuatro trabajadores.
+
+| Medición | Referencia semana 11 | Semana 12 con el mismo método |
+|---|---:|---:|
+| Arranque por importación, p95 | 2.020,82 ms | 1.594,23 ms |
+| RSS pico del benchmark | 215,82 MiB | 230,93 MiB |
+| Recorrido Deep Agents, p95 | 640,23 ms | 602,00 ms |
+| HTTP stock secuencial / cuatro trabajadores, p95 | 6,34 / 26,02 ms | 6,06 / 27,23 ms |
+| Tokens reales de proveedor | 0 | 0 |
+
+Se observaron 12,06 s de CPU en el proceso del benchmark, 8,24 s en sus cinco hijos
+de arranque y 2.326.856 bytes lógicos en el índice de dos tenants, con cero lecturas
+cruzadas. Deep Agents recorrió 21 pasos con 12 llamadas al modelo, 9 herramientas y
+23.974 unidades simuladas. Son dos ejecuciones de muestras pequeñas en entornos de igual
+perfil. Las diferencias observadas incluyen variación del entorno y no aíslan un efecto
+causal del despliegue.
+
+El servidor real estuvo listo en **1.659,33 ms** al crear el índice. En los cinco
+reinicios con índice persistente, el p95 fue **1.591,13 ms**. Por loopback real se
+midieron **5,61 ms** y **24,24 ms** p95 en las modalidades secuencial y concurrente,
+respectivamente. El servidor alcanzó **171,27 MiB de RSS pico**. Los procesos
+hijos de los seis ciclos de arranque, carga y parada acumularon **12,47 s de CPU**.
+El índice de un tenant ocupó **1.247.396 bytes lógicos** y el entorno de desarrollo
+instalado ocupó **730.230.443 bytes lógicos**. Estas cifras excluyen navegador, archivos
+de caché ajenos al venv y costos de instalación, electricidad o personal.
+
+Chromium sin interfaz gráfica ejecutó el inicializador del frontend y leyó el catálogo
+por HTTP real. Una traza de syscalls del servidor durante esa comprobación registró
+cero intentos de conexión o envío a destinos externos. La suite de despliegue ejecuta
+apertura de interfaz y API, tráfico concurrente mixto, rechazo de orígenes ajenos,
+cierre y reinicio, persistencia del índice y pérdida deliberada de borradores.
+
+```sh
+python scripts/medir_semana11.py
+python scripts/medir_semana11.py --despliegue
+python -m pytest -q tests/test_despliegue_local.py
+```
+
+Las mediciones de CPU, RSS y disco se conservan como insumos para la semana 13.
+Los volúmenes operativos, precios de energía y costos de trabajo siguen pendientes de revisión.
+
+### AWS como propuesta académica
+
+```mermaid
+flowchart LR
+    B[Navegador hipotético] --> GW["API Gateway · autorizador JWT"]
+    GW --> AD["Adaptador de API · valida contrato y tenant"]
+    IAM["IAM · rol de ejecución de mínimo privilegio"] --> AD
+    IAM --> RT["Amazon Bedrock AgentCore Runtime"]
+    AD -->|Invocación SigV4 y sesión vinculada al tenant| RT
+    RT --> M["AgentCore Memory · actor y sesión"]
+    RT --> DB["Almacenamiento por tenant · documentos e índice RAG"]
+    RT --> CW["CloudWatch · métricas y eventos sanitizados"]
+    GW --> CW
+```
+
+| Componente de Veltri | Correspondencia propuesta |
+|---|---|
+| FastAPI en loopback y guarda de entrada | API Gateway autenticaría la solicitud y un adaptador preservaría `ConsultaResponse`. El adaptador derivaría la pertenencia del tenant de la identidad verificada y validaría cada acción. [Autorizadores JWT](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-jwt-authorizer.html) |
+| LangGraph y agentes académicos en proceso | AgentCore Runtime alojaría cómputo por sesión. Se vincularía cada sesión al tenant y al actor autorizados. La microVM aísla la sesión y el control de pertenencia se aplica también en almacenamiento. [Aislamiento de Runtime](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-sessions.html) |
+| Memoria virtual académica | AgentCore Memory podría conservar contexto autorizado mediante actor, sesión y namespaces. La retención y el acceso requerirían políticas específicas. [Organización de memoria](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/memory-organization.html) |
+| Corpus y Chroma | Un almacén de documentos como S3 y un índice persistente aparte aplicarían particiones y filtros explícitos por tenant. IAM autorizaría invocación y acceso a recursos con privilegios mínimos. Las claves y filtros se validarían antes de consultar. [Seguridad de Runtime e IAM](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-security-best-practices.html) |
+| Métricas y bandeja local | CloudWatch recibiría contadores y motivos técnicos sanitizados. HITL seguiría como compuerta separada y requeriría un registro autorizado. [Observabilidad de AgentCore](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/observability.html) |
+
+El diagrama describe un diseño teórico. La integración, costos, disponibilidad regional
+y controles de identidad requerirían validación en otro alcance. La ejecución de esta semana
+usa únicamente la arquitectura local y no aprovisiona recursos de AWS.
 
 ## Archivo histórico de la semana 10
 

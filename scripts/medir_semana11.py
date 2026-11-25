@@ -15,7 +15,7 @@ from math import ceil
 from pathlib import Path
 from statistics import median
 from tempfile import TemporaryDirectory
-from time import perf_counter, process_time
+from time import perf_counter, process_time, sleep
 from unittest.mock import patch
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -256,15 +256,95 @@ def medir_local() -> dict:
     }
 
 
+def medir_despliegue() -> dict:
+    """Mide el ciclo del servidor local real separado del benchmark en proceso."""
+    import resource
+
+    from tests.test_despliegue_local import _consulta, _peticion, _puerto_libre
+
+    cli = [sys.executable, str(RAIZ / "scripts/veltri_local.py")]
+    fria, recuperadas, rss = [], [], []
+    cpu_inicial = resource.getrusage(resource.RUSAGE_CHILDREN)
+    with TemporaryDirectory() as carpeta:
+        datos = Path(carpeta) / "chroma"
+        inicio_cli = [*cli, "--datos", str(datos)]
+        puerto = _puerto_libre()
+        for ciclo in range(6):
+            estado = datos / ".veltri.estado.json"
+            inicio = perf_counter()
+            with (Path(carpeta) / "servidor.log").open("wb") as log:
+                servidor = subprocess.Popen(
+                    [*inicio_cli, "iniciar", "--puerto", str(puerto)], stdout=log, stderr=log,
+                )
+                try:
+                    while not estado.is_file():
+                        if servidor.poll() is not None or perf_counter() - inicio > 30:
+                            raise RuntimeError("El servidor no publicó disponibilidad")
+                        sleep(.01)
+                    duracion = (perf_counter() - inicio) * 1000
+                    (recuperadas if ciclo else fria).append(duracion)
+                    if ciclo == 5:
+                        def consultar(i):
+                            sku = ("CPU-AMD-5600", "CPU-AMD-5500")[i % 2]
+                            salida = _consulta(
+                                puerto, {"tipo": "stock", "seleccion": {sku: 1}},
+                            )
+                            assert salida.stock.disponible == (i % 2 == 0)
+
+                        assert _peticion(puerto, "/")[0] == 200
+                        consultar(0)
+                        http_secuencial = medir(consultar, 40)
+                        http_concurrente = medir(consultar, 40, trabajadores=4)
+                    memoria = Path(f"/proc/{servidor.pid}/status").read_text()
+                    pico = next(
+                        linea.split()[1] for linea in memoria.splitlines()
+                        if linea.startswith("VmHWM:")
+                    )
+                    rss.append(int(pico) / 1024)
+                    subprocess.run(
+                        [*inicio_cli, "detener"], capture_output=True, check=True, timeout=20,
+                    )
+                    assert servidor.wait(timeout=15) == 0
+                finally:
+                    if servidor.poll() is None:
+                        servidor.terminate()
+                        servidor.wait(timeout=15)
+        indice_bytes = sum(p.stat().st_size for p in datos.rglob("*") if p.is_file())
+    cpu_final = resource.getrusage(resource.RUSAGE_CHILDREN)
+    venv_bytes = sum(
+        p.stat().st_size for p in Path(sys.prefix).rglob("*")
+        if p.is_file() and not p.is_symlink()
+    )
+    return {
+        "arranque_creando_indice_ms": round(fria[0], 3),
+        "arranque_con_indice": resumen(recuperadas),
+        "http_real_secuencial": http_secuencial,
+        "http_real_concurrente": http_concurrente,
+        "rss_pico_servidor_mib": round(max(rss), 3),
+        "cpu_s_procesos_hijos": round(
+            (cpu_final.ru_utime + cpu_final.ru_stime)
+            - (cpu_inicial.ru_utime + cpu_inicial.ru_stime), 6,
+        ),
+        "indice_bytes": indice_bytes, "venv_bytes": venv_bytes,
+    }
+
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--arranque", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument(
+        "--despliegue", action="store_true", help="Mide el servidor real y el ciclo local",
+    )
     args = parser.parse_args()
     os.environ.update(USE_MOCK_LLM="1", VELTRI_TRACING_ENABLED="0",
                       VELTRI_TRACING_ALLOW_EXTERNAL="0", LANGSMITH_TRACING="false",
                       LANGCHAIN_TRACING_V2="false")
     if sys.platform != "linux":
         parser.error("El perfil de CPU, RSS y bloques asignados está definido para Linux")
+    if args.despliegue:
+        print(json.dumps(medir_despliegue(), ensure_ascii=False, indent=2))
+        return 0
     with patch.object(socket.socket, "connect", _sin_red(socket.socket.connect)):
         if args.arranque:
             from src.api.main import app

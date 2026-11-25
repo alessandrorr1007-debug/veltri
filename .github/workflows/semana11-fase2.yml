@@ -1,4 +1,4 @@
-name: Veltri - verificacion Semana 11
+name: Veltri - verificacion local
 on:
   push:
     branches: [main]
@@ -13,6 +13,8 @@ on:
       - 'docs/arquitectura.md'
       - 'docs/agentes/**'
       - 'AGENTS.md'
+      - 'README.md'
+      - '.env.example'
       - 'docs/evidencias/**'
       - 'requirements*.txt'
       - 'pyproject.toml'
@@ -39,7 +41,16 @@ jobs:
         with:
           python-version: '3.14'
       - name: Instalar dependencias fijadas
-        run: python -m pip install -r requirements-dev.txt
+        run: |
+          python scripts/veltri_local.py instalar --desarrollo
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          (Join-Path $PWD ".venv/Scripts") >> $env:GITHUB_PATH
+      - name: Despliegue nativo en Windows
+        run: |
+          (Get-CimInstance Win32_OperatingSystem).Caption
+          python scripts/veltri_local.py comprobar
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pytest -q tests/test_despliegue_local.py
       - name: Pruebas de los cuatro pilares, prompts y autonomía
         run: >-
           python -m pytest -q tests/test_memoria_semana11.py tests/test_deep_agents_semana11.py

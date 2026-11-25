@@ -57,20 +57,41 @@ además de contar con botones de prueba inmediata en la interfaz web:
 - **CP-7:** Armador determinista por rangos de presupuesto.
 
 
-## Instalación en Windows
-Perfil de instalación reproducido: **CPython 3.14, Windows x64** y Git. No se certifican aquí otros intérpretes o plataformas:
+## Instalación y operación local
+
+Perfil nativo con **CPython 3.14 x64**, navegador y Git para trabajar con el repositorio.
+Los comandos usan el intérprete del entorno virtual sin activación.
+
+**Windows (PowerShell)**
+
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\python -m pip install -r requirements-dev.txt
-.\.venv\Scripts\Activate.ps1
-python scripts/verificar.py
-python scripts/instalar_hooks.py
-uvicorn src.api.main:app --reload
+py -3.14 scripts/veltri_local.py instalar
+.\.venv\Scripts\python.exe scripts/veltri_local.py comprobar
+.\.venv\Scripts\python.exe scripts/veltri_local.py iniciar
 ```
-La aplicación web queda disponible localmente en `http://localhost:8000`.
-Si PowerShell impide activar el entorno, usar directamente `.\.venv\Scripts\python`.
-`requirements.txt` fija las dependencias directas y transitivas de la aplicación, LCEL, LangGraph, Deep Agents y LangSmith.
-`requirements-dev.txt` añade las dependencias de pruebas y Ruff. Las pruebas de lógica usan MockLLM o un transporte simulado. El hook protege los archivos críticos al preparar un commit.
+
+**Linux**
+
+```sh
+python3.14 scripts/veltri_local.py instalar
+.venv/bin/python scripts/veltri_local.py comprobar
+.venv/bin/python scripts/veltri_local.py iniciar
+```
+
+Abre [Veltri en el navegador local](http://127.0.0.1:8765/). El comando de inicio reserva
+loopback y arranca un solo proceso con MockLLM, sin credenciales ni configuración `.env`.
+Para detenerlo usa **Ctrl+C** en su terminal. Desde otro terminal, usa el mismo intérprete y
+ejecuta `scripts/veltri_local.py estado` o `scripts/veltri_local.py detener`.
+
+El catálogo y el índice RAG quedan en disco. El arranque inicial crea el índice de demostración
+para el tenant `veltri` en `chroma_db/`. Al actualizar el corpus o añadir un tenant, detén el
+servidor y ejecuta `scripts/veltri_local.py indexar --tenant IDENTIFICADOR` con el mismo
+intérprete. Los borradores, revisiones y métricas del proceso se reinician deliberadamente.
+En el navegador, se conserva la preferencia de tema.
+
+Para desarrollar y ejecutar las pruebas, añade `--desarrollo` al comando de instalación.
+Luego ejecuta `scripts/verificar.py` e instala el hook con `scripts/instalar_hooks.py`.
+Consulta los límites operativos y la propuesta académica en la [arquitectura](docs/arquitectura.md).
 
 ## Estructura
 
