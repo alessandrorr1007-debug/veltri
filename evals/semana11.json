@@ -1,0 +1,569 @@
+[
+  {
+    "id": "R01",
+    "categoria": "representativo",
+    "requisitos": [
+      "A1"
+    ],
+    "pruebas": [
+      "tests/test_agentes.py::test_ocho_agentes_caso_valido_sin_red[0]"
+    ],
+    "entrada": "Mensaje «Consultar stock» para veltri",
+    "esperado": "Clasifica la intención en un plan",
+    "aceptacion": "Salida A1 tipada, mismo tenant, una llamada y sin red",
+    "instancias": 1
+  },
+  {
+    "id": "R02",
+    "categoria": "representativo",
+    "requisitos": [
+      "A2"
+    ],
+    "pruebas": [
+      "tests/test_agentes.py::test_ocho_agentes_caso_valido_sin_red[1]",
+      "tests/test_flujo.py::test_cp7_nunca_supera_maximo_ni_inventa_pc[350000]"
+    ],
+    "entrada": "CP-7 con máximo de 350000 céntimos",
+    "esperado": "Ejecuta el armador",
+    "aceptacion": "Salida A2 tipada con plan único y, en el flujo, total dentro del rango y sin aprobación",
+    "instancias": 2
+  },
+  {
+    "id": "R03",
+    "categoria": "representativo",
+    "requisitos": [
+      "A3"
+    ],
+    "pruebas": [
+      "tests/test_agentes.py::test_ocho_agentes_caso_valido_sin_red[2]"
+    ],
+    "entrada": "Selección de ocho componentes, una unidad de cada uno",
+    "esperado": "Ejecuta la cotización",
+    "aceptacion": "Salida A3 tipada, mismo tenant y un solo plan",
+    "instancias": 1
+  },
+  {
+    "id": "R04",
+    "categoria": "representativo",
+    "requisitos": [
+      "A4"
+    ],
+    "pruebas": [
+      "tests/test_agentes.py::test_ocho_agentes_caso_valido_sin_red[3]"
+    ],
+    "entrada": "Selección sintética de ocho componentes",
+    "esperado": "Ejecuta el validador técnico",
+    "aceptacion": "Salida A4 tipada, mismo tenant y un solo plan",
+    "instancias": 1
+  },
+  {
+    "id": "R05",
+    "categoria": "representativo",
+    "requisitos": [
+      "A5"
+    ],
+    "pruebas": [
+      "tests/test_agentes.py::test_ocho_agentes_caso_valido_sin_red[4]"
+    ],
+    "entrada": "Selección sintética de ocho componentes",
+    "esperado": "Consulta inventario",
+    "aceptacion": "Salida A5 tipada, mismo tenant y un solo plan",
+    "instancias": 1
+  },
+  {
+    "id": "R06",
+    "categoria": "representativo",
+    "requisitos": [
+      "A6"
+    ],
+    "pruebas": [
+      "tests/test_agentes.py::test_ocho_agentes_caso_valido_sin_red[5]"
+    ],
+    "entrada": "10000 céntimos esperados y pagados",
+    "esperado": "Compara importes",
+    "aceptacion": "Salida A6 tipada, mismo tenant y un solo plan",
+    "instancias": 1
+  },
+  {
+    "id": "R07",
+    "categoria": "representativo",
+    "requisitos": [
+      "A7"
+    ],
+    "pruebas": [
+      "tests/test_agentes.py::test_ocho_agentes_caso_valido_sin_red[6]"
+    ],
+    "entrada": "Selección completa y confirmación de borrador verdadera",
+    "esperado": "Ejecuta el registro demo",
+    "aceptacion": "Salida A7 tipada, mismo tenant y un solo plan",
+    "instancias": 1
+  },
+  {
+    "id": "R08",
+    "categoria": "representativo",
+    "requisitos": [
+      "A8"
+    ],
+    "pruebas": [
+      "tests/test_agentes.py::test_ocho_agentes_caso_valido_sin_red[7]"
+    ],
+    "entrada": "Clave inexistente con 64 caracteres a",
+    "esperado": "Ejecuta el seguimiento local",
+    "aceptacion": "Salida A8 tipada, mismo tenant y un solo plan",
+    "instancias": 1
+  },
+  {
+    "id": "R09",
+    "categoria": "representativo",
+    "requisitos": [
+      "A3"
+    ],
+    "pruebas": [
+      "tests/test_herramientas.py::test_total_por_cantidad_sin_float_ni_impuesto"
+    ],
+    "entrada": "Dos CPU-AMD-5600",
+    "esperado": "Calcula por cantidad",
+    "aceptacion": "Total 94000 céntimos, fuente de SKU y sin proforma",
+    "instancias": 1
+  },
+  {
+    "id": "R10",
+    "categoria": "representativo",
+    "requisitos": [
+      "A4"
+    ],
+    "pruebas": [
+      "tests/test_herramientas.py::test_compatible_en_datos_no_es_aprobacion_real"
+    ],
+    "entrada": "Selección sin conflictos en los datos",
+    "esperado": "Identifica compatibilidad sintética",
+    "aceptacion": "Potencia 444 W, soporte de BIOS pendiente y revisión",
+    "instancias": 1
+  },
+  {
+    "id": "R11",
+    "categoria": "representativo",
+    "requisitos": [
+      "A5"
+    ],
+    "pruebas": [
+      "tests/test_flujo.py::test_stock_disponible_completa_consulta_sin_autorizar_venta"
+    ],
+    "entrada": "Una unidad CPU-AMD-5600",
+    "esperado": "Completa consulta disponible",
+    "aceptacion": "Stock disponible, sin revisión, proforma ni aprobación técnica",
+    "instancias": 1
+  },
+  {
+    "id": "R12",
+    "categoria": "representativo",
+    "requisitos": [
+      "A5"
+    ],
+    "pruebas": [
+      "tests/test_flujo.py::test_cp3_stock_agotado_cita_alternativas_y_revision"
+    ],
+    "entrada": "CP-3 con selección CPU-AMD-5500",
+    "esperado": "Devuelve faltante y alternativas",
+    "aceptacion": "SKU y fuente exactos, motivo de stock y revisión pendiente",
+    "instancias": 1
+  },
+  {
+    "id": "R13",
+    "categoria": "representativo",
+    "requisitos": [
+      "A6"
+    ],
+    "pruebas": [
+      "tests/test_flujo.py::test_cp5_comparacion_no_acredita_pago[9999]"
+    ],
+    "entrada": "CP-5 con 9999 pagados frente a 10000",
+    "esperado": "Conserva pago no conciliado",
+    "aceptacion": "Motivos y revisión de pago, sin proforma",
+    "instancias": 1
+  },
+  {
+    "id": "R14",
+    "categoria": "representativo",
+    "requisitos": [
+      "A7",
+      "A8",
+      "SEC-DATOS"
+    ],
+    "pruebas": [
+      "tests/test_flujo.py::test_cp6_pedido_idempotente_y_seguimiento_aislado"
+    ],
+    "entrada": "CP-6 con dos peticiones de borrador idénticas y seguimiento cruzado",
+    "esperado": "Registra un único borrador y aísla lecturas",
+    "aceptacion": "Segundo duplicado y seguimiento limitado al tenant propietario",
+    "instancias": 1
+  },
+  {
+    "id": "R15",
+    "categoria": "representativo",
+    "requisitos": [
+      "DA-COORD",
+      "DA-CAT",
+      "DA-REV"
+    ],
+    "pruebas": [
+      "tests/test_deep_agents_semana11.py::test_cuatro_pilares_en_framework_real"
+    ],
+    "entrada": "Fixture cerrado por defecto con los tres roles",
+    "esperado": "Planifica, delega, conserva y contrasta evidencia",
+    "aceptacion": "Herramientas en orden, roles nombrados, memoria y SalidaAcademica válidas",
+    "instancias": 1
+  },
+  {
+    "id": "R16",
+    "categoria": "representativo",
+    "requisitos": [
+      "DA-MEM"
+    ],
+    "pruebas": [
+      "tests/test_deep_agents_semana11.py::test_dos_ejecuciones_sin_colision_de_archivos"
+    ],
+    "entrada": "Dos ejecuciones del fixture cerrado",
+    "esperado": "Cada invocación conserva su archivo virtual",
+    "aceptacion": "El artefacto aparece en ambas ejecuciones independientes",
+    "instancias": 1
+  },
+  {
+    "id": "R17",
+    "categoria": "representativo",
+    "requisitos": [
+      "DA-LEG"
+    ],
+    "pruebas": [
+      "tests/test_academico.py::test_lcel_composicion_real"
+    ],
+    "entrada": "Fixture de la pipeline LCEL",
+    "esperado": "Compone ramas académicas",
+    "aceptacion": "Resultado sintético con revisión y sin efecto comercial",
+    "instancias": 1
+  },
+  {
+    "id": "R18",
+    "categoria": "representativo",
+    "requisitos": [
+      "HITL"
+    ],
+    "pruebas": [
+      "tests/test_decision_hitl.py::test_encolado_idempotente_copias_y_aislamiento"
+    ],
+    "entrada": "Solicitud repetida por tenant",
+    "esperado": "Encola idempotentemente",
+    "aceptacion": "Copia aislada, mismo identificador y sin acceso cruzado",
+    "instancias": 1
+  },
+  {
+    "id": "R19",
+    "categoria": "representativo",
+    "requisitos": [
+      "RAG"
+    ],
+    "pruebas": [
+      "tests/test_conocimiento.py::test_dos_tenants_no_comparten_datos_ni_cache"
+    ],
+    "entrada": "Dos tenants indexan textos con marcadores distintos",
+    "esperado": "Recupera solo los documentos del tenant",
+    "aceptacion": "Consultas cruzadas y tenant inexistente devuelven vacío",
+    "instancias": 1
+  },
+  {
+    "id": "R20",
+    "categoria": "representativo",
+    "requisitos": [
+      "GRAFO"
+    ],
+    "pruebas": [
+      "tests/test_trazabilidad_sdd.py::test_grafo_comercial_conserva_la_topologia_especificada"
+    ],
+    "entrada": "StateGraph comercial compilado",
+    "esperado": "Enruta a una sola acción",
+    "aceptacion": "Coinciden exactamente los nodos y aristas con el DAG especificado",
+    "instancias": 1
+  },
+  {
+    "id": "R21",
+    "categoria": "representativo",
+    "requisitos": [
+      "REC"
+    ],
+    "pruebas": [
+      "tests/test_autonomia_semana11.py::test_demo_normal_registra_recursos_sin_datos_ni_tokens_reales"
+    ],
+    "entrada": "Fixture académico con reloj inyectado",
+    "esperado": "Cuenta recursos locales",
+    "aceptacion": "21 pasos, 12 modelos, 9 herramientas, 2 delegaciones y cero tokens reales",
+    "instancias": 1
+  },
+  {
+    "id": "R22",
+    "categoria": "representativo",
+    "requisitos": [
+      "API"
+    ],
+    "pruebas": [
+      "tests/test_api.py::test_cp1_cotizacion_gaming_valida"
+    ],
+    "entrada": "CP-1, presupuesto de 350000 céntimos por HTTP",
+    "esperado": "Cotiza y exige revisión sintética",
+    "aceptacion": "Contrato válido, total dentro del rango, BIOS pendiente y sin aprobación",
+    "instancias": 1
+  },
+  {
+    "id": "R23",
+    "categoria": "representativo",
+    "requisitos": [
+      "PROMPTS"
+    ],
+    "pruebas": [
+      "tests/test_prompts_semana11.py::test_prompts_comerciales",
+      "tests/test_prompts_semana11.py::test_prompts_academicos"
+    ],
+    "entrada": "Prompts renderizados de A1–A8 y los tres roles académicos",
+    "esperado": "Conserva 12 bloques e instrucciones específicas",
+    "aceptacion": "Pasan las once instancias con el orden, herramientas, límites y salida previstos",
+    "instancias": 11
+  },
+  {
+    "id": "R24",
+    "categoria": "representativo",
+    "requisitos": [
+      "RAG"
+    ],
+    "pruebas": [
+      "tests/test_conocimiento.py::test_recupera_sku_agotado_con_fuente_correcta"
+    ],
+    "entrada": "SKU CPU-AMD-5500 en corpus sintético",
+    "esperado": "Recupera el fragmento de catálogo",
+    "aceptacion": "Cita el SKU correcto y conserva stock agotado",
+    "instancias": 1
+  },
+  {
+    "id": "L01",
+    "categoria": "limite",
+    "requisitos": [
+      "A1"
+    ],
+    "pruebas": [
+      "tests/test_agentes.py::test_a1_desconocida_es_tipo_explicito"
+    ],
+    "entrada": "Texto ambiguo con fixture de acción desconocida",
+    "esperado": "No enruta por texto libre",
+    "aceptacion": "Acción desconocida tipada y resultado vacío",
+    "instancias": 1
+  },
+  {
+    "id": "L02",
+    "categoria": "limite",
+    "requisitos": [
+      "A2"
+    ],
+    "pruebas": [
+      "tests/test_flujo.py::test_cp4_rtx_insuficiente_no_genera_proforma"
+    ],
+    "entrada": "CP-4, máximo 120000 céntimos y solo RTX",
+    "esperado": "Retiene cotización y ofrece mínimo de catálogo",
+    "aceptacion": "Revisión, sin solución, mínimo superior al máximo y sin proforma",
+    "instancias": 1
+  },
+  {
+    "id": "L03",
+    "categoria": "limite",
+    "requisitos": [
+      "A3"
+    ],
+    "pruebas": [
+      "tests/test_herramientas.py::test_limite_presupuesto_inclusivo"
+    ],
+    "entrada": "Límite exacto del total y un céntimo por debajo",
+    "esperado": "Distingue el borde inclusivo",
+    "aceptacion": "El exceso de un céntimo requiere HITL y no genera proforma",
+    "instancias": 1
+  },
+  {
+    "id": "L04",
+    "categoria": "limite",
+    "requisitos": [
+      "A4"
+    ],
+    "pruebas": [
+      "tests/test_agentes.py::test_a4_no_aprueba_socket_incompatible"
+    ],
+    "entrada": "Sustituir CPU-AMD-5600 por CPU-AMD-7600 sin cambiar placa",
+    "esperado": "Detecta conflicto de socket",
+    "aceptacion": "Resultado incompatible sin aprobación",
+    "instancias": 1
+  },
+  {
+    "id": "L05",
+    "categoria": "limite",
+    "requisitos": [
+      "A6"
+    ],
+    "pruebas": [
+      "tests/test_flujo.py::test_cp5_comparacion_no_acredita_pago[10000]"
+    ],
+    "entrada": "Pago igual a 10000 céntimos esperados",
+    "esperado": "No concilia con mera coincidencia",
+    "aceptacion": "El contrato conserva revisión y ausencia de confirmación",
+    "instancias": 1
+  },
+  {
+    "id": "L06",
+    "categoria": "limite",
+    "requisitos": [
+      "AUT-TOK"
+    ],
+    "pruebas": [
+      "tests/test_autonomia_semana11.py::test_cortes_reales_en_el_grafo[config0-limite_tokens-modelos-0]"
+    ],
+    "entrada": "Presupuesto de un token simulado",
+    "esperado": "Detiene el grafo antes de inferir",
+    "aceptacion": "Motivo limite_tokens con cero llamadas de modelo",
+    "instancias": 1
+  },
+  {
+    "id": "L07",
+    "categoria": "limite",
+    "requisitos": [
+      "AUT-TIME"
+    ],
+    "pruebas": [
+      "tests/test_autonomia_semana11.py::test_plazo_con_reloj_simulado"
+    ],
+    "entrada": "Reloj avanza de 0 a 11 s",
+    "esperado": "Corta al exceder plazo",
+    "aceptacion": "Motivo limite_tiempo y cero llamadas nuevas",
+    "instancias": 1
+  },
+  {
+    "id": "L08",
+    "categoria": "limite",
+    "requisitos": [
+      "AUT-HITL",
+      "DA-MEM"
+    ],
+    "pruebas": [
+      "tests/test_autonomia_semana11.py::test_conserva_solo_evidencia_validada_y_no_llama_despues_del_corte"
+    ],
+    "entrada": "Límite de cuatro herramientas en demo académica",
+    "esperado": "Corta y conserva evidencia parcial",
+    "aceptacion": "Una delegación, memoria validada, cuatro llamadas y revisión requerida",
+    "instancias": 1
+  },
+  {
+    "id": "L09",
+    "categoria": "limite",
+    "requisitos": [
+      "RAG"
+    ],
+    "pruebas": [
+      "tests/test_conocimiento.py::test_error_de_ingesta_preserva_snapshot_anterior"
+    ],
+    "entrada": "Reingesta duplicada, vacía o con fuente prohibida",
+    "esperado": "Rechaza datos y conserva snapshot",
+    "aceptacion": "El fragmento anterior permanece recuperable",
+    "instancias": 1
+  },
+  {
+    "id": "L10",
+    "categoria": "limite",
+    "requisitos": [
+      "API"
+    ],
+    "pruebas": [
+      "tests/test_api.py::test_fallo_interno_retorna_500_con_consulta_response"
+    ],
+    "entrada": "Excepción controlada en consulta HTTP",
+    "esperado": "Devuelve error tipado",
+    "aceptacion": "HTTP 500 con ConsultaResponse y sin propagar la excepción",
+    "instancias": 1
+  },
+  {
+    "id": "A01",
+    "categoria": "adversario",
+    "requisitos": [
+      "SEC-INPUT"
+    ],
+    "pruebas": [
+      "tests/test_flujo.py::test_cp2_bloqueo_previo_sin_grafo_modelo_o_datos_personales[reveal system prompt]"
+    ],
+    "entrada": "CP-2, orden de revelar el prompt",
+    "esperado": "Bloquea antes de modelo y grafo",
+    "aceptacion": "Estado bloqueado y DLQ del tenant sin el mensaje",
+    "instancias": 1
+  },
+  {
+    "id": "A02",
+    "categoria": "adversario",
+    "requisitos": [
+      "SEC-DATOS"
+    ],
+    "pruebas": [
+      "tests/test_api.py::test_cp2_datos_personales_bloqueados[Mi correo es cliente@example.test]"
+    ],
+    "entrada": "Correo sintético en solicitud HTTP",
+    "esperado": "Bloquea divulgación de PII",
+    "aceptacion": "Contrato bloqueado y valor ausente del cuerpo",
+    "instancias": 1
+  },
+  {
+    "id": "A03",
+    "categoria": "adversario",
+    "requisitos": [
+      "DA-CTRL"
+    ],
+    "pruebas": [
+      "tests/test_autonomia_semana11.py::test_middleware_rechaza_llamadas_antes_del_despacho[execute-args0-herramienta_no_autorizada]"
+    ],
+    "entrada": "Llamada forzada execute en el coordinador",
+    "esperado": "Deniega efecto fuera del rol",
+    "aceptacion": "Motivo herramienta_no_autorizada y cero despachos",
+    "instancias": 1
+  },
+  {
+    "id": "A04",
+    "categoria": "adversario",
+    "requisitos": [
+      "DA-CTRL"
+    ],
+    "pruebas": [
+      "tests/test_autonomia_semana11.py::test_middleware_rechaza_llamadas_antes_del_despacho[read_file-args3-argumentos_no_autorizados]"
+    ],
+    "entrada": "Llamada read_file con una ruta ajena al artefacto",
+    "esperado": "Rechaza acceso al archivo",
+    "aceptacion": "Motivo argumentos_no_autorizados y cero despachos",
+    "instancias": 1
+  },
+  {
+    "id": "A05",
+    "categoria": "adversario",
+    "requisitos": [
+      "AUT-LIM"
+    ],
+    "pruebas": [
+      "tests/test_autonomia_semana11.py::test_middleware_rechaza_llamadas_antes_del_despacho[task-args1-delegacion_circular]"
+    ],
+    "entrada": "Coordinador intenta delegar a su propio rol",
+    "esperado": "Rechaza el ciclo",
+    "aceptacion": "Motivo delegacion_circular y cero delegaciones",
+    "instancias": 1
+  },
+  {
+    "id": "A06",
+    "categoria": "adversario",
+    "requisitos": [
+      "AUT-LIM"
+    ],
+    "pruebas": [
+      "tests/test_autonomia_semana11.py::test_el_subagente_no_puede_reiniciar_el_presupuesto"
+    ],
+    "entrada": "Nueva sesión con mayor presupuesto dentro de otra",
+    "esperado": "Bloquea el reinicio anidado",
+    "aceptacion": "Motivo presupuesto_anidado y presupuesto original sin posibilidad de continuar",
+    "instancias": 1
+  }
+]

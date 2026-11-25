@@ -237,6 +237,9 @@ Las brechas se registran debajo de la matriz con el alcance que aún falta acred
 | REC | Acotar trabajo y medir recursos locales | Se cuentan pasos, modelos, herramientas, delegaciones, tiempo y revisiones sin guardar prompts; se retienen hasta 256 muestras | Presupuesto y observabilidad | `src/core/autonomia.py::Presupuesto.metricas`, `src/core/observabilidad.py::recursos_recientes` | `tests/test_autonomia_semana11.py::test_demo_normal_registra_recursos_sin_datos_ni_tokens_reales`, `tests/test_trazabilidad_sdd.py::test_ventana_de_recursos_acotada_y_aislada` | pytest |
 | LOCAL | Operar con fixtures y sin servicios externos | El mock es predeterminado, el orquestador bloquea el modelo remoto, las trazas no conectan por defecto y los adaptadores históricos se prueban simulados | Configuración y operación | `src/config.py::cargar_configuracion`, `src/core/llm.py::get_llm`, `scripts/langsmith_segundo_intento.py::lanzar` | `tests/test_invariantes.py::test_solo_core_llm_instancia_modelos`, `tests/test_llm.py::test_configuracion_mock_por_defecto_y_entorno_prevalece`, `tests/test_flujo.py::test_modo_real_no_hace_consultas_sin_calibracion`, `tests/test_observabilidad.py::test_activada_sin_permiso_externo_no_construye_cliente`, `tests/test_langsmith_lanzador.py::test_falta_confirmacion_no_consume_ni_conecta` | pytest |
 | SDD | Mantener trazabilidad verificable | Todos los IDs obligatorios enlazan símbolos válidos y casos recolectados; el verificador exige ejecución sin omitidos | Verificación local y CI | `scripts/verificar.py::comprobar_estructura`, `scripts/verificar.py::_ejecutar_pytest` | `tests/test_trazabilidad_sdd.py::test_matriz_cubre_requisitos_componentes_y_pruebas`, `tests/test_verificador.py::test_import_eliminado_detectado_sin_ejecutar`, `tests/test_verificador.py::test_pytest_rechaza_resultado_omitido` | pytest |
+| EVAL | Ejecutar la muestra de semana 11 | Cuarenta casos distribuidos 24/10/6. La comparación conserva criterios y rechaza retrocesos fuera de tolerancia | Evaluación determinista | `scripts/evaluar_semana11.py::evaluar`, `scripts/evaluar_semana11.py::comparar_resultados` | `tests/test_trazabilidad_sdd.py::test_matriz_de_40_casos_cubre_agentes_y_requisitos_vigentes`, `tests/test_trazabilidad_sdd.py::test_informe_de_evaluacion_identifica_fallo_y_omision`, `tests/test_trazabilidad_sdd.py::test_comparacion_rechaza_regresiones_por_categoria` | pytest |
+| MEDICION | Medir rendimiento de una carga local acotada | Reporta tamaño de muestra, p50 y p95 por rango, CPU, RSS, bytes y concurrencia | Benchmark local Linux | `scripts/medir_semana11.py::medir_local`, `scripts/medir_semana11.py::resumen` | `tests/test_trazabilidad_sdd.py::test_resumen_de_medicion_documenta_rango_p95_sin_interpolar` | pytest |
+| ENTREGA | Preparar dos iteraciones para revisión | Ambas iteraciones registran tres elementos pendientes de revisión humana y enlazan los requisitos siguientes | Cierre SDD y evidencias | `scripts/verificar.py::_ejecutar_pytest` | `tests/test_trazabilidad_sdd.py::test_entrega_contiene_dos_iteraciones_y_revision_humana_pendiente` | pytest |
 
 ### Brechas y discrepancias
 
@@ -249,6 +252,153 @@ Las brechas se registran debajo de la matriz con el alcance que aún falta acred
 | AUT-TIME, REC | Se verifica el límite cooperativo y el registro de contadores. Preempción de código nativo, objetivos de CPU/RAM/disco y benchmarks reproducibles quedan sin acreditar. |
 | RAG, SEC-INPUT, PROMPTS | Se verifica partición por tenant, patrones conocidos y prompts con MockLLM. Autenticación, detección exhaustiva de PII y resistencia comparativa de modelos se mantienen fuera de esta fase. |
 | HITL, LOCAL | La bandeja comercial es en memoria. Los adaptadores externos y el registro de LangSmith se conservan como legado; la operación prevista es local. |
+
+## Evaluación reproducible de la semana 11
+
+[Conjunto ejecutable](../evals/semana11.json). Contiene 24 casos representativos, 10 límite y 6
+adversarios. Cada caso declara entrada, alcance SDD, conducta y aceptación observables. El
+programa usa las pruebas de pytest como oráculos deterministas y añade a cada fila el resultado
+efectivo y la clasificación del fallo. Un nodo ausente, un error de infraestructura, una omisión
+o una aserción fallida impiden contabilizar esa fila como aprobada. R23 ejecuta las once
+instancias de prompts. CP‑1 a CP‑7 se operacionalizan mediante pruebas de los contratos actuales.
+R02 ejerce una entrada representativa de CP‑7. Los demás rangos permanecen cubiertos por
+la suite integral enlazada desde A2.
+
+```sh
+python scripts/evaluar_semana11.py
+python scripts/medir_semana11.py
+```
+
+Para comparar resultados, extraer `git archive 7284feb` en un directorio temporal separado
+y pasar su ruta con `python scripts/evaluar_semana11.py --referencia RUTA`. Se usa la misma
+matriz y el mismo intérprete. Los índices de aprobación admiten como máximo −2 puntos
+porcentuales por categoría y en el total, con cero retrocesos de seguridad o invariantes.
+El cierre de esta fase exige además los 40 casos aprobados.
+
+| Perfil | Referencia `7284feb` | Intervención | Variación |
+|---|---:|---:|---:|
+| Representativos R01–R24 | 24/24 | 24/24 | 0 pp |
+| Límite L01–L10 | 10/10 | 10/10 | 0 pp |
+| Adversarios A01–A06 | 6/6 | 6/6 | 0 pp |
+| Total | 40/40 | 40/40 | 0 pp |
+
+Se conservan los doce bloques en los once roles. Los prompts renderizados medían 1.711 caracteres
+en `391dee6`, 16.101 en `16c78bc` y 14.650 en `7284feb` y en esta intervención. La comparación
+conductual mide criterios deterministas con MockLLM. La calidad semántica, resistencia adversaria
+de un modelo real y consumo efectivo de tokens de proveedor quedan pendientes.
+
+### Rendimiento local medido
+
+Medición en el entorno de ejecución de Codex, Linux x86‑64, CPython 3.14.10,
+Intel Xeon Platinum 8573C, tres CPU visibles y cuota de dos CPU, con 8 GiB de límite
+de memoria del contenedor. El benchmark usa MockLLM, deshabilita trazas y bloquea
+conexiones IPv4/IPv6 del socket de Python. El índice Chroma se crea en un directorio temporal.
+
+Cinco procesos nuevos midieron arranque hasta importar la aplicación ASGI. La latencia HTTP
+se midió en proceso con TestClient (un calentamiento y 40 consultas de stock por modalidad,
+una secuencial y otra con cuatro trabajadores). Se usaron dos tenants y dos SKUs, uno disponible
+y uno agotado. Cada operación RAG busca un marcador propio y otro ajeno. Se repiten las
+modalidades de 40 pares. Se cronometraron 20 ejecuciones por agente comercial y cinco
+ejecuciones académicas completas, con un calentamiento por ruta. P95 usa rango más próximo. Con cinco muestras equivale al máximo observado. CPU es tiempo de proceso (los hijos de arranque
+se contabilizan aparte), RSS es el pico del proceso y almacenamiento se mide en bytes del
+corpus e índice, con tamaños lógicos y asignados disponibles en la salida JSON.
+
+| Medición local | Muestras | P50 | P95 | Objetivo propuesto para esta carga |
+|---|---:|---:|---:|---:|
+| Arranque en proceso nuevo | 5 | 1.753,47 ms | 2.020,82 ms | ≤ 4.000 ms p95 |
+| HTTP stock secuencial | 40 | 4,74 ms | 6,34 ms | ≤ 100 ms p95 |
+| HTTP stock, 4 trabajadores | 40 | 17,31 ms | 26,02 ms | ≤ 200 ms p95 |
+| RAG, pares secuenciales | 40 | 11,56 ms | 14,57 ms | — |
+| RAG, pares con 4 trabajadores | 40 | 18,43 ms | 119,21 ms | ≤ 250 ms p95 |
+| Deep Agents, recorrido completo | 5 | 462,04 ms | 640,23 ms | — |
+
+El proceso consumió 12,33 s de CPU y registró 215,82 MiB de RSS pico (objetivo ≤ 400 MiB).
+Los cinco procesos de arranque consumieron juntos 9,43 s de CPU. El corpus ocupa 45.970 bytes.
+El índice de dos tenants con 167 fragmentos cada uno ocupó 2.322.760 bytes lógicos y
+2.306.048 bytes asignados (objetivo lógico ≤ 16 MiB). Se observaron cero cruces de datos en
+80 comprobaciones ajenas RAG. Se cumplieron los siete objetivos propuestos. El p95 concurrente
+de RAG aumentó frente al secuencial. La primera corrida también mostró una cola más larga.
+La carga pequeña y la contención de bloqueo/cuota ameritan medición adicional antes de estimar
+capacidad. HTTP midió aproximadamente 207 consultas/s secuenciales y 206 concurrentes en este
+perfil. Esta prueba mantiene la misma ruta de stock y deja pendientes cargas mixtas HTTP.
+
+El p95 por agente fue de 0,164 ms para A1, 267,184 ms para A2, 0,780 ms para A3, 0,380 ms para
+A4, 0,230 ms para A5, 0,099 ms para A6, 0,317 ms para A7 y 0,263 ms para A8. Cada agente emitió
+una llamada a MockLLM. Se observaron cero llamadas a herramientas
+en A1 y una en A2–A8 en las entradas elegidas. Por especialista académico, las delegaciones
+incluyendo su subgrafo tuvieron p95 de 17,759 ms (Catálogo) y 17,359 ms (Revisión). El recorrido
+completo incluye al coordinador. En HTTP se registraron dos llamadas al modelo y una o dos
+herramientas según stock, con 744 unidades simuladas por consulta. El recorrido académico
+registró 12 modelos, 9 herramientas, 2 delegaciones y 23.974 unidades simuladas. Los tiempos
+son mediciones reales de esta ejecución. Las unidades derivan de fixtures y no se facturaron.
+
+Estos resultados excluyen dependencias instaladas, cachés, navegador, inicialización de un
+servidor con socket público, carga sostenida y equipos del usuario. Son objetivos de una
+carga local acotada. La fase conserva la posibilidad de repetir la medición y no extrapola
+capacidad de producción, costo ni mejoras entre versiones a partir de una muestra pequeña.
+
+## Dos iteraciones SDD para revisión humana
+
+Las constituciones, especificaciones y planes siguientes son borradores retrospectivos preparados
+para revisión. Describen el alcance y las evidencias disponibles al cierre técnico de la semana 11.
+La aprobación y la identidad de cada revisor quedan pendientes.
+
+### Iteración 1 · Automatización comercial
+
+**Organización y proceso.** Veltri Tecnologic representa una organización de atención y venta
+de equipos de cómputo en soles. Clientes, personal de ventas, inventario y revisión humana son
+actores del escenario sintético. Los BPMN [AS-IS](bpmn_as_is.bpmn) y [TO-BE](bpmn_to_be.bpmn) se
+conservan como contexto de proceso. El TO-BE propone una secuencia de dominios que el DAG actual
+no ejecuta como una sola transacción.
+
+| Elemento | Borrador preparado | Estado |
+|---|---|---|
+| Constitución | Reducir trabajo manual de consulta, configuración y cotización utilizando catálogo sintético y reglas deterministas. Alcance en A1–A8, API local y borradores. La aprobación comercial real, ventas, cobros y despachos quedan excluidos. Responsabilidades propuestas para el equipo técnico y las funciones de ventas, inventario y revisión. | Pendiente de revisión humana |
+| Especificaciones | A1–A8, GRAFO, API, CAT, HITL, SEC-INPUT y SEC-DATOS. Criterios de aceptación y referencias en la matriz SDD. | Pendiente de revisión humana |
+| Plan de trabajo | Revisar BPMN y contratos, cerrar datos y herramientas, integrar agentes, validar rutas y compuerta, comprobar API y casos dorados, y revisar resultados y discrepancias con el equipo. Secuencia documentada retrospectivamente y preparada para validación. | Pendiente de revisión humana |
+
+**Tareas ejecutadas y evidencia.** Agentes tipados, cálculos en herramientas, rutas LangGraph,
+consultas HTTP, borradores idempotentes y revisión humana local. La matriz enlaza a las pruebas
+existentes y la evaluación cubre R01–R14, R20, R22, L01–L05 y L10. La coincidencia entre las
+expectativas comerciales históricas y el alcance sintético se revisa en CP‑1, CP‑4 y CP‑6.
+
+### Iteración 2 · Deep Agents y escalabilidad
+
+**Roles y arquitectura.** DA-CoordinadorAcademico planifica y delega. DA-Catalogo recupera el
+fixture y DA-Revision contrasta el hallazgo. La memoria es virtual y dura una ejecución. RAG
+y las revisiones comerciales usan tenant explícito. La operación local con dos tenants se midió
+con carga acotada y proporciona evidencia de aislamiento, con capacidad productiva aún pendiente.
+
+| Elemento | Borrador preparado | Estado |
+|---|---|---|
+| Constitución | Demostrar los cuatro pilares, el presupuesto compartido y el aislamiento local. Alcance en fixtures académicos, controles por rol y medición de recursos. Responsabilidades propuestas para el equipo técnico y el revisor académico. | Pendiente de revisión humana |
+| Especificaciones | DA-COORD, DA-CAT, DA-REV, DA-MEM, DA-CTRL, DA-LEG, PROMPTS, AUT-LIM, AUT-TOK, AUT-TIME, AUT-HITL, RAG, REC, EVAL y MEDICION. La matriz define contratos, criterios y oráculos. | Pendiente de revisión humana |
+| Plan de trabajo | Revisar roles y herramientas. Probar planificación, delegación y memoria. Comprobar prompts y límites. Evaluar seguridad, aislamiento y recursos. Revisar los resultados con el equipo. Secuencia documentada retrospectivamente. | Pendiente de revisión humana |
+
+**Tareas ejecutadas y evidencia.** Deep Agents y LCEL se ejecutan en las demos locales. Las
+instrucciones, presupuesto, permisos y caminos de revisión se prueban con fixtures. R15–R19,
+R21, R23–R24, L06–L09 y A01–A06 aportan evidencia funcional y de seguridad. La medición aporta
+evidencia de recursos para esta carga local.
+
+### Cumplimiento académico hasta la semana 11
+
+| Tema | Estado acreditado | Límite |
+|---|---|---|
+| LangChain y LCEL | Pipeline ejecutada y validada en semana 10 y R17. | Fixture sintético. |
+| LangGraph y arquitectura multiagente | DAG comercial y demo real del framework probados, R15 y R20. | Ruta comercial única por solicitud. |
+| Deep Agents y cuatro pilares | Herramientas reales del framework, secuencia y memoria verificadas, R15–R16. | Decisiones y respuestas de modelo programadas. |
+| Prompts avanzados | Once roles, doce bloques e instrucciones recibidas, R15 y R23. | Comparación semántica con modelo real pendiente. |
+| Seguridad y privacidad | Permisos, patrones conocidos y aislamiento probados, R19 y A01–A06. | Autenticación productiva y resistencia exhaustiva pendientes. |
+| Observabilidad local e HITL | Contadores, cortes y revisión de la demo probados, R18, R21, L06–L08. HITL nativo probado en semana 10. | Bandeja comercial en memoria y plazo cooperativo. |
+| SDD, evaluación y regresiones | Matriz ejecutable, 40 casos y comparación contra el commit de referencia. | Seis borradores de revisión humana pendientes. |
+
+### Trazabilidad de las semanas siguientes
+
+| Semana | Requisitos pendientes | Insumos disponibles |
+|---|---|---|
+| Semana 12 | Despliegue exclusivamente local, diagramas de arquitectura y componentes, instalación reproducible y propuesta académica de AWS sin aprovisionamiento. | Arquitectura vigente, comandos locales, dependencias fijadas y medición Linux. |
+| Semana 13 | ROI, TCO, retorno y período de recuperación, VAN y análisis de sensibilidad. | Latencias, CPU, RSS, almacenamiento y contadores locales. Faltan supuestos de costos, volúmenes y flujos aprobados. |
+| Semana 14 | Revisión humana de ambas iteraciones SDD, validación final, demostración funcional y enlace del video de la aplicación. | Borradores retrospectivos, BPMN, matriz, demos y evidencia ejecutable de semana 11. |
 
 ## Archivo histórico de la semana 10
 

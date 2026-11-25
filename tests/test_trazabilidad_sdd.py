@@ -11,6 +11,8 @@ from pathlib import Path
 import pytest
 from langgraph.graph import END, START
 
+from scripts.evaluar_semana11 import cargar_casos, comparar_resultados, leer_resultados
+from scripts.medir_semana11 import resumen
 from src.config import Configuracion
 from src.core import observabilidad
 from src.graph.workflow import Orquestador
@@ -19,7 +21,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 REQUISITOS = frozenset("""
     A1 A2 A3 A4 A5 A6 A7 A8 DA-COORD DA-CAT DA-REV DA-MEM DA-CTRL DA-LEG
     GRAFO PROMPTS AUT-LIM AUT-TOK AUT-TIME AUT-HITL RAG SEC-INPUT SEC-DATOS
-    HITL API CAT REC LOCAL SDD
+    HITL API CAT REC LOCAL SDD EVAL MEDICION ENTREGA
 """.split())
 ENCABEZADO = (
     "| ID | Requisito | Especificación de aceptación | Componente | Código | Pruebas | Resultado |"
@@ -154,3 +156,69 @@ def test_ventana_de_recursos_acotada_y_aislada(monkeypatch):
     assert conservados[-1] == ("sdd", {"pasos": {"total": 256}})
     conservados[-1][1]["pasos"]["total"] = -1
     assert observabilidad.recursos_recientes()[-1][1]["pasos"]["total"] == 256
+
+
+
+def test_matriz_de_40_casos_cubre_agentes_y_requisitos_vigentes():
+    casos = cargar_casos()
+    cubiertos = {req for caso in casos for req in caso["requisitos"]}
+    assert cubiertos <= REQUISITOS
+    agentes = {f"A{i}" for i in range(1, 9)}
+    assert agentes | {"DA-COORD", "DA-CAT", "DA-REV"} <= cubiertos
+
+
+def test_informe_de_evaluacion_identifica_fallo_y_omision(tmp_path):
+    casos = cargar_casos()
+    informe = tmp_path / "resultado.xml"
+    informe.write_text(
+        '<testsuites><testsuite>'
+        '<testcase classname="tests.test_agentes" name="test_ocho_agentes_caso_valido_sin_red[0]"/>'
+        '<testcase classname="tests.test_agentes" name="test_ocho_agentes_caso_valido_sin_red[2]">'
+        '<skipped/></testcase>'
+        '<testcase classname="tests.test_autonomia_semana11" '
+        'name="test_el_subagente_no_puede_reiniciar_el_presupuesto"><failure/></testcase>'
+        '</testsuite></testsuites>',
+        encoding="utf-8",
+    )
+    resultado = {caso["id"]: caso for caso in leer_resultados(casos, informe)}
+    assert resultado["R01"]["resultado"] == "aprobado"
+    assert resultado["R03"]["resultado"] == "omitido"
+    assert resultado["R02"]["clasificacion_fallo"] == "infraestructura"
+    assert resultado["A06"]["clasificacion_fallo"] == "seguridad_o_invariante"
+
+
+@pytest.mark.parametrize(("id_", "clase", "delta"), [
+    ("R01", "funcional", -4.1667), ("A01", "seguridad_o_invariante", -16.6667),
+])
+def test_comparacion_rechaza_regresiones_por_categoria(id_, clase, delta):
+    base = [{**c, "resultado": "aprobado", "clasificacion_fallo": None} for c in cargar_casos()]
+    actual = [
+        {**c, "resultado": "fallido", "clasificacion_fallo": clase} if c["id"] == id_ else c
+        for c in base
+    ]
+    informe = comparar_resultados(base, actual)
+    assert not informe["aceptada"] and informe["regresiones"] == [id_]
+    categoria = "adversario" if id_.startswith("A") else "representativo"
+    assert informe["variacion_pp"][categoria] == delta
+
+
+def test_resumen_de_medicion_documenta_rango_p95_sin_interpolar():
+    assert resumen([20, *range(1, 20)]) == {"n": 20, "p50_ms": 10.5, "p95_ms": 19}
+
+
+def test_entrega_contiene_dos_iteraciones_y_revision_humana_pendiente():
+    arquitectura = (RAIZ / "docs/arquitectura.md").read_text(encoding="utf-8")
+    iteraciones = (
+        "### Iteración 1 · Automatización comercial",
+        "### Iteración 2 · Deep Agents y escalabilidad",
+    )
+    for nombre in iteraciones:
+        _, _, contenido = arquitectura.partition(nombre + "\n")
+        seccion = contenido.split("\n### ", 1)[0]
+        revisiones = {
+            fila.split("|")[1].strip() for fila in seccion.splitlines()
+            if fila.startswith("| ") and "Pendiente de revisión humana" in fila
+        }
+        assert revisiones == {"Constitución", "Especificaciones", "Plan de trabajo"}
+    for semana in ("12", "13", "14"):
+        assert f"| Semana {semana} |" in arquitectura
