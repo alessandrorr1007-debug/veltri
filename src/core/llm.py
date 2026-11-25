@@ -8,6 +8,7 @@ from typing import Any, Protocol, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from src.config import Configuracion, cargar_configuracion
+from src.core.prompts import datos_no_confiables
 from src.core.seguridad import validar_entrada_modelo
 
 T = TypeVar("T", bound=BaseModel)
@@ -71,7 +72,8 @@ class GeminiLLM:
         try:
             interaccion = self._cliente.interactions.create(
                 model=self._modelo,
-                input=prompt + "\nDATOS_NO_CONFIABLES:\n" + json.dumps(datos, ensure_ascii=False),
+                system_instruction=prompt,
+                input=datos_no_confiables(datos),
                 response_format={
                     "type": "text",
                     "mime_type": "application/json",

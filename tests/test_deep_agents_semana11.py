@@ -1,7 +1,9 @@
 """Regresiones de la demo de cuatro pilares con el framework real y MockLLM."""
 
+import json
+
 import pytest
-from langchain_core.messages import SystemMessage, ToolMessage
+from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 from pydantic import ValidationError
 
 from src.academic.deep_agents import AdaptadorMock
@@ -22,6 +24,7 @@ def test_cuatro_pilares_en_framework_real(monkeypatch):
         "DA-Revision": PROMPT_REVISION,
     }
     roles_verificados = set()
+    datos_revision = []
     generar = AdaptadorMock._generate
 
     def verificar_instrucciones(self, messages, *args, **kwargs):
@@ -30,6 +33,15 @@ def test_cuatro_pilares_en_framework_real(monkeypatch):
             and instrucciones[self._rol] in mensaje.text
             for mensaje in messages
         )
+        if self._rol == "DA-Revision":
+            for mensaje in messages:
+                if isinstance(mensaje, HumanMessage):
+                    _, datos = mensaje.text.split("\n", 1)
+                    datos_revision.append(json.loads(datos)["datos_no_confiables"])
+            assert all(
+                '"datos_no_confiables":' not in mensaje.text
+                for mensaje in messages if isinstance(mensaje, SystemMessage)
+            )
         roles_verificados.add(self._rol)
         return generar(self, messages, *args, **kwargs)
 
@@ -46,7 +58,9 @@ def test_cuatro_pilares_en_framework_real(monkeypatch):
     assert [c["args"]["subagent_type"] for c in delegaciones] == ["DA-Catalogo", "DA-Revision"]
     hallazgo = evidencia_canonica(llamadas[2]["args"]["content"])
     assert llamadas[2]["args"]["file_path"] == RUTA_HALLAZGOS
-    assert hallazgo in delegaciones[1]["args"]["description"]
+    _, datos_delegados = delegaciones[1]["args"]["description"].split("\n", 1)
+    assert json.loads(datos_delegados) == {"datos_no_confiables": json.loads(hallazgo)}
+    assert datos_revision and all(datos == json.loads(hallazgo) for datos in datos_revision)
     assert verificar_archivo(resultado["files"], hallazgo) == hallazgo
     assert all(t["status"] == "completed" for t in resultado["todos"])
     assert all(m.status == "success" for m in mensajes if isinstance(m, ToolMessage))

@@ -1,6 +1,7 @@
 """A5: inventario y alternativas comprobados contra el catálogo sintético."""
 
 from src.agents.base import BaseAgent
+from src.agents.prompts import prompt_plan
 from src.schemas.agentes import EntradaSeleccion, ResultadoInventario, SalidaAgente
 from src.tools.catalogo import Catalogo
 from src.tools.inventario import alternativas, comprobar_stock
@@ -11,7 +12,15 @@ class A5Inventario(BaseAgent):
 
     id = "A5"
     accion = "stock"
-    prompt = "Planifica solo stock. Devuelve accion, p y c; no inventes disponibilidad."
+    prompt = prompt_plan(
+        accion=accion,
+        rol="A5 · D3. Planifica una consulta de stock y sugerencias.",
+        contexto="La selección explícita se contrasta con existencias del catálogo sintético.",
+        herramientas="El código usa comprobar_stock y alternativas solo para faltantes.",
+        proceso="Emite stock. Si el código detecta faltantes, las alternativas son sugerencias.",
+        limites="No reserves stock ni sustituyas productos; no prometas disponibilidad real.",
+        bloqueo="Un faltante exige revisión aunque exista una alternativa.",
+    )
 
     def run(
         self, entrada: EntradaSeleccion, catalogo: Catalogo

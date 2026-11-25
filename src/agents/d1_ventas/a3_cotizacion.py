@@ -1,6 +1,7 @@
 """A3: cotización calculada por herramientas sobre selección explícita."""
 
 from src.agents.base import BaseAgent
+from src.agents.prompts import prompt_plan
 from src.schemas.agentes import EntradaCotizacion, SalidaAgente
 from src.schemas.resultados import ResultadoCotizacion
 from src.tools.catalogo import Catalogo
@@ -12,7 +13,15 @@ class A3Cotizacion(BaseAgent):
 
     id = "A3"
     accion = "cotizar"
-    prompt = "Planifica solo cotizar. Devuelve accion, p y c; no inventes importes ni stock."
+    prompt = prompt_plan(
+        accion=accion,
+        rol="A3 · D1. Planifica una cotización sobre una selección explícita.",
+        contexto="La selección y cantidades vienen del llamador; el catálogo es sintético.",
+        herramientas="El código usa cotizar para importes, stock y validación técnica.",
+        proceso="Emite cotizar; el cálculo de líneas y la revisión de bloqueos quedan en código.",
+        limites="No fijes precios, descuentos, IGV, cantidades ni ajustes a la selección.",
+        bloqueo="Precio no respaldado, stock insuficiente o incompatibilidad exigen revisión.",
+    )
 
     def run(
         self, entrada: EntradaCotizacion, catalogo: Catalogo

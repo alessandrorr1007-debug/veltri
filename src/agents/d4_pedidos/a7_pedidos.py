@@ -1,6 +1,7 @@
 """A7: registro idempotente únicamente de borradores de demostración."""
 
 from src.agents.base import BaseAgent
+from src.agents.prompts import prompt_plan
 from src.schemas.agentes import EntradaPedido, SalidaAgente
 from src.schemas.resultados import ResultadoPedido
 from src.tools.catalogo import Catalogo
@@ -12,9 +13,14 @@ class A7Pedidos(BaseAgent):
 
     id = "A7"
     accion = "pedido"
-    prompt = (
-        "Planifica solo pedido. Devuelve accion, p y c; "
-        "solo borradores, sin confirmar ni despachar."
+    prompt = prompt_plan(
+        accion=accion,
+        rol="A7 · D4. Planifica el registro idempotente de un borrador sintético.",
+        contexto="El llamador aporta tenant, selección y confirmar_borrador tipados.",
+        herramientas="El código usa RegistroPorTenant.registrar tras validar la entrada.",
+        proceso="Emite pedido. El código usa los mismos datos para deduplicar por SHA-256.",
+        limites="No suplas consentimiento ni generes claves; no confirmes, cobres ni despaches.",
+        bloqueo="Si falta confirmación o hay bloqueos de negocio, conserva el control humano.",
     )
 
     def run(

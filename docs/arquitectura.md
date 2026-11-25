@@ -84,6 +84,25 @@ Los BPMN [AS-IS](bpmn_as_is.bpmn) y [TO-BE](bpmn_to_be.bpmn) documentan el proce
 
 `get_llm()` es la única fábrica. Configuración del proceso prevalece sobre `.env`; USE_MOCK_LLM=1 por defecto, proveedor gemini. El modo real requiere modelo y clave locales; la fachada comercial lo retiene pendiente de calibración. MockLLM consume fixtures tipados sin inferencia ni fallback inventado. El conector Gemini usa JSON Schema, store=False y no streaming; su compatibilidad se prueba con transporte simulado, no con una cuenta externa.
 
+## Arquitectura de prompts
+
+`src/core/prompts.py` compone doce bloques en orden fijo. Centraliza la jerarquía de confianza,
+el manejo de entradas no confiables y la privacidad. `src/agents/prompts.py` aplica las reglas de
+planificación comercial. Cada agente define su misión, contexto, herramientas que ejecuta el
+código, proceso, límites y condiciones de revisión. A1 incluye ejemplos de clasificación ambigua
+y A6 ejemplifica el tratamiento de importes iguales y discrepantes.
+
+Los agentes comerciales emiten un único `PlanModelo` con `accion`, `p` y `c`. Los agentes A2–A8
+validan la acción de su dominio antes de ejecutar herramientas deterministas. LangGraph conserva
+el control de la revisión humana. El conector Gemini coloca el prompt en `system_instruction` y
+los datos en un objeto JSON aparte. Sigue usando el contrato Pydantic y se verifica con transporte
+simulado. La guarda previa al modelo continúa activa.
+
+En la [demo académica de semana 11](agentes/deep-agents-semana11.md), los tres roles reciben los
+doce bloques como instrucciones de sistema. El adaptador admite solo las herramientas programadas
+para cada rol y separa el hallazgo delegado como datos estructurados. La salida
+`SalidaAcademica` mantiene la revisión requerida y ausencia de efecto comercial.
+
 ## Decisión y revisión
 
 SolicitudDecision exige opción, p/c finitos en [0,1], origen prueba_no_calibrada y evidencia discriminada del dominio. La compuerta revalida y calcula bloqueos/hash. Un bloqueo fuerza revisión cualquiera sea p. Sin bloqueo, p >= TAU_AUTO propone ejecutar, TAU_REV <= p < TAU_AUTO propone revisión y p < TAU_REV escala. Los umbrales solo se leen del archivo protegido; c no introduce otro umbral. Puntajes son fixtures, no probabilidades calibradas.

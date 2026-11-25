@@ -1,8 +1,6 @@
-# Semana 11 · Fase 2: cuatro pilares de Deep Agents
+# Semana 11 · Deep Agents y prompts por rol
 
-Propuesta de implementación incremental sobre `e4abe288549d9eed8c6b786a1095951a756e1346`.
-No reemplaza la demostración original de semana 10 ni conecta agentes al flujo comercial.
-No agrega agentes, dependencias, endpoints ni contratos de intercambio.
+Demostración académica independiente del flujo comercial y de la demo de semana 10.
 
 ```mermaid
 flowchart TD
@@ -30,22 +28,23 @@ flowchart TD
   uso de evidencia, restricción de delegación y criterio de detención. La prueba de integración
   comprueba que los tres prompts llegan al modelo simulado.
 
-La demostración conserva la fábrica única de modelos y reutiliza `AdaptadorMock`. Las respuestas
-programadas prueban el cableado de las herramientas, no comprensión ni autonomía de un LLM real.
-El estado virtual dura una ejecución; no acredita memoria entre procesos o sesiones. El límite
-explícito de 40 pasos del grafo es una decisión provisional para esta demo (no es un presupuesto
-real de tokens ni una política completa de autonomía). El endurecimiento general de los prompts
-(12 bloques) y los límites operativos completos quedan para las siguientes fases.
+Los tres roles usan la [estructura de doce bloques](../arquitectura.md#arquitectura-de-prompts).
+El adaptador de semana 11 restringe las herramientas que puede emitir cada rol. El coordinador
+envía el hallazgo de memoria como un objeto JSON `datos_no_confiables` separado de la instrucción,
+y el resultado final se valida como `SalidaAcademica`. El estado virtual dura una ejecución.
+El grafo conserva un límite de recursión de 40 pasos. Las respuestas programadas comprueban la
+integración del framework y los controles del adaptador. La comprensión del modelo y el costo en
+tokens requieren evaluación posterior.
 
-## Validación de la fase 2
+## Validación local
 
 Con el entorno virtual activado y las dependencias fijadas de Veltri:
 
 ```sh
 python -m pytest -q tests/test_memoria_semana11.py tests/test_deep_agents_semana11.py
+python -m pytest -q tests/test_prompts_semana11.py tests/test_llm.py
 python -m src.academic.deep_agents_semana11
 python scripts/verificar.py
 ```
 
-No ejecutar con modelos remotos ni activar trazas externas. No presentar una prueba de integración
-como aprobada hasta ejecutarla en el entorno real. Conservar las evidencias originales de semana 10.
+Usar MockLLM con las trazas externas desactivadas.

@@ -40,8 +40,10 @@ jobs:
           python-version: '3.14'
       - name: Instalar dependencias fijadas
         run: python -m pip install -r requirements-dev.txt
-      - name: Pruebas de la fase 2
-        run: python -m pytest -q tests/test_memoria_semana11.py tests/test_deep_agents_semana11.py
+      - name: Pruebas de los cuatro pilares y prompts
+        run: >-
+          python -m pytest -q tests/test_memoria_semana11.py tests/test_deep_agents_semana11.py
+          tests/test_prompts_semana11.py tests/test_llm.py
       - name: Demo de cuatro pilares
         run: python -m src.academic.deep_agents_semana11
       - name: Verificacion integral
