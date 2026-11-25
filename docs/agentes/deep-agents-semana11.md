@@ -27,7 +27,8 @@ flowchart TD
   El contenido procede de la respuesta de la herramienta sintética del especialista y se verifica
   antes de enviarlo al segundo rol. El coordinador compara los resultados de los dos especialistas.
 - Instrucciones: prompts por rol con alcance cerrado, reglas de no intervención comercial,
-  uso de evidencia, restricción de delegación y criterio de detención.
+  uso de evidencia, restricción de delegación y criterio de detención. La prueba de integración
+  comprueba que los tres prompts llegan al modelo simulado.
 
 La demostración conserva la fábrica única de modelos y reutiliza `AdaptadorMock`. Las respuestas
 programadas prueban el cableado de las herramientas, no comprensión ni autonomía de un LLM real.
@@ -36,14 +37,14 @@ explícito de 40 pasos del grafo es una decisión provisional para esta demo (no
 real de tokens ni una política completa de autonomía). El endurecimiento general de los prompts
 (12 bloques) y los límites operativos completos quedan para las siguientes fases.
 
-## Validación pendiente en la raíz real del repositorio
+## Validación de la fase 2
 
-Con el entorno virtual existente y las dependencias fijadas de Veltri:
+Con el entorno virtual activado y las dependencias fijadas de Veltri:
 
-```powershell
-.\.venv\Scripts\python -m pytest -q tests/test_memoria_semana11.py tests/test_deep_agents_semana11.py
-.\.venv\Scripts\python -m src.academic.deep_agents_semana11
-.\.venv\Scripts\python scripts/verificar.py
+```sh
+python -m pytest -q tests/test_memoria_semana11.py tests/test_deep_agents_semana11.py
+python -m src.academic.deep_agents_semana11
+python scripts/verificar.py
 ```
 
 No ejecutar con modelos remotos ni activar trazas externas. No presentar una prueba de integración

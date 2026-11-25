@@ -1,17 +1,42 @@
 """Regresiones de la demo de cuatro pilares con el framework real y MockLLM."""
 
 import pytest
-from langchain_core.messages import ToolMessage
+from langchain_core.messages import SystemMessage, ToolMessage
 from pydantic import ValidationError
 
-from src.academic.deep_agents_semana11 import ejecutar_semana11
+from src.academic.deep_agents import AdaptadorMock
+from src.academic.deep_agents_semana11 import (
+    PROMPT_CATALOGO,
+    PROMPT_COORDINADOR,
+    PROMPT_REVISION,
+    ejecutar_semana11,
+)
 from src.academic.memoria_semana11 import RUTA_HALLAZGOS, evidencia_canonica, verificar_archivo
 from src.schemas.academico import SalidaAcademica
 
 
-def test_cuatro_pilares_en_framework_real():
+def test_cuatro_pilares_en_framework_real(monkeypatch):
+    instrucciones = {
+        "coordinador": PROMPT_COORDINADOR,
+        "DA-Catalogo": PROMPT_CATALOGO,
+        "DA-Revision": PROMPT_REVISION,
+    }
+    roles_verificados = set()
+    generar = AdaptadorMock._generate
+
+    def verificar_instrucciones(self, messages, *args, **kwargs):
+        assert any(
+            isinstance(mensaje, SystemMessage)
+            and instrucciones[self._rol] in mensaje.text
+            for mensaje in messages
+        )
+        roles_verificados.add(self._rol)
+        return generar(self, messages, *args, **kwargs)
+
+    monkeypatch.setattr(AdaptadorMock, "_generate", verificar_instrucciones)
     auditoria = []
     resultado = ejecutar_semana11({}, auditoria)
+    assert roles_verificados == set(instrucciones)
     mensajes = resultado["messages"]
     llamadas = [c for m in mensajes for c in getattr(m, "tool_calls", [])]
     assert [c["name"] for c in llamadas] == [
