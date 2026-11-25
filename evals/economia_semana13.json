@@ -1,0 +1,410 @@
+{
+  "moneda": "PEN",
+  "tasa_descuento_anual": "0.12",
+  "academico": {
+    "supuestos": {
+      "consultas_mes": 0,
+      "minutos_asis": "0",
+      "minutos_tobe": "0",
+      "minutos_revision": "0",
+      "proporcion_hitl": "0",
+      "reproceso_asis": "0",
+      "reproceso_tobe": "0",
+      "minutos_reproceso": "0",
+      "costo_hora_pen": "0",
+      "realizacion": "0"
+    },
+    "costos": [
+      {
+        "id": "desarrollo",
+        "concepto": "Desarrollo formativo imputado",
+        "clase": "oportunidad",
+        "alcance": "tobe",
+        "periodo": "inicial",
+        "cantidad": 40,
+        "unidad": "horas",
+        "unitario_pen": "25",
+        "origen": "supuesto",
+        "justificacion": "Horas ilustrativas, sin parte de horas acreditado"
+      },
+      {
+        "id": "instalacion",
+        "concepto": "Instalación y configuración",
+        "clase": "oportunidad",
+        "alcance": "tobe",
+        "periodo": "inicial",
+        "cantidad": 4,
+        "unidad": "horas",
+        "unitario_pen": "25",
+        "origen": "supuesto",
+        "justificacion": "Horas distintas del desarrollo"
+      },
+      {
+        "id": "capacitacion",
+        "concepto": "Capacitación y familiarización",
+        "clase": "oportunidad",
+        "alcance": "tobe",
+        "periodo": "inicial",
+        "cantidad": 2,
+        "unidad": "horas",
+        "unitario_pen": "20",
+        "origen": "supuesto",
+        "justificacion": "Tiempo valorizado, sin curso contratado"
+      },
+      {
+        "id": "equipo",
+        "concepto": "Uso de equipo existente",
+        "clase": "oportunidad",
+        "alcance": "compartido",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "asignacion",
+        "unitario_pen": "6",
+        "origen": "supuesto",
+        "justificacion": "Imputación del equipo existente, sin compra nueva"
+      },
+      {
+        "id": "internet",
+        "concepto": "Internet compartido",
+        "clase": "indirecto",
+        "alcance": "compartido",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "asignacion",
+        "unitario_pen": "10",
+        "origen": "supuesto",
+        "justificacion": "Asignación del plan existente, sin suscripción nueva"
+      },
+      {
+        "id": "electricidad",
+        "concepto": "Electricidad incremental",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 5,
+        "unidad": "kwh",
+        "unitario_pen": "0.85",
+        "origen": "estimado",
+        "justificacion": "0,050 kW × 100 horas de uso supuestas al mes"
+      },
+      {
+        "id": "mantenimiento",
+        "concepto": "Mantenimiento",
+        "clase": "oportunidad",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 2,
+        "unidad": "horas",
+        "unitario_pen": "25",
+        "origen": "supuesto",
+        "justificacion": "Soporte del entorno, independiente de la instalación"
+      },
+      {
+        "id": "actualizaciones",
+        "concepto": "Actualizaciones",
+        "clase": "oportunidad",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "horas",
+        "unitario_pen": "25",
+        "origen": "supuesto",
+        "justificacion": "Revisión de dependencias"
+      },
+      {
+        "id": "seguridad",
+        "concepto": "Seguridad",
+        "clase": "oportunidad",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "horas",
+        "unitario_pen": "25",
+        "origen": "supuesto",
+        "justificacion": "Revisión local separada de mantenimiento"
+      },
+      {
+        "id": "almacenamiento",
+        "concepto": "Almacenamiento y copias locales",
+        "clase": "indirecto",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "asignacion",
+        "unitario_pen": "2",
+        "origen": "supuesto",
+        "justificacion": "Imputación del medio de copias, sin compra"
+      },
+      {
+        "id": "interrupciones",
+        "concepto": "Interrupciones de práctica",
+        "clase": "oculto",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "horas",
+        "unitario_pen": "20",
+        "origen": "supuesto",
+        "justificacion": "Tiempo de interrupción, fuera del soporte"
+      },
+      {
+        "id": "externo",
+        "concepto": "Proveedor de modelo y servicios externos",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "asignacion",
+        "unitario_pen": "0",
+        "origen": "acreditado",
+        "justificacion": "Cero tokens reales en benchmark de semana 12 y ningún servicio contratado en alcance"
+      },
+      {
+        "id": "licencias",
+        "concepto": "Licencias de pago",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "asignacion",
+        "unitario_pen": "0",
+        "origen": "supuesto",
+        "justificacion": "El supuesto local conserva el software vendorizado y gratuito"
+      }
+    ]
+  },
+  "empresarial": {
+    "supuestos": {
+      "consultas_mes": 240,
+      "minutos_asis": "20",
+      "minutos_tobe": "8",
+      "minutos_revision": "6",
+      "proporcion_hitl": "0.35",
+      "reproceso_asis": "0.12",
+      "reproceso_tobe": "0.06",
+      "minutos_reproceso": "12",
+      "costo_hora_pen": "24",
+      "realizacion": "0.60"
+    },
+    "costos": [
+      {
+        "id": "desarrollo",
+        "concepto": "Desarrollo e implementación",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "inicial",
+        "cantidad": 110,
+        "unidad": "horas",
+        "unitario_pen": "32",
+        "origen": "supuesto",
+        "justificacion": "Implementación prevista del piloto, sin cotización"
+      },
+      {
+        "id": "instalacion",
+        "concepto": "Instalación y configuración",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "inicial",
+        "cantidad": 12,
+        "unidad": "horas",
+        "unitario_pen": "28",
+        "origen": "supuesto",
+        "justificacion": "Despliegue y preparación local, fuera de desarrollo"
+      },
+      {
+        "id": "capacitacion",
+        "concepto": "Capacitación",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "inicial",
+        "cantidad": 12,
+        "unidad": "horas",
+        "unitario_pen": "24",
+        "origen": "supuesto",
+        "justificacion": "Horas de capacitación separadas del trabajo de atención"
+      },
+      {
+        "id": "equipamiento_nuevo",
+        "concepto": "Medio local adicional para copias",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "inicial",
+        "cantidad": 1,
+        "unidad": "unidades",
+        "unitario_pen": "300",
+        "origen": "supuesto",
+        "justificacion": "Asignación de presupuesto del piloto, sin oferta"
+      },
+      {
+        "id": "seguridad_inicial",
+        "concepto": "Verificación inicial de seguridad",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "inicial",
+        "cantidad": 8,
+        "unidad": "horas",
+        "unitario_pen": "30",
+        "origen": "supuesto",
+        "justificacion": "Revisión de aceptación distinta de implementación"
+      },
+      {
+        "id": "interrupcion_inicial",
+        "concepto": "Interrupción de transición",
+        "clase": "oculto",
+        "alcance": "tobe",
+        "periodo": "inicial",
+        "cantidad": 4,
+        "unidad": "horas",
+        "unitario_pen": "24",
+        "origen": "supuesto",
+        "justificacion": "Tiempo no productivo ajeno a formación e instalación"
+      },
+      {
+        "id": "equipo_existente",
+        "concepto": "Uso de estación existente",
+        "clase": "oportunidad",
+        "alcance": "compartido",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "asignacion",
+        "unitario_pen": "20",
+        "origen": "supuesto",
+        "justificacion": "Asignación de activo distinto del medio de copias"
+      },
+      {
+        "id": "internet",
+        "concepto": "Internet existente",
+        "clase": "indirecto",
+        "alcance": "compartido",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "asignacion",
+        "unitario_pen": "40",
+        "origen": "supuesto",
+        "justificacion": "Porción del plan común de ambos procesos"
+      },
+      {
+        "id": "electricidad_base",
+        "concepto": "Electricidad de operación común",
+        "clase": "directo",
+        "alcance": "compartido",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "asignacion",
+        "unitario_pen": "10",
+        "origen": "supuesto",
+        "justificacion": "Operación habitual ajena a la carga incremental"
+      },
+      {
+        "id": "electricidad_incremental",
+        "concepto": "Electricidad incremental",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 12,
+        "unidad": "kwh",
+        "unitario_pen": "0.85",
+        "origen": "estimado",
+        "justificacion": "0,060 kW × 200 horas de uso supuestas al mes"
+      },
+      {
+        "id": "mantenimiento",
+        "concepto": "Mantenimiento",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 6,
+        "unidad": "horas",
+        "unitario_pen": "30",
+        "origen": "supuesto",
+        "justificacion": "Soporte mensual, fuera de actualizaciones y seguridad"
+      },
+      {
+        "id": "actualizaciones",
+        "concepto": "Actualizaciones",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 2,
+        "unidad": "horas",
+        "unitario_pen": "30",
+        "origen": "supuesto",
+        "justificacion": "Actualización y regresión de dependencias"
+      },
+      {
+        "id": "seguridad",
+        "concepto": "Seguridad operativa",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 2,
+        "unidad": "horas",
+        "unitario_pen": "30",
+        "origen": "supuesto",
+        "justificacion": "Revisión mensual de configuración y accesos"
+      },
+      {
+        "id": "almacenamiento",
+        "concepto": "Gestión de almacenamiento y copias",
+        "clase": "indirecto",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "asignacion",
+        "unitario_pen": "10",
+        "origen": "supuesto",
+        "justificacion": "Rotación de copias, fuera de compra de equipo"
+      },
+      {
+        "id": "coordinacion",
+        "concepto": "Coordinación administrativa",
+        "clase": "indirecto",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": "0.5",
+        "unidad": "horas",
+        "unitario_pen": "24",
+        "origen": "supuesto",
+        "justificacion": "Seguimiento de operación ajeno a consultas e HITL"
+      },
+      {
+        "id": "licencias_externos",
+        "concepto": "Licencias de pago y proveedores externos",
+        "clase": "directo",
+        "alcance": "tobe",
+        "periodo": "mensual",
+        "cantidad": 1,
+        "unidad": "asignacion",
+        "unitario_pen": "0",
+        "origen": "supuesto",
+        "justificacion": "Piloto proyectado con MockLLM y operación local"
+      }
+    ],
+    "variantes": {
+      "pesimista": {
+        "cambios": {
+          "consultas_mes": 120,
+          "minutos_tobe": "11",
+          "proporcion_hitl": "0.60",
+          "reproceso_tobe": "0.10",
+          "costo_hora_pen": "20",
+          "realizacion": "0.35"
+        },
+        "factor_inicial": "1.20",
+        "factor_operacion": "1.25"
+      },
+      "optimista": {
+        "cambios": {
+          "consultas_mes": 360,
+          "minutos_tobe": "7",
+          "proporcion_hitl": "0.25",
+          "reproceso_tobe": "0.04",
+          "costo_hora_pen": "28",
+          "realizacion": "0.80"
+        },
+        "factor_inicial": "1",
+        "factor_operacion": "1"
+      }
+    }
+  }
+}

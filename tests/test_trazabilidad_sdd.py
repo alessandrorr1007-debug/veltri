@@ -23,6 +23,7 @@ REQUISITOS = frozenset("""
     GRAFO PROMPTS AUT-LIM AUT-TOK AUT-TIME AUT-HITL RAG SEC-INPUT SEC-DATOS
     HITL API CAT REC LOCAL SDD EVAL MEDICION ENTREGA
     LOCAL-INST LOCAL-CICLO LOCAL-DATOS LOCAL-RED
+    ECO-COST ECO-FLUJO ECO-SENS ECO-REP
 """.split())
 ENCABEZADO = (
     "| ID | Requisito | Especificación de aceptación | Componente | Código | Pruebas | Resultado |"

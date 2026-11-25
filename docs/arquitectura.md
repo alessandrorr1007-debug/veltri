@@ -253,6 +253,10 @@ Las brechas se registran debajo de la matriz con el alcance que aún falta acred
 | LOCAL-CICLO | Operar una instancia por directorio | Detecta puerto ocupado y proceso duplicado, responde en loopback y permite parada, liberación y reinicio | Supervisor Uvicorn | `scripts/veltri_local.py::iniciar`, `scripts/veltri_local.py::detener`, `scripts/veltri_local.py::estado_local` | `tests/test_despliegue_local.py::test_despliegue_rechaza_origen_ajeno_y_procesos_duplicados`, `tests/test_despliegue_local.py::test_despliegue_reinicia_y_conserva_indice_sin_conservar_borradores` | pytest |
 | LOCAL-DATOS | Preservar índice sin arrastrar datos de sesión | El tenant indexado conserva recuperación tras reinicio, uno ajeno no recupera su borrador y el borrador anterior se pierde | Chroma y registro en memoria | `scripts/veltri_local.py::indexar`, `src/knowledge/almacen.py::Almacen`, `src/tools/registro.py::RegistroPorTenant` | `tests/test_despliegue_local.py::test_despliegue_reinicia_y_conserva_indice_sin_conservar_borradores` | pytest |
 | LOCAL-RED | Restringir tráfico y validar concurrencia local | Host u origen ajeno recibe 403 tipado, DNS y egreso Python externo se deniegan y peticiones mixtas mantienen su intención | Guardas de despliegue | `scripts/veltri_local.py::proteger_http`, `scripts/veltri_local.py::_proteger_red` | `tests/test_despliegue_local.py::test_bloqueo_de_egreso_permite_loopback_y_rechaza_dns_externo`, `tests/test_despliegue_local.py::test_despliegue_rechaza_origen_ajeno_y_procesos_duplicados` | pytest |
+| ECO-COST | Clasificar costos en PEN y calcular TCO de dos procesos | Valida moneda, unidades, periodos y partidas únicas. Separa labor, soporte, inversión y acumulados de 36 meses | Modelo económico independiente | `src/economia.py::Costo`, `src/economia.py::calcular` | `tests/test_economia.py::test_tco_36_meses_separa_labor_soporte_inversion_y_compartidos`, `tests/test_economia.py::test_rechaza_moneda_distinta_costos_duplicados_y_periodos_ambiguos` | pytest |
+| ECO-FLUJO | Valorar tiempo realizable y calcular retornos | Conserva flujos negativos, aplica ROI y VAN, interpola payback y contempla inversión cero | Flujos incrementales | `src/economia.py::roi`, `src/economia.py::van`, `src/economia.py::payback` | `tests/test_economia.py::test_beneficios_flujos_y_roi_no_cuentan_dos_veces_el_ahorro_laboral`, `tests/test_economia.py::test_van_descuenta_flujos_anuales_y_mantiene_inversion_inmediata`, `tests/test_economia.py::test_payback_usa_acumulacion_mensual_con_flujos_negativos_e_interpolacion`, `tests/test_economia.py::test_inversion_y_denominador_cero_no_generan_indicadores_falsos` | pytest |
+| ECO-SENS | Evaluar escenarios, quiebres y sensibilidad | Compara perfiles independientes, cambia siete supuestos y valida los vecinos del equilibrio discreto | Escenarios en PEN | `src/economia.py::sensibilidad`, `src/economia.py::punto_equilibrio`, `src/economia.py::generar_informe` | `tests/test_economia.py::test_escenarios_independientes_y_sensibilidad_no_fuerzan_viabilidad`, `tests/test_economia.py::test_equilibrio_discreto_van_y_operacion_con_validacion_de_vecinos` | pytest |
+| ECO-REP | Reproducir el análisis sin servicios externos | Rechaza tiempo, volumen o tasas inválidos. La CLI emite JSON con resultados en PEN | Perfil y CLI económica | `src/economia.py::Supuestos`, `src/economia.py::main` | `tests/test_economia.py::test_rechaza_unidades_y_entradas_invalidas`, `tests/test_economia.py::test_modulo_local_publica_resultados_reutilizables_en_json` | pytest |
 
 ### Brechas y discrepancias
 
@@ -410,7 +414,7 @@ evidencia de recursos para esta carga local.
 | Semana | Requisitos pendientes | Insumos disponibles |
 |---|---|---|
 | Semana 12 | Despliegue local, instalación reproducible, diagramas y propuesta académica de AWS. | Entregados en la [sección de despliegue](#despliegue-nativo-local-de-la-semana-12). La validación en Windows 10 y 11 de escritorio queda pendiente. |
-| Semana 13 | ROI, TCO, retorno y período de recuperación, VAN y análisis de sensibilidad. | Latencias, CPU, RSS, almacenamiento y contadores locales. Faltan supuestos de costos, volúmenes y flujos aprobados. |
+| Semana 13 | TCO, ROI, payback, VAN, sensibilidad y escenarios en PEN. | Entregados en la [evaluación económica](#evaluación-económica-reproducible-de-la-semana-13). Los supuestos y la materialización del ahorro quedan pendientes de revisión humana. |
 | Semana 14 | Revisión humana de ambas iteraciones SDD, validación final, demostración funcional y enlace del video de la aplicación. | Borradores retrospectivos, BPMN, matriz, demos y evidencia ejecutable de semana 11. |
 
 ## Despliegue nativo local de la semana 12
@@ -562,6 +566,202 @@ flowchart LR
 El diagrama describe un diseño teórico. La integración, costos, disponibilidad regional
 y controles de identidad requerirían validación en otro alcance. La ejecución de esta semana
 usa únicamente la arquitectura local y no aprovisiona recursos de AWS.
+
+## Evaluación económica reproducible de la semana 13
+
+**Alcance.** Dos perfiles independientes en soles peruanos. El académico usa recursos
+existentes y MockLLM, con cero consultas comerciales y cero ingresos imputados. El empresarial
+proyecta un piloto local hipotético en una tienda de informática. Todos sus precios, volúmenes,
+tiempos, tasas y capacidades son supuestos de trabajo pendientes de revisión humana.
+Los resultados empresariales describen una proyección sin gasto, venta ni ahorro realizado.
+
+| Fase SDD | Diseño y tarea ejecutada | Criterio |
+|---|---|---|
+| 1 · Costos | Clasificar cada partida por alcance, momento, origen y unidad. | Separar costos compartidos, atribuibles e imputados. ECO-COST. |
+| 2 · TCO | Valorizar labor por consulta y mantener una cuenta separada de soporte e inversión. | Acumular 36 meses sin duplicar labor o supervisión. ECO-COST. |
+| 3 · Beneficios | Comparar los minutos de trabajo activo en el alcance común de los BPMN. | Separar tiempo liberado, realización monetaria y capacidad. ECO-FLUJO. |
+| 4 · Retorno | Construir flujos incrementales y calcular ROI y payback. | Aceptar flujos negativos, distinguir costo cero y corte a 36 meses. ECO-FLUJO. |
+| 5 · VAN y sensibilidad | Descontar los años 0–3 y variar un supuesto a la vez. | Reproducir tres escenarios y validar los vecinos del punto de equilibrio. ECO-SENS. |
+| 6 · Integración y verificación | Publicar un módulo sin dependencias de la aplicación que valide el perfil y emita JSON. | Resultados en PEN, pruebas locales y CI. ECO-REP. |
+
+### Costos y evidencia
+
+La única cifra monetaria operativa con evidencia directa en este alcance es **S/ 0 de proveedor
+externo** durante las pruebas de MockLLM. Los registros verifican cero tokens de proveedor y el
+proyecto no contrató servicios adicionales. No hay facturas, nóminas ni partes de horas que
+permitan acreditar los demás costos históricos. Las partidas estimadas combinan cantidades y
+precios unitarios supuestos. Las partidas de oportunidad valorizan recursos existentes.
+
+| Partida | Clase y tratamiento | Académico | Empresa base |
+|---|---|---:|---:|
+| Desarrollo e implementación | Inicial, oportunidad académica y directo empresarial | S/ 1.000,00 | S/ 3.520,00 |
+| Instalación y configuración | Inicial, horas separadas de desarrollo | S/ 100,00 | S/ 336,00 |
+| Capacitación | Inicial, tiempo de familiarización | S/ 40,00 | S/ 288,00 |
+| Compra de equipamiento adicional | Directo inicial, medio para copias | S/ 0,00 | S/ 300,00 |
+| Seguridad inicial | Directo inicial, aceptación separada | Incluida en alcance académico | S/ 240,00 |
+| Transición o interrupción inicial | Oculto inicial, tiempo fuera de formación | S/ 0,00 | S/ 96,00 |
+| Uso de equipo existente | Oportunidad compartida mensual | S/ 6,00 | S/ 20,00 |
+| Internet existente | Indirecto compartido mensual | S/ 10,00 | S/ 40,00 |
+| Consumo base común asignado | Directo compartido mensual | S/ 0,00 | S/ 10,00 |
+| Electricidad incremental | Estimado directo mensual | S/ 4,25 | S/ 10,20 |
+| Mantenimiento | Horas mensuales de soporte | S/ 50,00 | S/ 180,00 |
+| Actualizaciones | Horas mensuales separadas de mantenimiento | S/ 25,00 | S/ 60,00 |
+| Seguridad operativa | Horas mensuales separadas de soporte | S/ 25,00 | S/ 60,00 |
+| Almacenamiento y copias | Indirecto mensual, gestión y uso | S/ 2,00 | S/ 10,00 |
+| Interrupciones o coordinación | Oculto o indirecto mensual, fuera de atención | S/ 20,00 | S/ 12,00 |
+| Supervisión humana | Imputada en horas TO-BE según frecuencia HITL | Sin volumen comercial | S/ 201,60/mes dentro de la mano de obra |
+| Licencias de pago y servicios externos | Cero bajo el alcance local, con licencias por revisar para uso empresarial | S/ 0,00 | S/ 0,00 supuesto |
+
+La electricidad incremental usa 50 W durante 100 h/mes y 60 W durante 200 h/mes,
+respectivamente, a S/ 0,85/kWh. Potencia, horas y tarifa son supuestos ilustrativos.
+El escenario no conoce el consumo de un equipo del usuario ni una tarifa contratada.
+Los recursos de la semana 12 sirven para dimensionar el piloto con equipo local.
+El arranque p95 de 1,59 s, RSS de 171,27 MiB, HTTP de 5,61 ms y 24,24 ms p95, y
+Deep Agents de 602 ms p95 corresponden al benchmark. Estas mediciones no cuantifican
+la duración de atención comercial, la potencia eléctrica ni la frecuencia de errores.
+El proveedor permanece en cero. [Mediciones de la semana 12](#mediciones-y-evidencia-de-operación)
+
+### AS-IS frente a TO-BE y beneficios
+
+| Alcance común del modelo | AS-IS de referencia | TO-BE del piloto |
+|---|---|---|
+| Interpretación de la consulta | Asesor clasifica y confirma presupuesto. | A1 propone intención tipada y el asesor verifica los datos. |
+| Preparación de cotización | Busca precios y compone la cotización manualmente. | A2/A3 y herramientas devuelven una propuesta sintética para revisión. |
+| Compatibilidad y stock | Técnico y almacén verifican fichas y existencias. | A4/A5 contrastan reglas y catálogo local. Queda trabajo humano para revisar hallazgos y fuentes. |
+| Cierre de atención, excepciones y errores | Asesor comunica resultado y corrige discrepancias. | Se incluye comunicación, reproceso residual y tiempo de HITL cuando corresponda. |
+| Pasos del BPMN fuera de valoración | Pagos, despacho, ensamble y registro final permanecen fuera del alcance común. | A6 y A7 demuestran comparaciones y borradores. No se les asignan beneficios por conciliación, cobro, venta, despacho ni ensamble. |
+
+Los [BPMN AS-IS](bpmn_as_is.bpmn) y [TO-BE](bpmn_to_be.bpmn) son mapas de referencia.
+El TO-BE propone encadenar dominios y contempla IGV, conciliación y registro.
+El piloto vigente selecciona una ruta por consulta y la hipótesis modela tareas asistidas
+de los dominios comprobados. Los tiempos siguientes son minutos activos de una atención
+elegible, con el traspaso humano incluido. La duración total de cola y espera queda sin
+medir.
+
+| Supuesto mensual o por consulta | Pesimista | Base | Optimista |
+|---|---:|---:|---:|
+| Consultas elegibles al mes | 120 | 240 | 360 |
+| Rutina AS-IS / TO-BE, minutos | 20 / 11 | 20 / 8 | 20 / 7 |
+| HITL TO-BE | 60% | 35% | 25% |
+| Reproceso AS-IS / TO-BE | 12% / 10% | 12% / 6% | 12% / 4% |
+| Costo de una hora activa | S/ 20,00 | S/ 24,00 | S/ 28,00 |
+| Realización monetaria del tiempo liberado | 35% | 60% | 80% |
+| Inversión / operación específica TO-BE, factor | 1,20 / 1,25 | 1 / 1 | 1 / 1 |
+
+Todos los escenarios asignan 6 minutos adicionales a cada revisión y 12 minutos a cada
+incidente de reproceso. La rutina excluye esos dos bloques. En el base, los 20 minutos
+manuales ilustrativos se reparten entre recepción (3), cotización (9), compatibilidad (4),
+inventario (3) y comunicación (1). Los 8 minutos asistidos reservan 2, 2, 2, 1 y 1 minutos,
+respectivamente. Incluyendo revisión y reproceso, el tiempo esperado es 21,44 frente a
+10,82 minutos. El reproceso explica **S/ 69,12 al mes** del beneficio bruto base. La menor
+tarea repetitiva ya se refleja en los minutos de rutina ahorrados.
+
+El caso base libera **42,48 horas/mes**, con un valor bruto de **S/ 1.019,52/mes**,
+**S/ 12.234,24/año** y **S/ 36.702,72 en 36 meses**. La capacidad teórica
+equivale a **235 consultas adicionales/mes** al tiempo asistido supuesto, siempre que la
+capacidad se reasigne y exista demanda. El modelo no añade ingresos por esa capacidad
+porque se trata de las mismas horas que originan el beneficio. La realización monetaria
+del 60% exige evidencia futura, por ejemplo horas extra evitables o contratación evitada.
+La reducción de costos de caja es condicional a esa materialización.
+
+### TCO a 36 meses
+
+TCO económico = inversión del proceso + 36 × (soporte mensual + labor mensual).
+La labor se valoriza con minutos esperados × volumen × costo por hora / 60. Se excluyen
+inflación, impuestos, financiación y valor residual. Se mantiene una carga estable.
+Las partidas compartidas se contabilizan una vez en cada alternativa y se cancelan
+en su diferencia incremental.
+
+| Proceso | Inversión | Operación mensual | Operación anual | Acum. año 1 | Acum. año 2 | TCO año 3 |
+|---|---:|---:|---:|---:|---:|---:|
+| Académico AS-IS | S/ 0,00 | S/ 16,00 | S/ 192,00 | S/ 192,00 | S/ 384,00 | S/ 576,00 |
+| Académico TO-BE | S/ 1.140,00 | S/ 142,25 | S/ 1.707,00 | S/ 2.847,00 | S/ 4.554,00 | S/ 6.261,00 |
+| Empresa base AS-IS | S/ 0,00 | S/ 2.128,24 | S/ 25.538,88 | S/ 25.538,88 | S/ 51.077,76 | S/ 76.616,64 |
+| Empresa base TO-BE | S/ 4.780,00 | S/ 1.440,92 | S/ 17.291,04 | S/ 22.071,04 | S/ 39.362,08 | S/ 56.653,12 |
+
+El TCO empresarial pesimista aumenta de **S/ 33.393,60** en AS-IS a **S/ 45.957,00**
+en TO-BE. En el optimista cambia de **S/ 132.189,12** a **S/ 73.570,24**. Cada par
+comparte el volumen de su propio escenario.
+
+En empresa base, AS-IS incorpora S/ 2.058,24 de labor y S/ 70,00 de soporte mensual.
+TO-BE incorpora S/ 1.038,72 de labor y S/ 402,20 de soporte mensual. La diferencia de
+**S/ 19.963,52** en TCO a 36 meses valoriza todo el tiempo liberado. El cálculo de retorno
+usa solo la proporción realizable de ese valor.
+
+### Flujos, ROI, payback y VAN
+
+El flujo incremental incluye solo el beneficio realizable menos el soporte adicional.
+La inversión incremental se imputa en el año 0. El ROI divide el beneficio realizable
+menos los costos incrementales por esos costos y multiplica por 100. El año 1 y el
+acumulado incluyen la inversión. El régimen estable anual incluye operación de 12 meses.
+Con denominador cero o negativo el ROI queda sin definir. El payback usa el acumulado
+mensual, con interpolación dentro del mes de cruce y resultado no definido cuando
+no hay inversión incremental. El VAN descuenta flujos de cierre anual a 12% configurable.
+
+| Escenario | Bruto económico / mes | Realizable / mes | Neto operativo / mes | Neto 36 meses | VAN |
+|---|---:|---:|---:|---:|---:|
+| Académico | S/ 0,00 | S/ 0,00 | −S/ 126,25 | −S/ 5.685,00 | −S/ 4.778,77 |
+| Empresarial pesimista | S/ 225,60 | S/ 78,96 | −S/ 336,29 | −S/ 17.842,44 | −S/ 15.428,54 |
+| Empresarial base | S/ 1.019,52 | S/ 611,71 | S/ 279,51 | S/ 5.282,43 | S/ 3.276,09 |
+| Empresarial optimista | S/ 2.093,28 | S/ 1.674,62 | S/ 1.342,42 | S/ 43.547,26 | S/ 33.911,31 |
+
+| Escenario | Año 0 | Año 1 | Año 2 | Año 3 | ROI año 1 | ROI estable | ROI 36 meses | Payback |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| Académico | −S/ 1.140,00 | −S/ 1.515,00 | −S/ 1.515,00 | −S/ 1.515,00 | −100,00% | −100,00% | −100,00% | Sin recuperación en 36 meses |
+| Pesimista | −S/ 5.736,00 | −S/ 4.035,48 | −S/ 4.035,48 | −S/ 4.035,48 | −91,16% | −80,98% | −86,26% | Sin recuperación en 36 meses |
+| Base | −S/ 4.780,00 | S/ 3.354,14 | S/ 3.354,14 | S/ 3.354,14 | −16,27% | 84,14% | 31,56% | 17,10 meses |
+| Optimista | −S/ 4.780,00 | S/ 16.109,09 | S/ 16.109,09 | S/ 16.109,09 | 129,23% | 404,10% | 260,15% | 3,56 meses |
+
+El ahorro realizable base es **S/ 7.340,54/año**. El neto anual estable es **S/ 3.354,14**.
+Al incluir la inversión, el año 1 termina con **−S/ 1.425,86 acumulados**.
+Los importes se presentan redondeados a céntimos. Los cálculos usan Decimal y
+retienen precisión antes de redondear.
+
+### Sensibilidad y decisión condicionada
+
+Cada fila cambia una variable de la base y mantiene las demás. Las variantes de volumen,
+minutos, personal y costos cambian ±20%. La tasa cambia ±4 puntos porcentuales y la
+proporción HITL cambia ±10 puntos porcentuales.
+
+| Variable | Valor inferior → VAN | Valor superior → VAN |
+|---|---:|---:|
+| Volumen mensual | 192 → −S/ 250,06 | 288 → S/ 6.802,24 |
+| Minutos ahorrados de rutina | 9,6 → −S/ 708,26 | 14,4 → S/ 7.260,44 |
+| Costo por hora | S/ 19,20 → −S/ 250,06 | S/ 28,80 → S/ 6.802,24 |
+| Operación incremental mensual | S/ 265,76 → S/ 5.191,02 | S/ 398,64 → S/ 1.361,16 |
+| Inversión incremental | S/ 3.824,00 → S/ 4.232,09 | S/ 5.736,00 → S/ 2.320,09 |
+| Tasa de descuento | 8% → S/ 3.863,95 | 16% → S/ 2.753,04 |
+| Consultas con HITL | 25% → S/ 4.272,18 | 45% → S/ 2.280,00 |
+
+A volumen creciente y beneficio unitario positivo, el punto de equilibrio divide el costo
+fijo equivalente por el beneficio realizable por consulta y redondea al entero superior.
+La base requiere **131 consultas/mes** para cubrir operación, **183** para recuperar el
+costo no descontado en 36 meses y **196** para un VAN no negativo al 12%. En las
+hipótesis pesimista y optimista el umbral de VAN es **934** y **108**, respectivamente.
+A 240 consultas/mes y con el resto de la base fijo, el umbral de realización es
+aproximadamente **48,85%** del tiempo valorizado. El ROI positivo a 36 meses con 192 consultas
+coexiste con VAN negativo porque el descuento cambia el criterio de decisión.
+
+Para sustentar un piloto real quedan pendientes una muestra de atenciones y tiempos activos,
+demanda elegible, reprocesos y revisiones, costo laboral completo, consumo en kWh, facturas
+y cotizaciones, licencias de uso empresarial y evidencia de que el tiempo se materializa
+en menor gasto. Los umbrales se recalcularán con esos datos. Las seis revisiones humanas
+de las dos iteraciones SDD permanecen pendientes.
+
+### Reproducción y entrega de datos
+
+```sh
+python -m src.economia
+python -m src.economia --supuestos evals/economia_semana13.json > resultado-economia.json
+python -m pytest -q tests/test_economia.py
+```
+
+El perfil versionado contiene cada cantidad, unidad, alcance, periodo, origen y
+justificación. La salida JSON contiene todas las partidas, TCO por año, flujos anuales
+y acumulados mensuales, sensibilidad y métricas de retorno. Los decimales se serializan
+como texto para conservar exactitud y los indicadores sin definición como `null`.
+El cálculo es local, usa la biblioteca estándar de Python y se mantiene fuera de la API
+y de los agentes comerciales.
 
 ## Archivo histórico de la semana 10
 
