@@ -1,0 +1,40 @@
+name: Veltri - verificacion Semana 11
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'requirements*.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/semana11-fase2.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verificar:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      USE_MOCK_LLM: '1'
+      VELTRI_TRACING_ENABLED: '0'
+      VELTRI_TRACING_ALLOW_EXTERNAL: '0'
+      LANGSMITH_TRACING: 'false'
+      LANGCHAIN_TRACING_V2: 'false'
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - name: Instalar dependencias fijadas
+        run: python -m pip install -r requirements-dev.txt
+      - name: Pruebas de la fase 2
+        run: python -m pytest -q tests/test_memoria_semana11.py tests/test_deep_agents_semana11.py
+      - name: Demo de cuatro pilares
+        run: python -m src.academic.deep_agents_semana11
+      - name: Verificacion integral
+        run: python scripts/verificar.py

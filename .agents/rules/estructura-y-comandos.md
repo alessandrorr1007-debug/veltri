@@ -63,3 +63,8 @@ No existen gobernanza.py ni demo.py.
 Python 3.12 o superior, tipado y docstring corto en español por módulo.
 Nombres en minúsculas con guion bajo; __init__.py por paquete.
 Una prueba por comportamiento. No confundir escenarios dorados con flujos ya ejecutables.
+
+## Semana 11: fase 2 académica
+- `src/academic/deep_agents_semana11.py`: demo independiente de cuatro pilares, con `memoria_semana11.py` para validar evidencia.
+- `python -m src.academic.deep_agents_semana11`: evidencia local de plan, delegación y archivo virtual, sin red.
+- `python -m pytest -q tests/test_memoria_semana11.py tests/test_deep_agents_semana11.py`: regresiones de fase 2.

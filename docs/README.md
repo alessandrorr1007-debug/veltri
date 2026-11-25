@@ -34,3 +34,9 @@ Siguen pendientes las capturas auténticas y acreditar visualmente la traza Lang
 El Word conserva su fecha y sus resultados originales; las fuentes corregidas pueden
 cambiar los extractos al regenerarlo. Probar el generador en copia, sin sobrescribir
 el entregable. Sus seis figuras documentales no son capturas auténticas del panel.
+
+## Semana 11: cuatro pilares de Deep Agents
+
+- [Demostración de planificación, delegación, memoria e instrucciones](agentes/deep-agents-semana11.md).
+- Ejecutar localmente: `python -m src.academic.deep_agents_semana11`.
+- La demo es independiente de la semana 10, usa MockLLM y no acredita autonomía real ni memoria entre sesiones. La aprobación de integración requiere ejecutar la suite.
